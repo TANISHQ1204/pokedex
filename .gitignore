@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+
+# Production Build Output
+dist/
+dist-ssr/
+*.local
+
+# Environment Variables & Keys
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Temporary / Cache Files
+scripts/.cache/
+.DS_Store
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor directories
+.vscode/
+.idea/
+
+# Supabase
+supabase/
+.supabase/

@@ -1,0 +1,56 @@
+import React from 'react';
+import { NavLink } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import {
+  PokeballIcon,
+  SwordsIcon,
+  CardsIcon,
+  TrophyIcon,
+  GymBadgeIcon,
+} from './icons/GameIcons';
+
+export default function Navbar() {
+  const { user } = useAuth();
+  const avatarUrl = user?.user_metadata?.avatar_url || user?.user_metadata?.picture;
+  const fullName = user?.user_metadata?.full_name || user?.user_metadata?.name || 'Trainer Account';
+
+  return (
+    <header className="nav-bar">
+      <NavLink to="/home" style={{ textDecoration: 'none' }}>
+        <div className="nav-brand">
+          <PokeballIcon size={26} />
+          <span className="brand-text">PokéDex League</span>
+        </div>
+      </NavLink>
+
+      <nav className="nav-links">
+        <NavLink to="/home" className={({ isActive }) => (isActive ? 'active' : '')}>
+          <PokeballIcon size={18} /> Home
+        </NavLink>
+        <NavLink to="/battle" className={({ isActive }) => (isActive ? 'active' : '')}>
+          <SwordsIcon size={18} /> Battle
+        </NavLink>
+        <NavLink to="/collection" className={({ isActive }) => (isActive ? 'active' : '')}>
+          <CardsIcon size={18} /> Collection
+        </NavLink>
+        <NavLink to="/trophies" className={({ isActive }) => (isActive ? 'active' : '')}>
+          <TrophyIcon size={18} tier="gold" /> Trophies
+        </NavLink>
+        <NavLink to="/badges" className={({ isActive }) => (isActive ? 'active' : '')}>
+          <GymBadgeIcon size={18} color="#f59e0b" /> Badges
+        </NavLink>
+        <NavLink
+          to="/account"
+          className={({ isActive }) => (isActive ? 'active nav-user-link' : 'nav-user-link')}
+        >
+          {avatarUrl ? (
+            <img src={avatarUrl} alt="" className="nav-avatar" />
+          ) : (
+            <span className="nav-avatar-fallback">👤</span>
+          )}
+          <span>{fullName}</span>
+        </NavLink>
+      </nav>
+    </header>
+  );
+}
