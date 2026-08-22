@@ -8,13 +8,30 @@ export default function CardPullReveal({ awardedDrop, onContinue, onPlayAgain })
   const pokemon = awardedDrop?.pokemon;
   const entry = awardedDrop?.entry || {};
   const isNew = Boolean(awardedDrop?.isNew);
-  const becameShiny = Boolean(awardedDrop?.becameShiny || entry.is_shiny);
+  const becameShiny = Boolean(awardedDrop?.becameShiny);
   const starUpgraded = Boolean(awardedDrop?.starUpgraded);
 
   const starLevel = Math.max(1, Math.min(5, entry.star_level || 1));
   const dupesCount = entry.dupes_collected || 0;
 
+  // Live Sprite Transformation & Star Upgrade States
+  const [displayedSprite, setDisplayedSprite] = useState(pokemon?.sprites?.normal);
+  const [isShinyUnlocked, setIsShinyUnlocked] = useState(false);
+  const [isShinyTransforming, setIsShinyTransforming] = useState(false);
+  const [isStarBursting, setIsStarBursting] = useState(false);
+
   useEffect(() => {
+    if (!pokemon) return;
+
+    // Set initial artwork: if becameShiny, start with normal sprite so it can visibly transform on screen!
+    if (!becameShiny && entry.is_shiny) {
+      setDisplayedSprite(pokemon.sprites.shiny);
+      setIsShinyUnlocked(true);
+    } else {
+      setDisplayedSprite(pokemon.sprites.normal);
+      setIsShinyUnlocked(false);
+    }
+
     // Stage 1: Anticipation phase (1.2 seconds shake)
     const timer1 = setTimeout(() => {
       setStage('flipping');
@@ -26,7 +43,31 @@ export default function CardPullReveal({ awardedDrop, onContinue, onPlayAgain })
       setShowFlash(true);
     }, 1900);
 
-    // Turn off flash burst after animation ends
+    // Stage 3A: Star Upgrade Animation (if star upgraded but not shiny maxed)
+    let starTimer;
+    if (starUpgraded && !becameShiny) {
+      starTimer = setTimeout(() => {
+        setIsStarBursting(true);
+      }, 2200);
+    }
+
+    // Stage 3B: Shiny Transformation Sequence (Visually transforms normal -> shiny artwork on screen!)
+    let shinyTimer1, shinyTimer2;
+    if (becameShiny) {
+      // Trigger dramatic transformation pulse 0.6s after card flip
+      shinyTimer1 = setTimeout(() => {
+        setIsShinyTransforming(true);
+      }, 2500);
+
+      // Swap sprite artwork & complete transformation
+      shinyTimer2 = setTimeout(() => {
+        setDisplayedSprite(pokemon.sprites.shiny);
+        setIsShinyUnlocked(true);
+        setIsShinyTransforming(false);
+      }, 2900);
+    }
+
+    // Turn off initial flash burst after animation ends
     const timer3 = setTimeout(() => {
       setShowFlash(false);
     }, 3100);
@@ -35,26 +76,29 @@ export default function CardPullReveal({ awardedDrop, onContinue, onPlayAgain })
       clearTimeout(timer1);
       clearTimeout(timer2);
       clearTimeout(timer3);
+      if (starTimer) clearTimeout(starTimer);
+      if (shinyTimer1) clearTimeout(shinyTimer1);
+      if (shinyTimer2) clearTimeout(shinyTimer2);
     };
-  }, []);
+  }, [pokemon, becameShiny, starUpgraded, entry.is_shiny]);
 
   if (!pokemon) return null;
 
   // Determine flash effect type
   let flashClass = 'flash-dupe';
-  if (becameShiny) {
+  if (becameShiny || isShinyUnlocked) {
     flashClass = 'flash-shiny';
   } else if (isNew) {
     flashClass = 'flash-new';
   }
 
-  // Determine sprite artwork
-  const spriteUrl = becameShiny ? pokemon.sprites.shiny : pokemon.sprites.normal;
-
   return (
     <div className="card-reveal-overlay">
       {/* Light Flash Burst */}
       {showFlash && <div className={`flash-burst ${flashClass}`} />}
+
+      {/* Dramatic Shiny Transformation Screen Burst */}
+      {isShinyTransforming && <div className="shiny-transform-flash" />}
 
       <h2
         style={{
@@ -63,10 +107,17 @@ export default function CardPullReveal({ awardedDrop, onContinue, onPlayAgain })
           margin: '0 0 1.5rem 0',
           textTransform: 'uppercase',
           letterSpacing: '2px',
-          textShadow: '0 0 15px rgba(245, 158, 11, 0.5)',
+          textShadow: isShinyUnlocked || isShinyTransforming ? '0 0 25px rgba(250, 204, 21, 0.9)' : '0 0 15px rgba(245, 158, 11, 0.5)',
+          transition: 'all 0.3s ease',
         }}
       >
-        {stage === 'anticipating' ? '⚡ CARD PULL UNLOCKED!' : becameShiny ? '✨ SHINY CARD UNLOCKED! ✨' : '🎉 CARD REVEALED!'}
+        {stage === 'anticipating'
+          ? '⚡ CARD PULL UNLOCKED!'
+          : isShinyUnlocked || isShinyTransforming
+          ? '✨ SHINY CARD UNLOCKED! ✨'
+          : starUpgraded
+          ? '⭐ STAR LEVEL UPGRADED!'
+          : '🎉 CARD REVEALED!'}
       </h2>
 
       {/* 3D CARD CONTAINER */}
@@ -87,8 +138,12 @@ export default function CardPullReveal({ awardedDrop, onContinue, onPlayAgain })
           </div>
 
           {/* CARD FRONT SIDE */}
-          <div className={`card-face card-front ${becameShiny ? 'is-shiny-card' : ''}`}>
-            {becameShiny && <div className="shiny-sparkle-overlay" />}
+          <div
+            className={`card-face card-front ${isShinyUnlocked ? 'is-shiny-card' : ''} ${
+              isStarBursting ? 'card-star-glow' : ''
+            }`}
+          >
+            {isShinyUnlocked && <div className="shiny-sparkle-overlay" />}
 
             <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center', marginBottom: '0.5rem' }}>
               <span style={{ fontSize: '1.1rem', fontWeight: 800, color: '#f8fafc', textTransform: 'capitalize' }}>
@@ -105,20 +160,33 @@ export default function CardPullReveal({ awardedDrop, onContinue, onPlayAgain })
 
             <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
               <img
-                src={spriteUrl}
+                src={displayedSprite}
                 alt={pokemon.name}
+                className={isShinyTransforming ? 'shiny-sprite-transform' : ''}
                 style={{
                   width: '140px',
                   height: '140px',
                   objectFit: 'contain',
                   filter: 'drop-shadow(0 10px 15px rgba(0, 0, 0, 0.5))',
+                  transition: 'all 0.4s ease-in-out',
                 }}
               />
             </div>
 
             <div style={{ marginTop: 'auto', textAlign: 'center', width: '100%' }}>
               <div style={{ fontSize: '1.35rem', color: '#fbbf24', letterSpacing: '2px', margin: '0.2rem 0' }}>
-                {'⭐'.repeat(starLevel)}
+                {Array.from({ length: starLevel }).map((_, sIdx) => {
+                  const isNewestStar = isStarBursting && sIdx === starLevel - 1;
+                  return (
+                    <span
+                      key={sIdx}
+                      className={isNewestStar ? 'star-upgrade-burst' : ''}
+                      style={{ display: 'inline-block', margin: '0 1px' }}
+                    >
+                      ⭐
+                    </span>
+                  );
+                })}
               </div>
               <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
                 ID #{pokemon.id.toString().padStart(3, '0')}
@@ -132,19 +200,19 @@ export default function CardPullReveal({ awardedDrop, onContinue, onPlayAgain })
       <div style={{ minHeight: '120px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.75rem' }}>
         {stage === 'revealed' && (
           <>
-            {becameShiny && (
+            {(becameShiny || isShinyUnlocked) && (
               <div className="card-badge-shiny">
                 ✨ MAXED — SHINY UNLOCKED! ✨
               </div>
             )}
 
-            {!becameShiny && isNew && (
+            {!isShinyUnlocked && !becameShiny && isNew && (
               <div className="card-badge-new">
                 🌟 NEW CARD COLLECTED!
               </div>
             )}
 
-            {!becameShiny && !isNew && starUpgraded && (
+            {!isShinyUnlocked && !becameShiny && !isNew && starUpgraded && (
               <div className="card-badge-new" style={{ background: 'linear-gradient(90deg, #0284c7, #38bdf8)' }}>
                 ⭐ STAR LEVEL UPGRADED! (Star {starLevel})
               </div>

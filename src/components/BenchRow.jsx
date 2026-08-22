@@ -61,6 +61,20 @@ export default function BenchRow({
             }}
           >
             <img src={pkmn.sprites?.normal} alt={pkmn.name} />
+            {!isFainted && ((pkmn.status && pkmn.status !== 'none') || pkmn.confusion) && (
+              <div className="bench-status-badge">
+                {pkmn.status && pkmn.status !== 'none' && (
+                  <span className={`bench-status-pill status-${pkmn.status.slice(0, 3)}`}>
+                    {pkmn.status === 'paralysis' ? 'PAR' : pkmn.status === 'poison' ? 'PSN' : pkmn.status === 'burn' ? 'BRN' : pkmn.status === 'sleep' ? 'SLP' : 'FRZ'}
+                  </span>
+                )}
+                {pkmn.confusion && (
+                  <span className="bench-status-pill status-conf">
+                    CONF
+                  </span>
+                )}
+              </div>
+            )}
           </div>
         );
       })}

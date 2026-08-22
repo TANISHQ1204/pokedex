@@ -1,6 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { generateRandomTeam, calculateDamage, applyStatusMove, selectCpuMove, shouldCpuSwitch, STRUGGLE_MOVE } from '../game/battle';
+import {
+  generateRandomTeam,
+  calculateDamage,
+  applyStatusMove,
+  selectCpuMove,
+  shouldCpuSwitch,
+  STRUGGLE_MOVE,
+  checkTurnStartStatus,
+  applyEndOfTurnStatus,
+  applyStatusCondition,
+  getMoveStatusEffect,
+  getEffectiveSpeed,
+} from '../game/battle';
 import { rollCardDrop } from '../game/drops';
 import { getUserCollection, awardCard } from '../store/collection';
 import { useAuth } from '../context/AuthContext';
@@ -42,6 +54,7 @@ export default function Battle() {
   const [hurtSide, setHurtSide] = useState(null); // 'player' | 'cpu' | null
   const [faintSide, setFaintSide] = useState(null); // 'player' | 'cpu' | null
   const [superShake, setSuperShake] = useState(false);
+  const [ohkoFlash, setOhkoFlash] = useState(false);
   const [activeProjectile, setActiveProjectile] = useState(null); // { type, side }
   const [healGlowSide, setHealGlowSide] = useState(null); // 'player' | 'cpu' | null
 
@@ -117,6 +130,13 @@ export default function Battle() {
     };
 
     battleStateRef.current[teamKey] = updatedTeam;
+    if (side === 'player') setPlayerTeam(updatedTeam);
+    else setCpuTeam(updatedTeam);
+  };
+
+  const syncTeamState = (side) => {
+    const teamKey = side === 'player' ? 'playerTeam' : 'cpuTeam';
+    const updatedTeam = [...battleStateRef.current[teamKey]];
     if (side === 'player') setPlayerTeam(updatedTeam);
     else setCpuTeam(updatedTeam);
   };
@@ -220,6 +240,7 @@ export default function Battle() {
               { side: 'cpu', pkmn: currentCpu, move: cpuMove, moveIdx: cpuMoveIdx },
               { side: 'player', pkmn: newPlayer }
             );
+            await processEndOfTurnStatus();
             await handleFaintCheck();
           }
         }
@@ -287,7 +308,8 @@ export default function Battle() {
           { side: 'player', pkmn: playerPkmn, move: playerMove, moveIdx: selectedMoveIdx },
           { side: 'cpu', pkmn: cpuPkmn }
         );
-        if (fainted) {
+        await processEndOfTurnStatus();
+        if (fainted || (playerPkmn.currentHp <= 0) || (cpuPkmn.currentHp <= 0)) {
           await handleFaintCheck();
         }
         return;
@@ -296,8 +318,8 @@ export default function Battle() {
       const { moveIdx: cpuMoveIdx, move: cpuMove } = selectCpuMove(cpuPkmn, playerPkmn);
       if (!cpuMove) return;
 
-      const playerSpeed = playerPkmn.stats.speed;
-      const cpuSpeed = cpuPkmn.stats.speed;
+      const playerSpeed = getEffectiveSpeed(playerPkmn);
+      const cpuSpeed = getEffectiveSpeed(cpuPkmn);
       const playerFirst = playerSpeed > cpuSpeed || (playerSpeed === cpuSpeed && Math.random() < 0.5);
 
       const firstAttacker = playerFirst
@@ -321,12 +343,44 @@ export default function Battle() {
         const fainted2 = await executeTurn(secondAttacker, firstAttacker);
         if (fainted2) {
           await handleFaintCheck();
+          return;
         }
       }
+
+      // End of turn status damage ticks (Poison & Burn)
+      await processEndOfTurnStatus();
+      await handleFaintCheck();
     } catch (err) {
       console.error('Error during move execution:', err);
     } finally {
       setIsBusy(false);
+    }
+  };
+
+  const processEndOfTurnStatus = async () => {
+    const pPkmn = getActivePokemon('player');
+    const cPkmn = getActivePokemon('cpu');
+
+    if (pPkmn && pPkmn.currentHp > 0) {
+      const pLogs = applyEndOfTurnStatus(pPkmn);
+      if (pLogs.length > 0) {
+        pLogs.forEach((l) => addLog(l.text, l.options || {}));
+        updatePokemonHp('player', getActiveIndex('player'), pPkmn.currentHp);
+        setHurtSide('player');
+        await delay(350);
+        setHurtSide(null);
+      }
+    }
+
+    if (cPkmn && cPkmn.currentHp > 0) {
+      const cLogs = applyEndOfTurnStatus(cPkmn);
+      if (cLogs.length > 0) {
+        cLogs.forEach((l) => addLog(l.text, l.options || {}));
+        updatePokemonHp('cpu', getActiveIndex('cpu'), cPkmn.currentHp);
+        setHurtSide('cpu');
+        await delay(350);
+        setHurtSide(null);
+      }
     }
   };
 
@@ -343,7 +397,25 @@ export default function Battle() {
       return false;
     }
 
-    // Mark that this attacker has attacked (satisfying 1-attack switch requirement)
+    // 1. Check Turn-Start Status (Sleep, Freeze, Paralysis, Confusion)
+    const turnStatusRes = checkTurnStartStatus(attacker, move);
+    if (turnStatusRes.logs && turnStatusRes.logs.length > 0) {
+      turnStatusRes.logs.forEach((log) => addLog(log.text, log.options || {}));
+    }
+    syncTeamState(attackerSide);
+
+    if (turnStatusRes.cantMove) {
+      if (turnStatusRes.hurtSelf) {
+        setHurtSide(attackerSide);
+        await delay(400);
+        setHurtSide(null);
+        updatePokemonHp(attackerSide, getActiveIndex(attackerSide), attacker.currentHp);
+      }
+      await delay(300);
+      return attacker.currentHp <= 0;
+    }
+
+    // Mark that this attacker has attacked
     markAttacked(attackerSide);
 
     const attackerName = attackerSide === 'player' ? attacker.name.toUpperCase() : `Opponent's ${attacker.name.toUpperCase()}`;
@@ -359,6 +431,54 @@ export default function Battle() {
     await delay(300);
     setLungeSide(null);
 
+    // 2. Type Immunity Check (BEFORE Accuracy Roll!)
+    // Self-targeted status moves (healing / stat buffs) bypass type immunity check
+    const isSelfTargetStatus = move.category === 'status' && (move.healPercent || move.statBuff);
+    if (!isSelfTargetStatus && !move.isStruggle) {
+      const effectiveness = getTypeEffectiveness(move.type, defender.types);
+      if (effectiveness === 0) {
+        addLog(`It had no effect on ${defenderName}!`);
+        await delay(300);
+        return false;
+      }
+    }
+
+    // 3. Move Accuracy Roll
+    if (!isSelfTargetStatus && !move.isStruggle) {
+      const accuracy = getMoveAccuracy(move);
+      if (accuracy < 100) {
+        const hitRoll = Math.random() * 100;
+        if (hitRoll > accuracy) {
+          addLog(`${attackerName}'s attack missed!`);
+          await delay(300);
+          return false;
+        }
+      }
+    }
+
+    // 4. One-Hit KO Move Check (Fissure, Guillotine, Horn Drill, Sheer Cold)
+    if (isOhkoMove(move)) {
+      setActiveProjectile({ type: move.type, side: attackerSide });
+      await delay(450);
+      setActiveProjectile(null);
+
+      const ohkoDamage = defender.currentHp;
+      setHurtSide(defenderSide);
+      setSuperShake(true);
+      setOhkoFlash(true);
+      await delay(750);
+      setHurtSide(null);
+      setSuperShake(false);
+      setOhkoFlash(false);
+
+      updatePokemonHp(defenderSide, getActiveIndex(defenderSide), 0);
+      addLog(`💥 IT'S A ONE-HIT KO! (Dealt ${ohkoDamage} damage to ${defenderName})`, { isSuperEffective: true });
+
+      await delay(400);
+      return true;
+    }
+
+    // 5. Handle Standard Status Category Moves
     if (move.category === 'status') {
       const statusRes = applyStatusMove(attacker, move);
       if (statusRes.type === 'heal') {
@@ -379,10 +499,22 @@ export default function Battle() {
       } else {
         addLog(`${attackerName}'s ${move.name} ${statusRes.effectDescription}!`);
       }
+
+      // Check if move inflicts a status condition (e.g. Thunder Wave, Will-O-Wisp, Toxic, Sleep Powder)
+      const statusSpec = getMoveStatusEffect(move);
+      if (statusSpec && statusSpec.condition) {
+        const inflictRes = applyStatusCondition(defender, statusSpec.condition, 1.0, statusSpec.chance ?? 1.0);
+        if (inflictRes.message) {
+          addLog(inflictRes.message, { isSuperEffective: inflictRes.success });
+        }
+        syncTeamState(defenderSide);
+      }
+
       await delay(300);
       return false;
     }
 
+    // 6. Handle Standard Attacking Category Moves (Physical / Special)
     setActiveProjectile({ type: move.type, side: attackerSide });
     await delay(450);
     setActiveProjectile(null);
@@ -406,6 +538,18 @@ export default function Battle() {
       addLog(`It's not very effective... (Dealt ${damageRes.damage} damage)`);
     } else {
       addLog(`Dealt ${damageRes.damage} damage to ${defenderName}.`);
+    }
+
+    // Secondary Status Effect Check for damaging moves (e.g. Thunderbolt 10% par, Flamethrower 10% brn, Sludge Bomb 30% psn)
+    if (newDefenderHp > 0) {
+      const statusSpec = getMoveStatusEffect(move);
+      if (statusSpec && statusSpec.condition) {
+        const inflictRes = applyStatusCondition(defender, statusSpec.condition, 1.0, statusSpec.chance ?? 1.0);
+        if (inflictRes.success && inflictRes.message) {
+          addLog(inflictRes.message, { isSuperEffective: true });
+          syncTeamState(defenderSide);
+        }
+      }
     }
 
     if (damageRes.recoil > 0) {
@@ -530,7 +674,10 @@ export default function Battle() {
         </button>
       </div>
 
-      <div className={`battle-container ${superShake ? 'super-shake' : ''}`}>
+      <div className={`battle-container ${superShake ? 'super-shake' : ''} ${ohkoFlash ? 'ohko-shake' : ''}`}>
+        {/* OHKO Dramatic Flash Screen Overlay */}
+        {ohkoFlash && <div className="ohko-flash-overlay" />}
+
         {/* Particle/Projectile Overlay */}
         <div className="projectile-overlay">
           {activeProjectile && (
@@ -564,6 +711,22 @@ export default function Battle() {
 
               <HpBar currentHp={cpuActive.currentHp} maxHp={cpuActive.maxHp} />
 
+              {/* CPU Status Badges */}
+              {(cpuActive.status !== 'none' || cpuActive.confusion) && (
+                <div className="status-badge-container">
+                  {cpuActive.status && cpuActive.status !== 'none' && (
+                    <span className={`status-badge status-${cpuActive.status.slice(0, 3)}`}>
+                      {cpuActive.status === 'paralysis' ? 'PAR' : cpuActive.status === 'poison' ? 'PSN' : cpuActive.status === 'burn' ? 'BRN' : cpuActive.status === 'sleep' ? 'SLP' : 'FRZ'}
+                    </span>
+                  )}
+                  {cpuActive.confusion && (
+                    <span className="status-badge status-conf">
+                      CONF
+                    </span>
+                  )}
+                </div>
+              )}
+
               {/* CPU Stat Buff Badges */}
               {cpuActiveState.activeBuffs.length > 0 && (
                 <div className="buff-badge-container">
@@ -582,10 +745,25 @@ export default function Battle() {
                   ${lungeSide === 'cpu' ? 'lunge-opponent' : ''}
                   ${hurtSide === 'cpu' ? 'hurt-shake' : ''}
                   ${faintSide === 'cpu' ? 'faint-drop' : ''}
+                  ${cpuActive.status === 'sleep' ? 'status-overlay-slp' : ''}
                 `}
               >
                 <img src={cpuActive.sprites.normal} alt={cpuActive.name} />
               </div>
+
+              {/* CPU Status Visual Effect Overlays */}
+              {cpuActive.status === 'freeze' && <div className="status-overlay-frz" />}
+              {cpuActive.status === 'sleep' && <div className="zzz-floating-icon">Zzz...</div>}
+              {cpuActive.status === 'burn' && <div className="burn-ember-container" />}
+              {cpuActive.status === 'poison' && <div className="poison-bubble-container" />}
+              {cpuActive.status === 'paralysis' && <div className="paralysis-spark-container" />}
+              {cpuActive.confusion && (
+                <div className="confusion-dizzy-container">
+                  <span className="confusion-star">💫</span>
+                  <span className="confusion-star">⭐</span>
+                  <span className="confusion-star">✨</span>
+                </div>
+              )}
               {healGlowSide === 'cpu' && <div className="heal-glow" />}
             </div>
           </div>
@@ -598,10 +776,25 @@ export default function Battle() {
                   ${lungeSide === 'player' ? 'lunge-player' : ''}
                   ${hurtSide === 'player' ? 'hurt-shake' : ''}
                   ${faintSide === 'player' ? 'faint-drop' : ''}
+                  ${playerActive.status === 'sleep' ? 'status-overlay-slp' : ''}
                 `}
               >
                 <img src={playerActive.sprites.normal} alt={playerActive.name} />
               </div>
+
+              {/* Player Status Visual Effect Overlays */}
+              {playerActive.status === 'freeze' && <div className="status-overlay-frz" />}
+              {playerActive.status === 'sleep' && <div className="zzz-floating-icon">Zzz...</div>}
+              {playerActive.status === 'burn' && <div className="burn-ember-container" />}
+              {playerActive.status === 'poison' && <div className="poison-bubble-container" />}
+              {playerActive.status === 'paralysis' && <div className="paralysis-spark-container" />}
+              {playerActive.confusion && (
+                <div className="confusion-dizzy-container">
+                  <span className="confusion-star">💫</span>
+                  <span className="confusion-star">⭐</span>
+                  <span className="confusion-star">✨</span>
+                </div>
+              )}
               {healGlowSide === 'player' && <div className="heal-glow" />}
             </div>
 
@@ -618,6 +811,22 @@ export default function Battle() {
               </div>
 
               <HpBar currentHp={playerActive.currentHp} maxHp={playerActive.maxHp} />
+
+              {/* Player Status Badges */}
+              {(playerActive.status !== 'none' || playerActive.confusion) && (
+                <div className="status-badge-container">
+                  {playerActive.status && playerActive.status !== 'none' && (
+                    <span className={`status-badge status-${playerActive.status.slice(0, 3)}`}>
+                      {playerActive.status === 'paralysis' ? 'PAR' : playerActive.status === 'poison' ? 'PSN' : playerActive.status === 'burn' ? 'BRN' : playerActive.status === 'sleep' ? 'SLP' : 'FRZ'}
+                    </span>
+                  )}
+                  {playerActive.confusion && (
+                    <span className="status-badge status-conf">
+                      CONF
+                    </span>
+                  )}
+                </div>
+              )}
 
               {/* Player Stat Buff Badges */}
               {playerActiveState.activeBuffs.length > 0 && (
@@ -681,6 +890,8 @@ export default function Battle() {
               const currentPp = move.currentPp ?? move.pp;
               const maxPp = move.maxPp ?? move.pp;
               const isPpDepleted = currentPp <= 0;
+              const moveAcc = getMoveAccuracy(move);
+              const isOhko = isOhkoMove(move);
 
               return (
                 <div key={move.id || idx} className="move-btn-wrapper">
@@ -705,7 +916,7 @@ export default function Battle() {
                       <span style={{ textTransform: 'capitalize', color: '#38bdf8' }}>{move.category}</span>
                     </div>
                     <div style={{ fontSize: '0.75rem', color: '#cbd5e1', marginBottom: '0.4rem' }}>
-                      Type: <strong style={{ textTransform: 'capitalize' }}>{move.type}</strong> | Power: <strong>{move.power || 'Status'}</strong> | PP: <strong>{currentPp}/{maxPp}</strong>
+                      Type: <strong style={{ textTransform: 'capitalize' }}>{move.type}</strong> | Power: <strong>{isOhko ? 'OHKO' : move.power || 'Status'}</strong> | Acc: <strong>{moveAcc}%{isOhko ? ' (OHKO)' : ''}</strong> | PP: <strong>{currentPp}/{maxPp}</strong>
                     </div>
                     <p style={{ margin: 0, color: '#94a3b8', fontSize: '0.78rem' }}>{move.effect}</p>
                   </div>

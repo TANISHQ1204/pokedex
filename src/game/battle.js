@@ -14,24 +14,42 @@ export const STRUGGLE_MOVE = {
 };
 
 /**
- * Type effectiveness table for starter types: grass, poison, fire, water, flying, normal, dragon, steel.
+ * Complete 18x18 Type effectiveness table (Gen 6+ rules, including Fairy type).
+ * Maps attacking type -> defending type -> multiplier.
+ * Any unlisted defending type defaults to 1.0 (normal effectiveness).
  */
 export const TYPE_CHART = {
-  fire: { grass: 2.0, water: 0.5, fire: 0.5, poison: 1.0, flying: 1.0, normal: 1.0, dragon: 0.5, steel: 2.0 },
-  water: { fire: 2.0, grass: 0.5, water: 0.5, poison: 1.0, flying: 1.0, normal: 1.0, dragon: 0.5, steel: 1.0 },
-  grass: { water: 2.0, fire: 0.5, grass: 0.5, poison: 0.5, flying: 0.5, normal: 1.0, dragon: 0.5, steel: 0.5 },
-  poison: { grass: 2.0, poison: 0.5, fire: 1.0, water: 1.0, flying: 1.0, normal: 1.0, dragon: 1.0, steel: 0.0 },
-  flying: { grass: 2.0, fire: 1.0, water: 1.0, poison: 1.0, flying: 1.0, normal: 1.0, dragon: 1.0, steel: 0.5 },
-  normal: { fire: 1.0, water: 1.0, grass: 1.0, poison: 1.0, flying: 1.0, normal: 1.0, dragon: 1.0, steel: 0.5 },
-  dragon: { fire: 1.0, water: 1.0, grass: 1.0, poison: 1.0, flying: 1.0, normal: 1.0, dragon: 2.0, steel: 0.5 },
-  steel: { fire: 0.5, water: 0.5, grass: 1.0, poison: 1.0, flying: 1.0, normal: 1.0, dragon: 1.0, steel: 0.5 },
+  normal: { rock: 0.5, ghost: 0.0, steel: 0.5 },
+  fire: { fire: 0.5, water: 0.5, grass: 2.0, ice: 2.0, bug: 2.0, rock: 0.5, dragon: 0.5, steel: 2.0 },
+  water: { fire: 2.0, water: 0.5, grass: 0.5, ground: 2.0, rock: 2.0, dragon: 0.5 },
+  grass: { fire: 0.5, water: 2.0, grass: 0.5, poison: 0.5, ground: 2.0, flying: 0.5, bug: 0.5, rock: 2.0, dragon: 0.5, steel: 0.5 },
+  electric: { water: 2.0, grass: 0.5, electric: 0.5, ground: 0.0, flying: 2.0, dragon: 0.5 },
+  ice: { fire: 0.5, water: 0.5, grass: 2.0, ice: 0.5, ground: 2.0, flying: 2.0, dragon: 2.0, steel: 0.5 },
+  fighting: { normal: 2.0, ice: 2.0, poison: 0.5, flying: 0.5, psychic: 0.5, bug: 0.5, rock: 2.0, ghost: 0.0, dark: 2.0, steel: 2.0, fairy: 0.5 },
+  poison: { grass: 2.0, poison: 0.5, ground: 0.5, rock: 0.5, ghost: 0.5, steel: 0.0, fairy: 2.0 },
+  ground: { fire: 2.0, electric: 2.0, grass: 0.5, poison: 2.0, flying: 0.0, bug: 0.5, rock: 2.0, steel: 2.0 },
+  flying: { grass: 2.0, electric: 0.5, fighting: 2.0, bug: 2.0, rock: 0.5, steel: 0.5 },
+  psychic: { fighting: 2.0, poison: 2.0, psychic: 0.5, dark: 0.0, steel: 0.5 },
+  bug: { fire: 0.5, grass: 2.0, fighting: 0.5, poison: 0.5, flying: 0.5, psychic: 2.0, ghost: 0.5, dark: 2.0, steel: 0.5, fairy: 0.5 },
+  rock: { fire: 2.0, ice: 2.0, fighting: 0.5, ground: 0.5, flying: 2.0, bug: 2.0, steel: 0.5 },
+  ghost: { normal: 0.0, psychic: 2.0, ghost: 2.0, dark: 0.5 },
+  dragon: { dragon: 2.0, steel: 0.5, fairy: 0.0 },
+  dark: { fighting: 0.5, psychic: 2.0, ghost: 2.0, dark: 0.5, fairy: 0.5 },
+  steel: { fire: 0.5, water: 0.5, electric: 0.5, ice: 2.0, rock: 2.0, steel: 0.5, fairy: 2.0 },
+  fairy: { fire: 0.5, fighting: 2.0, poison: 0.5, dragon: 2.0, dark: 2.0, steel: 0.5 },
 };
 
 /**
  * Calculate type effectiveness multiplier.
+ * Correctly multiplies effectiveness across single or dual-type defenders.
  */
 export function getTypeEffectiveness(moveType, defenderTypes) {
-  if (!moveType || !defenderTypes || !Array.isArray(defenderTypes)) {
+  if (!moveType || !defenderTypes) {
+    return 1.0;
+  }
+
+  const types = Array.isArray(defenderTypes) ? defenderTypes : [defenderTypes];
+  if (types.length === 0) {
     return 1.0;
   }
 
@@ -40,66 +58,17 @@ export function getTypeEffectiveness(moveType, defenderTypes) {
     return 1.0;
   }
 
-  return defenderTypes.reduce((multiplier, defType) => {
+  return types.reduce((multiplier, defType) => {
+    if (!defType || typeof defType !== 'string') return multiplier;
     const factor = moveChart[defType.toLowerCase()] ?? 1.0;
     return multiplier * factor;
   }, 1.0);
 }
 
-/**
- * Damage calculation formula.
- */
-export function calculateDamage(attacker, defender, move) {
-  if (!move || move.category === 'status' || move.power <= 0) {
-    return {
-      damage: 0,
-      recoil: 0,
-      effectiveness: 1.0,
-      stab: false,
-      isSuperEffective: false,
-      isNotVeryEffective: false,
-    };
-  }
 
-  let atkStat = 1;
-  let defStat = 1;
-
-  if (move.category === 'special') {
-    atkStat = attacker.stats.specialAttack || 1;
-    defStat = defender.stats.specialDefense || 1;
-  } else {
-    atkStat = attacker.stats.attack || 1;
-    defStat = defender.stats.defense || 1;
-  }
-
-  const isStab = Array.isArray(attacker.types) && attacker.types.includes(move.type.toLowerCase());
-  const stabMultiplier = isStab ? 1.5 : 1.0;
-  const effectiveness = getTypeEffectiveness(move.type, defender.types);
-
-  const level = 50;
-  const baseDamage = Math.floor(
-    (((2 * level / 5 + 2) * move.power * (atkStat / defStat)) / 50 + 2) * stabMultiplier * effectiveness
-  );
-
-  const finalDamage = Math.max(1, baseDamage);
-
-  let recoil = 0;
-  if (move.isStruggle) {
-    recoil = Math.max(1, Math.floor(finalDamage * 0.25));
-  }
-
-  return {
-    damage: finalDamage,
-    recoil,
-    effectiveness,
-    stab: isStab,
-    isSuperEffective: effectiveness > 1.0,
-    isNotVeryEffective: effectiveness < 1.0 && effectiveness > 0,
-  };
-}
 
 /**
- * Applies a status move effect and returns buff badge string if applicable.
+ * Applies a status move effect and returns buff/heal/status result object.
  */
 export function applyStatusMove(pokemon, move) {
   if (!move || move.category !== 'status') {
@@ -139,6 +108,397 @@ export function applyStatusMove(pokemon, move) {
     type: 'status',
     target: pokemon.name,
     effectDescription: move.effect || 'Status effect applied.',
+  };
+}
+
+/**
+ * Move status effect metadata mapping.
+ */
+export const MOVE_STATUS_MAP = {
+  // Pure Status Moves
+  thunder_wave: { condition: 'paralysis', chance: 1.0, accuracy: 0.90 },
+  will_o_wisp: { condition: 'burn', chance: 1.0, accuracy: 0.85 },
+  toxic: { condition: 'poison', chance: 1.0, accuracy: 0.90 },
+  poison_powder: { condition: 'poison', chance: 1.0, accuracy: 0.75 },
+  poison_gas: { condition: 'poison', chance: 1.0, accuracy: 0.90 },
+  sleep_powder: { condition: 'sleep', chance: 1.0, accuracy: 0.75 },
+  hypnosis: { condition: 'sleep', chance: 1.0, accuracy: 0.60 },
+  sing: { condition: 'sleep', chance: 1.0, accuracy: 0.55 },
+  spore: { condition: 'sleep', chance: 1.0, accuracy: 1.00 },
+  confuse_ray: { condition: 'confusion', chance: 1.0, accuracy: 1.00 },
+  supersonic: { condition: 'confusion', chance: 1.0, accuracy: 0.55 },
+  stun_spore: { condition: 'paralysis', chance: 1.0, accuracy: 0.75 },
+  glare: { condition: 'paralysis', chance: 1.0, accuracy: 1.00 },
+
+  // Damaging Moves with Secondary Effects
+  thunderbolt: { condition: 'paralysis', chance: 0.10, accuracy: 1.0 },
+  thunder: { condition: 'paralysis', chance: 0.30, accuracy: 0.70 },
+  discharge: { condition: 'paralysis', chance: 0.30, accuracy: 1.0 },
+  spark: { condition: 'paralysis', chance: 0.30, accuracy: 1.0 },
+  body_slam: { condition: 'paralysis', chance: 0.30, accuracy: 1.0 },
+
+  flamethrower: { condition: 'burn', chance: 0.10, accuracy: 1.0 },
+  fire_blast: { condition: 'burn', chance: 0.10, accuracy: 0.85 },
+  scald: { condition: 'burn', chance: 0.30, accuracy: 1.0 },
+  heat_wave: { condition: 'burn', chance: 0.10, accuracy: 0.90 },
+  lava_plume: { condition: 'burn', chance: 0.30, accuracy: 1.0 },
+
+  ice_beam: { condition: 'freeze', chance: 0.10, accuracy: 1.0 },
+  blizzard: { condition: 'freeze', chance: 0.10, accuracy: 0.70 },
+  ice_punch: { condition: 'freeze', chance: 0.10, accuracy: 1.0 },
+
+  sludge_bomb: { condition: 'poison', chance: 0.30, accuracy: 1.0 },
+  poison_jab: { condition: 'poison', chance: 0.30, accuracy: 1.0 },
+  sludge_wave: { condition: 'poison', chance: 0.10, accuracy: 1.0 },
+
+  water_pulse: { condition: 'confusion', chance: 0.20, accuracy: 1.0 },
+  confusion: { condition: 'confusion', chance: 0.10, accuracy: 1.0 },
+  psybeam: { condition: 'confusion', chance: 0.10, accuracy: 1.0 },
+  hurricane: { condition: 'confusion', chance: 0.30, accuracy: 0.70 },
+};
+
+/**
+ * One-Hit KO (OHKO) moves set.
+ */
+export const OHKO_MOVES = new Set(['fissure', 'guillotine', 'horn_drill', 'sheer_cold']);
+
+/**
+ * Move accuracy mapping (0 - 100 percentage scale).
+ * Unlisted moves default to 100%.
+ */
+export const MOVE_ACCURACY_MAP = {
+  // OHKO Moves (Flat 30% accuracy)
+  fissure: 30,
+  guillotine: 30,
+  horn_drill: 30,
+  sheer_cold: 30,
+
+  // Lower Accuracy Moves
+  thunder: 70,
+  blizzard: 70,
+  focus_blast: 70,
+  hurricane: 70,
+  iron_tail: 75,
+  hypnosis: 60,
+  sing: 55,
+  supersonic: 55,
+  sleep_powder: 75,
+  poison_powder: 75,
+  stun_spore: 75,
+  hydro_pump: 80,
+  stone_edge: 80,
+  will_o_wisp: 85,
+  fire_blast: 85,
+  megahorn: 85,
+  toxic: 90,
+  thunder_wave: 90,
+  play_rough: 90,
+  heat_wave: 90,
+  rock_slide: 90,
+  air_slash: 95,
+};
+
+/**
+ * Checks if a move is a One-Hit KO move.
+ */
+export function isOhkoMove(move) {
+  if (!move || !move.id) return false;
+  const id = move.id.toLowerCase();
+  return OHKO_MOVES.has(id) || (move.effect && move.effect.toLowerCase().includes('one-hit ko'));
+}
+
+/**
+ * Gets accuracy value (0 - 100) for a given move.
+ */
+export function getMoveAccuracy(move) {
+  if (!move) return 100;
+  if (typeof move.accuracy === 'number') return move.accuracy;
+  if (isOhkoMove(move)) return 30;
+
+  const mapped = MOVE_ACCURACY_MAP[move.id?.toLowerCase()];
+  if (typeof mapped === 'number') return mapped;
+
+  return 100;
+}
+
+/**
+ * Resolves the status effect configuration for a move.
+ */
+export function getMoveStatusEffect(move) {
+  if (!move) return null;
+
+  if (move.statusEffect) {
+    return move.statusEffect;
+  }
+
+  const mapped = MOVE_STATUS_MAP[move.id];
+  if (mapped) return mapped;
+
+  // Infer from move effect description or name if unmapped
+  const text = `${move.id} ${move.name} ${move.effect || ''}`.toLowerCase();
+  if (text.includes('paralyz') || text.includes('paralys')) {
+    return { condition: 'paralysis', chance: move.category === 'status' ? 1.0 : 0.10, accuracy: 1.0 };
+  }
+  if (text.includes('burn')) {
+    return { condition: 'burn', chance: move.category === 'status' ? 1.0 : 0.10, accuracy: 1.0 };
+  }
+  if (text.includes('poison')) {
+    return { condition: 'poison', chance: move.category === 'status' ? 1.0 : 0.30, accuracy: 1.0 };
+  }
+  if (text.includes('sleep') || text.includes('asleep')) {
+    return { condition: 'sleep', chance: 1.0, accuracy: 0.75 };
+  }
+  if (text.includes('frozen') || text.includes('freeze')) {
+    return { condition: 'freeze', chance: move.category === 'status' ? 1.0 : 0.10, accuracy: 1.0 };
+  }
+  if (text.includes('confus')) {
+    return { condition: 'confusion', chance: move.category === 'status' ? 1.0 : 0.20, accuracy: 1.0 };
+  }
+
+  return null;
+}
+
+/**
+ * Attempts to apply a status condition to a target Pokémon.
+ * Enforces type immunities, accuracy checks, infliction chance, and status mutual exclusivity.
+ */
+export function applyStatusCondition(target, condition, moveAccuracy = 1.0, inflictionChance = 1.0) {
+  if (!target || !condition || condition === 'none') {
+    return { success: false, reason: 'none' };
+  }
+
+  const targetName = target.name.toUpperCase();
+  const types = Array.isArray(target.types) ? target.types.map((t) => t.toLowerCase()) : [];
+
+  // 1. Check Type Immunities
+  if (condition === 'poison' && (types.includes('poison') || types.includes('steel'))) {
+    return { success: false, reason: 'immune', message: `${targetName} is immune to poison!` };
+  }
+  if (condition === 'burn' && types.includes('fire')) {
+    return { success: false, reason: 'immune', message: `${targetName} is immune to burn!` };
+  }
+  if (condition === 'paralysis' && types.includes('electric')) {
+    return { success: false, reason: 'immune', message: `${targetName} is immune to paralysis!` };
+  }
+  if (condition === 'freeze' && types.includes('ice')) {
+    return { success: false, reason: 'immune', message: `${targetName} is immune to freezing!` };
+  }
+
+  // 2. Accuracy & Infliction Chance Rolls
+  if (Math.random() > moveAccuracy) {
+    return { success: false, reason: 'miss', message: `The attack missed!` };
+  }
+  if (Math.random() > inflictionChance) {
+    return { success: false, reason: 'chance_failed' };
+  }
+
+  // 3. Status Application & Exclusivity Checks
+  if (condition === 'confusion') {
+    if (target.confusion) {
+      return { success: false, reason: 'already_confused', message: `${targetName} is already confused!` };
+    }
+    target.confusion = true;
+    target.confusionTurns = Math.floor(Math.random() * 4) + 1; // 1 to 4 turns
+    return { success: true, condition: 'confusion', message: `${targetName} became confused!` };
+  }
+
+  // Non-volatile statuses are mutually exclusive
+  if (target.status && target.status !== 'none') {
+    return { success: false, reason: 'already_statused', message: `${targetName} is already ${target.status}ed!` };
+  }
+
+  target.status = condition;
+  if (condition === 'sleep') {
+    target.sleepTurns = Math.floor(Math.random() * 3) + 1; // 1 to 3 turns
+    return { success: true, condition: 'sleep', message: `${targetName} fell asleep!` };
+  }
+  if (condition === 'burn') {
+    return { success: true, condition: 'burn', message: `${targetName} was burned!` };
+  }
+  if (condition === 'poison') {
+    return { success: true, condition: 'poison', message: `${targetName} was poisoned!` };
+  }
+  if (condition === 'paralysis') {
+    return { success: true, condition: 'paralysis', message: `${targetName} is paralyzed! It may be unable to move!` };
+  }
+  if (condition === 'freeze') {
+    return { success: true, condition: 'freeze', message: `${targetName} was frozen solid!` };
+  }
+
+  return { success: true, condition };
+}
+
+/**
+ * Performs turn-start status checks for an active combatant before move execution.
+ * Handles Sleep, Freeze, Paralysis, and Confusion self-hit logic.
+ */
+export function checkTurnStartStatus(pokemon, move = null) {
+  if (!pokemon) return { cantMove: false, logs: [] };
+
+  const logs = [];
+  const name = pokemon.name.toUpperCase();
+
+  // 1. Sleep Check
+  if (pokemon.status === 'sleep') {
+    pokemon.sleepTurns = (pokemon.sleepTurns ?? 1) - 1;
+    if (pokemon.sleepTurns <= 0) {
+      pokemon.status = 'none';
+      pokemon.sleepTurns = 0;
+      logs.push({ text: `${name} woke up!` });
+    } else {
+      logs.push({ text: `${name} is fast asleep!` });
+      return { cantMove: true, logs };
+    }
+  }
+
+  // 2. Freeze Check
+  if (pokemon.status === 'freeze') {
+    const isFireMove = move && move.type && move.type.toLowerCase() === 'fire';
+    if (isFireMove || Math.random() < 0.20) {
+      pokemon.status = 'none';
+      logs.push({ text: `${name} thawed out!` });
+    } else {
+      logs.push({ text: `${name} is frozen solid!` });
+      return { cantMove: true, logs };
+    }
+  }
+
+  // 3. Paralysis Check
+  if (pokemon.status === 'paralysis') {
+    if (Math.random() < 0.25) {
+      logs.push({ text: `${name} is paralyzed and can't move!`, isFaint: true });
+      return { cantMove: true, logs };
+    }
+  }
+
+  // 4. Confusion Check (can stack with non-volatile status)
+  if (pokemon.confusion) {
+    pokemon.confusionTurns = (pokemon.confusionTurns ?? 1) - 1;
+    if (pokemon.confusionTurns <= 0) {
+      pokemon.confusion = false;
+      pokemon.confusionTurns = 0;
+      logs.push({ text: `${name} snapped out of confusion!` });
+    } else {
+      logs.push({ text: `${name} is confused!` });
+      if (Math.random() < 0.33) {
+        // Confusion self-hit (40 power physical hit)
+        const atk = pokemon.stats.attack || 1;
+        const def = pokemon.stats.defense || 1;
+        const burnMult = pokemon.status === 'burn' ? 0.5 : 1.0;
+        const baseDamage = Math.floor((((2 * 50 / 5 + 2) * 40 * (atk / def)) / 50 + 2) * burnMult);
+        const selfDamage = Math.max(1, baseDamage);
+
+        pokemon.currentHp = Math.max(0, pokemon.currentHp - selfDamage);
+        if (pokemon.currentHp <= 0) {
+          pokemon.isFainted = true;
+        }
+
+        logs.push({ text: `${name} hurt itself in its confusion! (Dealt ${selfDamage} damage)`, isFaint: true });
+        return { cantMove: true, hurtSelf: true, selfDamage, logs };
+      }
+    }
+  }
+
+  return { cantMove: false, logs };
+}
+
+/**
+ * Applies end-of-turn status ticks (Poison & Burn damage).
+ */
+export function applyEndOfTurnStatus(pokemon) {
+  if (!pokemon || pokemon.currentHp <= 0) return [];
+
+  const logs = [];
+  const name = pokemon.name.toUpperCase();
+  const maxHp = pokemon.stats.hp || 100;
+
+  // Poison damage (1/8 max HP)
+  if (pokemon.status === 'poison') {
+    const damage = Math.max(1, Math.floor(maxHp / 8));
+    pokemon.currentHp = Math.max(0, pokemon.currentHp - damage);
+    if (pokemon.currentHp <= 0) {
+      pokemon.isFainted = true;
+    }
+    logs.push({ text: `${name} is hurt by poison! (Dealt ${damage} damage)`, isFaint: true });
+  }
+
+  // Burn damage (1/16 max HP)
+  if (pokemon.status === 'burn' && pokemon.currentHp > 0) {
+    const damage = Math.max(1, Math.floor(maxHp / 16));
+    pokemon.currentHp = Math.max(0, pokemon.currentHp - damage);
+    if (pokemon.currentHp <= 0) {
+      pokemon.isFainted = true;
+    }
+    logs.push({ text: `${name} is hurt by its burn! (Dealt ${damage} damage)`, isFaint: true });
+  }
+
+  return logs;
+}
+
+/**
+ * Gets effective speed of a Pokémon, taking Paralysis speed penalty into account.
+ */
+export function getEffectiveSpeed(pokemon) {
+  if (!pokemon || !pokemon.stats) return 1;
+  const baseSpeed = pokemon.stats.speed || 1;
+  return pokemon.status === 'paralysis' ? Math.floor(baseSpeed * 0.5) : baseSpeed;
+}
+
+/**
+ * Damage calculation formula.
+ * Takes Burn physical attack halving into account.
+ */
+export function calculateDamage(attacker, defender, move) {
+  if (!move || move.category === 'status' || move.power <= 0) {
+    return {
+      damage: 0,
+      recoil: 0,
+      effectiveness: 1.0,
+      stab: false,
+      isSuperEffective: false,
+      isNotVeryEffective: false,
+    };
+  }
+
+  let atkStat = 1;
+  let defStat = 1;
+
+  if (move.category === 'special') {
+    atkStat = attacker.stats.specialAttack || 1;
+    defStat = defender.stats.specialDefense || 1;
+  } else {
+    atkStat = attacker.stats.attack || 1;
+    defStat = defender.stats.defense || 1;
+
+    // Burn halves physical attack power
+    if (attacker.status === 'burn') {
+      atkStat = Math.floor(atkStat * 0.5);
+    }
+  }
+
+  const isStab = Array.isArray(attacker.types) && attacker.types.includes(move.type.toLowerCase());
+  const stabMultiplier = isStab ? 1.5 : 1.0;
+  const effectiveness = getTypeEffectiveness(move.type, defender.types);
+
+  const level = 50;
+  const baseDamage = Math.floor(
+    (((2 * level / 5 + 2) * move.power * (atkStat / defStat)) / 50 + 2) * stabMultiplier * effectiveness
+  );
+
+  const finalDamage = Math.max(1, baseDamage);
+
+  let recoil = 0;
+  if (move.isStruggle) {
+    recoil = Math.max(1, Math.floor(finalDamage * 0.25));
+  }
+
+  return {
+    damage: finalDamage,
+    recoil,
+    effectiveness,
+    stab: isStab,
+    isSuperEffective: effectiveness > 1.0,
+    isNotVeryEffective: effectiveness < 1.0 && effectiveness > 0,
   };
 }
 
@@ -218,7 +578,7 @@ export function selectCpuMove(cpuPokemon, playerPokemon) {
 }
 
 /**
- * Generates a random team of 6 final-evolution Pokémon initialized with currentHp and currentPp per move.
+ * Generates a random team of 6 final-evolution Pokémon initialized with currentHp, currentPp, and status condition states.
  */
 export function generateRandomTeam(customList = null, count = 6) {
   const baseList = customList && Array.isArray(customList) && customList.length > 0 ? customList : defaultPokemonList;
@@ -245,6 +605,10 @@ export function generateRandomTeam(customList = null, count = 6) {
       currentHp: template.stats.hp,
       maxHp: template.stats.hp,
       isFainted: false,
+      status: 'none',
+      sleepTurns: 0,
+      confusion: false,
+      confusionTurns: 0,
     });
   }
   return team;

@@ -276,13 +276,19 @@ export default function Collection() {
             const isShiny = entry?.is_shiny || starLevel >= 5;
             const spriteSrc = isOwned ? (isShiny ? p.sprites.shiny : p.sprites.normal) : p.sprites.normal;
 
+            let rarityClass = 'rarity-card-common';
+            if (starLevel === 2) rarityClass = 'rarity-card-uncommon';
+            else if (starLevel === 3) rarityClass = 'rarity-card-rare';
+            else if (starLevel === 4) rarityClass = 'rarity-card-legendary';
+            else if (starLevel >= 5 || isShiny) rarityClass = 'rarity-card-shiny holo-shimmer-effect';
+
             return (
               <div
                 key={p.id}
-                className={`collection-card ${isOwned ? 'owned' : 'unowned'}`}
+                className={`collection-card tcg-card ${isOwned ? rarityClass + ' owned' : 'unowned'}`}
                 onClick={() => handleCardClick(p)}
               >
-                <div className="card-top-id">#{String(p.id).padStart(4, '0')}</div>
+                <div className="card-top-id stat-number-condensed">#{String(p.id).padStart(4, '0')}</div>
 
                 <div className="card-image-wrapper">
                   <img
@@ -459,7 +465,7 @@ export default function Collection() {
                     ].map((stat) => (
                       <div key={stat.label} className="stat-row">
                         <span className="stat-label">{stat.label}</span>
-                        <span className="stat-val">{stat.val}</span>
+                        <span className="stat-val stat-number-condensed">{stat.val}</span>
                         <div className="stat-bar-outer">
                           <div
                             className="stat-bar-inner"
