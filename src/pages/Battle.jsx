@@ -12,6 +12,9 @@ import {
   applyStatusCondition,
   getMoveStatusEffect,
   getEffectiveSpeed,
+  getTypeEffectiveness,
+  getMoveAccuracy,
+  isOhkoMove,
 } from '../game/battle';
 import { rollCardDrop } from '../game/drops';
 import { getUserCollection, awardCard } from '../store/collection';
