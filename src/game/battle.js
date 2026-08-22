@@ -68,6 +68,300 @@ export function getTypeEffectiveness(moveType, defenderTypes) {
 
 
 /**
+ * Standard Pokémon Stat Stage Multipliers (-6 to +6 scale).
+ * For Combat Stats (Attack, Defense, Special Attack, Special Defense, Speed):
+ *   Stage +6: 4.0x, +5: 3.5x, +4: 3.0x, +3: 2.5x, +2: 2.0x, +1: 1.5x, 0: 1.0x
+ *   Stage -1: 0.667x, -2: 0.50x, -3: 0.40x, -4: 0.333x, -5: 0.286x, -6: 0.25x
+ */
+export function getStatStageMultiplier(stage = 0) {
+  const s = Math.max(-6, Math.min(6, Math.round(stage || 0)));
+  if (s >= 0) {
+    return (2 + s) / 2;
+  } else {
+    return 2 / (2 + Math.abs(s));
+  }
+}
+
+/**
+ * Stage Multipliers for Accuracy & Evasion (-6 to +6 scale).
+ */
+export function getAccuracyStageMultiplier(stage = 0) {
+  const s = Math.max(-6, Math.min(6, Math.round(stage || 0)));
+  if (s >= 0) {
+    return (3 + s) / 3;
+  } else {
+    return 3 / (3 + Math.abs(s));
+  }
+}
+
+/**
+ * Standard Pokémon Move Stat Change database mapping.
+ * Specifies target ('self' | 'opponent'), stat name, and stage modification delta (+1, +2, -1, -2, etc.).
+ */
+export const MOVE_STAT_CHANGE_MAP = {
+  // Attack Boosts (Self)
+  swords_dance: { target: 'self', stat: 'attack', stages: 2 },
+  howl: { target: 'self', stat: 'attack', stages: 1 },
+  meditate: { target: 'self', stat: 'attack', stages: 1 },
+  sharpen: { target: 'self', stat: 'attack', stages: 1 },
+  bulk_up: [
+    { target: 'self', stat: 'attack', stages: 1 },
+    { target: 'self', stat: 'defense', stages: 1 },
+  ],
+  dragon_dance: [
+    { target: 'self', stat: 'attack', stages: 1 },
+    { target: 'self', stat: 'speed', stages: 1 },
+  ],
+
+  // Attack Debuffs (Opponent)
+  growl: { target: 'opponent', stat: 'attack', stages: -1 },
+  charm: { target: 'opponent', stat: 'attack', stages: -2 },
+  feather_dance: { target: 'opponent', stat: 'attack', stages: -2 },
+  tickle: [
+    { target: 'opponent', stat: 'attack', stages: -1 },
+    { target: 'opponent', stat: 'defense', stages: -1 },
+  ],
+  play_nice: { target: 'opponent', stat: 'attack', stages: -1 },
+  baby_doll_eyes: { target: 'opponent', stat: 'attack', stages: -1 },
+
+  // Defense Boosts (Self)
+  harden: { target: 'self', stat: 'defense', stages: 1 },
+  defense_curl: { target: 'self', stat: 'defense', stages: 1 },
+  withdraw: { target: 'self', stat: 'defense', stages: 1 },
+  iron_defense: { target: 'self', stat: 'defense', stages: 2 },
+  acid_armor: { target: 'self', stat: 'defense', stages: 2 },
+  barrier: { target: 'self', stat: 'defense', stages: 2 },
+  cotton_guard: { target: 'self', stat: 'defense', stages: 3 },
+  shelter: { target: 'self', stat: 'defense', stages: 2 },
+
+  // Defense Debuffs (Opponent)
+  tail_whip: { target: 'opponent', stat: 'defense', stages: -1 },
+  leer: { target: 'opponent', stat: 'defense', stages: -1 },
+  screech: { target: 'opponent', stat: 'defense', stages: -2 },
+
+  // Special Attack Boosts (Self)
+  growth: [
+    { target: 'self', stat: 'attack', stages: 1 },
+    { target: 'self', stat: 'specialAttack', stages: 1 },
+  ],
+  nasty_plot: { target: 'self', stat: 'specialAttack', stages: 2 },
+  tail_glow: { target: 'self', stat: 'specialAttack', stages: 3 },
+  calm_mind: [
+    { target: 'self', stat: 'specialAttack', stages: 1 },
+    { target: 'self', stat: 'specialDefense', stages: 1 },
+  ],
+  quiver_dance: [
+    { target: 'self', stat: 'specialAttack', stages: 1 },
+    { target: 'self', stat: 'specialDefense', stages: 1 },
+    { target: 'self', stat: 'speed', stages: 1 },
+  ],
+  geomancy: [
+    { target: 'self', stat: 'specialAttack', stages: 2 },
+    { target: 'self', stat: 'specialDefense', stages: 2 },
+    { target: 'self', stat: 'speed', stages: 2 },
+  ],
+
+  // Special Defense Boosts (Self)
+  amnesia: { target: 'self', stat: 'specialDefense', stages: 2 },
+  charge: { target: 'self', stat: 'specialDefense', stages: 1 },
+
+  // Special Defense Debuffs (Opponent)
+  fake_tears: { target: 'opponent', stat: 'specialDefense', stages: -2 },
+  metal_sound: { target: 'opponent', stat: 'specialDefense', stages: -2 },
+  captivate: { target: 'opponent', stat: 'specialAttack', stages: -2 },
+  confide: { target: 'opponent', stat: 'specialAttack', stages: -1 },
+  eerie_impulse: { target: 'opponent', stat: 'specialAttack', stages: -2 },
+
+  // Speed Boosts (Self)
+  agility: { target: 'self', stat: 'speed', stages: 2 },
+  rock_polish: { target: 'self', stat: 'speed', stages: 2 },
+  autotomize: { target: 'self', stat: 'speed', stages: 2 },
+  tailwind: { target: 'self', stat: 'speed', stages: 2 },
+
+  // Speed Debuffs (Opponent)
+  scary_face: { target: 'opponent', stat: 'speed', stages: -2 },
+  string_shot: { target: 'opponent', stat: 'speed', stages: -2 },
+  cotton_spore: { target: 'opponent', stat: 'speed', stages: -2 },
+
+  // Accuracy / Evasion
+  sand_attack: { target: 'opponent', stat: 'accuracy', stages: -1 },
+  smokescreen: { target: 'opponent', stat: 'accuracy', stages: -1 },
+  flash: { target: 'opponent', stat: 'accuracy', stages: -1 },
+  kinesis: { target: 'opponent', stat: 'accuracy', stages: -1 },
+  double_team: { target: 'self', stat: 'evasion', stages: 1 },
+  minimize: { target: 'self', stat: 'evasion', stages: 2 },
+
+  // Omniboost Moves
+  ancient_power: [
+    { target: 'self', stat: 'attack', stages: 1 },
+    { target: 'self', stat: 'defense', stages: 1 },
+    { target: 'self', stat: 'specialAttack', stages: 1 },
+    { target: 'self', stat: 'specialDefense', stages: 1 },
+    { target: 'self', stat: 'speed', stages: 1 },
+  ],
+  ominous_wind: [
+    { target: 'self', stat: 'attack', stages: 1 },
+    { target: 'self', stat: 'defense', stages: 1 },
+    { target: 'self', stat: 'specialAttack', stages: 1 },
+    { target: 'self', stat: 'specialDefense', stages: 1 },
+    { target: 'self', stat: 'speed', stages: 1 },
+  ],
+  silver_wind: [
+    { target: 'self', stat: 'attack', stages: 1 },
+    { target: 'self', stat: 'defense', stages: 1 },
+    { target: 'self', stat: 'specialAttack', stages: 1 },
+    { target: 'self', stat: 'specialDefense', stages: 1 },
+    { target: 'self', stat: 'speed', stages: 1 },
+  ],
+};
+
+/**
+ * Resolves stat change requirements for a move.
+ */
+export function getMoveStatChanges(move) {
+  if (!move) return [];
+
+  // 1. Check explicit statChange property on move object (highest priority)
+  if (move.statChange) {
+    return Array.isArray(move.statChange) ? move.statChange : [move.statChange];
+  }
+
+  // 2. Check MOVE_STAT_CHANGE_MAP by move id — authoritative source for all known
+  //    stat-changing moves. Must be checked BEFORE statBuff because statBuff objects
+  //    in pokemon.json use a legacy { stat, multiplier } shape (not { stat, stages }),
+  //    so reading statBuff.stages is always undefined.
+  const moveId = move.id?.toLowerCase().replace(/-/g, '_');
+  const mapped = MOVE_STAT_CHANGE_MAP[moveId];
+  if (mapped) {
+    return Array.isArray(mapped) ? mapped : [mapped];
+  }
+
+  // 3. Legacy statBuff fallback — for any move not yet in MOVE_STAT_CHANGE_MAP
+  //    that still carries a statBuff field. Uses stat from statBuff, defaults
+  //    stages to +1 since the JSON only stores a multiplier (not a stage delta).
+  if (move.statBuff) {
+    const target = move.statBuff.target || 'self';
+    const stat = move.statBuff.stat || 'specialAttack';
+    const stages = move.statBuff.stages ?? 1; // statBuff.multiplier is vestigial
+    return [{ target, stat, stages }];
+  }
+
+  // 4. Text-parsing fallback on move effect description (last resort)
+  const text = `${move.id} ${move.name} ${move.effect || ''}`.toLowerCase();
+  const isOpponent = text.includes('target') || text.includes('foe') || text.includes('opponent');
+  const target = isOpponent ? 'opponent' : 'self';
+
+  let stages = 1;
+  if (text.includes('sharply') || text.includes('2 stages') || text.includes('harshly')) {
+    stages = 2;
+  } else if (text.includes('drastically') || text.includes('3 stages') || text.includes('severely')) {
+    stages = 3;
+  }
+
+  const isLower = text.includes('lower') || text.includes('decrease') || text.includes('fell') || text.includes('reduce');
+  if (isLower) stages = -stages;
+
+  const changes = [];
+  if (text.includes('attack') && !text.includes('special attack')) {
+    changes.push({ target, stat: 'attack', stages });
+  }
+  if (text.includes('defense') && !text.includes('special defense')) {
+    changes.push({ target, stat: 'defense', stages });
+  }
+  if (text.includes('special attack') || text.includes('sp. atk')) {
+    changes.push({ target, stat: 'specialAttack', stages });
+  }
+  if (text.includes('special defense') || text.includes('sp. def')) {
+    changes.push({ target, stat: 'specialDefense', stages });
+  }
+  if (text.includes('speed')) {
+    changes.push({ target, stat: 'speed', stages });
+  }
+
+  return changes;
+}
+
+/**
+ * Applies a stat stage modification (-6 to +6) to a target Pokémon.
+ * Clamps to -6/+6 cap and generates authentic battle log narration.
+ */
+export function applyStatChange(targetPokemon, statName, stageDelta) {
+  if (!targetPokemon || !statName || !stageDelta) {
+    return { success: false, reason: 'invalid' };
+  }
+
+  if (!targetPokemon.statStages) {
+    targetPokemon.statStages = {
+      attack: 0,
+      defense: 0,
+      specialAttack: 0,
+      specialDefense: 0,
+      speed: 0,
+      accuracy: 0,
+      evasion: 0,
+    };
+  }
+
+  const STAT_DISPLAY_NAMES = {
+    attack: 'Attack',
+    defense: 'Defense',
+    specialAttack: 'Sp. Atk',
+    specialDefense: 'Sp. Def',
+    speed: 'Speed',
+    accuracy: 'Accuracy',
+    evasion: 'Evasion',
+  };
+
+  const statLabel = STAT_DISPLAY_NAMES[statName] || statName;
+  const currentStage = targetPokemon.statStages[statName] || 0;
+  const targetName = targetPokemon.name.toUpperCase();
+
+  const newStage = Math.max(-6, Math.min(6, currentStage + stageDelta));
+  const actualChange = newStage - currentStage;
+
+  if (actualChange === 0) {
+    let capMsg = `${targetName}'s ${statLabel} won't go any higher!`;
+    if (stageDelta < 0) {
+      capMsg = `${targetName}'s ${statLabel} won't go any lower!`;
+    }
+    return {
+      success: false,
+      reason: 'capped',
+      statName,
+      currentStage,
+      newStage: currentStage,
+      message: capMsg,
+    };
+  }
+
+  targetPokemon.statStages[statName] = newStage;
+
+  let msg = '';
+  if (actualChange === 1) {
+    msg = `${targetName}'s ${statLabel} rose!`;
+  } else if (actualChange === 2) {
+    msg = `${targetName}'s ${statLabel} rose sharply!`;
+  } else if (actualChange >= 3) {
+    msg = `${targetName}'s ${statLabel} rose drastically!`;
+  } else if (actualChange === -1) {
+    msg = `${targetName}'s ${statLabel} fell!`;
+  } else if (actualChange === -2) {
+    msg = `${targetName}'s ${statLabel} harshly fell!`;
+  } else {
+    msg = `${targetName}'s ${statLabel} severely fell!`;
+  }
+
+  return {
+    success: true,
+    statName,
+    oldStage: currentStage,
+    newStage,
+    stageChange: actualChange,
+    message: msg,
+  };
+}
+
+/**
  * Applies a status move effect and returns buff/heal/status result object.
  */
 export function applyStatusMove(pokemon, move) {
@@ -86,21 +380,13 @@ export function applyStatusMove(pokemon, move) {
     };
   }
 
-  if (move.statBuff) {
-    const statName = move.statBuff.stat;
-    let badgeText = '+1 ATK';
-    if (statName === 'defense') badgeText = '+1 DEF';
-    else if (statName === 'speed') badgeText = '+1 SPD';
-    else if (statName === 'specialAttack') badgeText = '+1 SP.ATK';
-    else if (statName === 'specialDefense') badgeText = '+1 SP.DEF';
-
+  const statChanges = getMoveStatChanges(move);
+  if (statChanges.length > 0) {
     return {
-      type: 'buff',
-      stat: statName,
-      buffBadge: badgeText,
-      multiplier: move.statBuff.multiplier,
+      type: 'statChange',
+      changes: statChanges,
       target: pokemon.name,
-      effectDescription: `Boosts ${statName} by ${Math.round((move.statBuff.multiplier - 1) * 100)}%`,
+      effectDescription: move.effect || 'Stat stage modified.',
     };
   }
 
@@ -436,17 +722,19 @@ export function applyEndOfTurnStatus(pokemon) {
 }
 
 /**
- * Gets effective speed of a Pokémon, taking Paralysis speed penalty into account.
+ * Gets effective speed of a Pokémon, taking stat stages and Paralysis speed penalty into account.
  */
 export function getEffectiveSpeed(pokemon) {
   if (!pokemon || !pokemon.stats) return 1;
   const baseSpeed = pokemon.stats.speed || 1;
-  return pokemon.status === 'paralysis' ? Math.floor(baseSpeed * 0.5) : baseSpeed;
+  const speedStage = pokemon.statStages?.speed || 0;
+  const stagedSpeed = Math.floor(baseSpeed * getStatStageMultiplier(speedStage));
+  return pokemon.status === 'paralysis' ? Math.floor(stagedSpeed * 0.5) : stagedSpeed;
 }
 
 /**
  * Damage calculation formula.
- * Takes Burn physical attack halving into account.
+ * Applies stat stage multipliers and Burn physical attack halving.
  */
 export function calculateDamage(attacker, defender, move) {
   if (!move || move.category === 'status' || move.power <= 0) {
@@ -464,17 +752,29 @@ export function calculateDamage(attacker, defender, move) {
   let defStat = 1;
 
   if (move.category === 'special') {
-    atkStat = attacker.stats.specialAttack || 1;
-    defStat = defender.stats.specialDefense || 1;
+    const baseAtk = attacker.stats.specialAttack || 1;
+    const baseDef = defender.stats.specialDefense || 1;
+    const atkStage = attacker.statStages?.specialAttack || 0;
+    const defStage = defender.statStages?.specialDefense || 0;
+    atkStat = Math.floor(baseAtk * getStatStageMultiplier(atkStage));
+    defStat = Math.floor(baseDef * getStatStageMultiplier(defStage));
   } else {
-    atkStat = attacker.stats.attack || 1;
-    defStat = defender.stats.defense || 1;
+    const baseAtk = attacker.stats.attack || 1;
+    const baseDef = defender.stats.defense || 1;
+    const atkStage = attacker.statStages?.attack || 0;
+    const defStage = defender.statStages?.defense || 0;
+    atkStat = Math.floor(baseAtk * getStatStageMultiplier(atkStage));
+    defStat = Math.floor(baseDef * getStatStageMultiplier(defStage));
 
     // Burn halves physical attack power
     if (attacker.status === 'burn') {
       atkStat = Math.floor(atkStat * 0.5);
     }
   }
+
+  // Floor to at least 1
+  atkStat = Math.max(1, atkStat);
+  defStat = Math.max(1, defStat);
 
   const isStab = Array.isArray(attacker.types) && attacker.types.includes(move.type.toLowerCase());
   const stabMultiplier = isStab ? 1.5 : 1.0;
@@ -609,6 +909,15 @@ export function generateRandomTeam(customList = null, count = 6) {
       sleepTurns: 0,
       confusion: false,
       confusionTurns: 0,
+      statStages: {
+        attack: 0,
+        defense: 0,
+        specialAttack: 0,
+        specialDefense: 0,
+        speed: 0,
+        accuracy: 0,
+        evasion: 0,
+      },
     });
   }
   return team;

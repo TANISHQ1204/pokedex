@@ -11,10 +11,12 @@ import {
   applyEndOfTurnStatus,
   applyStatusCondition,
   getMoveStatusEffect,
+  getMoveStatChanges,
   getEffectiveSpeed,
   getTypeEffectiveness,
   getMoveAccuracy,
   isOhkoMove,
+  applyStatChange,
 } from '../game/battle';
 import { rollCardDrop } from '../game/drops';
 import { getUserCollection, awardCard } from '../store/collection';
@@ -435,8 +437,14 @@ export default function Battle() {
     setLungeSide(null);
 
     // 2. Type Immunity Check (BEFORE Accuracy Roll!)
-    // Self-targeted status moves (healing / stat buffs) bypass type immunity check
-    const isSelfTargetStatus = move.category === 'status' && (move.healPercent || move.statBuff);
+    // Self-targeted status moves (healing / stat boosts to self) bypass type immunity
+    // and accuracy checks — they always succeed regardless of type matchup.
+    // Use getMoveStatChanges() to cover ALL self-buff moves (Swords Dance, Harden,
+    // Agility, etc.), not just those with a statBuff field in the JSON.
+    const _statChanges = move.category === 'status' ? getMoveStatChanges(move) : [];
+    const isSelfTargetStatus =
+      move.category === 'status' &&
+      (move.healPercent || _statChanges.some((c) => c.target === 'self'));
     if (!isSelfTargetStatus && !move.isStruggle) {
       const effectiveness = getTypeEffectiveness(move.type, defender.types);
       if (effectiveness === 0) {
@@ -494,6 +502,17 @@ export default function Battle() {
         updatePokemonHp(attackerSide, getActiveIndex(attackerSide), newHp);
 
         addLog(`${attackerName} ${statusRes.effectDescription}!`, { isHeal: true });
+      } else if (statusRes.type === 'statChange') {
+        const changes = statusRes.changes || [];
+        for (const change of changes) {
+          const targetObj = change.target === 'opponent' ? defender : attacker;
+          const targetSide = change.target === 'opponent' ? defenderSide : attackerSide;
+          const result = applyStatChange(targetObj, change.stat, change.stages);
+          if (result.message) {
+            addLog(result.message, { isSuperEffective: result.success && change.stages > 0 });
+          }
+          syncTeamState(targetSide);
+        }
       } else if (statusRes.type === 'buff') {
         if (statusRes.buffBadge) {
           addBuffBadge(attackerSide, statusRes.buffBadge);
@@ -656,6 +675,26 @@ export default function Battle() {
 
   const hasUsableMove = playerActive.moves?.some((m) => (m.currentPp ?? m.pp) > 0);
 
+  const renderStatBadges = (pokemon) => {
+    if (!pokemon || !pokemon.statStages) return null;
+    const labels = {
+      attack: 'ATK', defense: 'DEF', specialAttack: 'SP.ATK',
+      specialDefense: 'SP.DEF', speed: 'SPD', accuracy: 'ACC', evasion: 'EVA',
+    };
+    const badges = [];
+    Object.entries(pokemon.statStages).forEach(([stat, stage]) => {
+      if (stage !== 0) {
+        const sign = stage > 0 ? '+' : '';
+        badges.push(
+          <span key={stat} className={`status-badge ${stage > 0 ? 'stat-stage-up' : 'stat-stage-down'}`}>
+            {labels[stat] || stat} {sign}{stage}
+          </span>
+        );
+      }
+    });
+    return badges.length > 0 ? <div className="status-badge-container">{badges}</div> : null;
+  };
+
   return (
     <div className="page-container">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
@@ -730,16 +769,8 @@ export default function Battle() {
                 </div>
               )}
 
-              {/* CPU Stat Buff Badges */}
-              {cpuActiveState.activeBuffs.length > 0 && (
-                <div className="buff-badge-container">
-                  {cpuActiveState.activeBuffs.map((buff, bIdx) => (
-                    <span key={bIdx} className="buff-badge">
-                      {buff}
-                    </span>
-                  ))}
-                </div>
-              )}
+              {/* CPU Stat Stage Badges */}
+              {renderStatBadges(cpuActive)}
             </div>
 
             <div className="pokemon-sprite-container">
@@ -831,16 +862,8 @@ export default function Battle() {
                 </div>
               )}
 
-              {/* Player Stat Buff Badges */}
-              {playerActiveState.activeBuffs.length > 0 && (
-                <div className="buff-badge-container">
-                  {playerActiveState.activeBuffs.map((buff, bIdx) => (
-                    <span key={bIdx} className="buff-badge">
-                      {buff}
-                    </span>
-                  ))}
-                </div>
-              )}
+              {/* Player Stat Stage Badges */}
+              {renderStatBadges(playerActive)}
             </div>
           </div>
         </div>

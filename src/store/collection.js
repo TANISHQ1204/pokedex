@@ -61,10 +61,10 @@ export async function upsertCollectionEntry(entry) {
  * - If user does NOT own this card: insert row with star_level=1, dupes_collected=0, is_shiny=false.
  * - If user DOES own this card and star_level < 5:
  *   - Increments dupes_collected by +1.
- *   - dupes_collected accumulates continuously (1..20+).
- *   - Every 5 dupes collected (e.g. 5, 10, 15, 20 dupes), star_level increases by +1 stage.
- *   - Formula: star_level = Math.min(5, 1 + Math.floor(dupes_collected / 5)).
- *   - When star_level reaches 5 (max level, requiring 20 total dupes), is_shiny is set to true!
+ *   - dupes_collected accumulates continuously (1, 2, 3, 4+).
+ *   - Each dupe collected increases star_level by exactly +1 stage.
+ *   - Formula: star_level = Math.min(5, 1 + dupes_collected).
+ *   - When star_level reaches 5 (max level, requiring 4 total dupes), is_shiny is set to true!
  * - If star_level is already 5 (maxed): further drops of this pokemon_id are blocked.
  * 
  * @param {string} userId - Auth user UUID
@@ -121,8 +121,8 @@ export async function awardCard(userId, pokemonId) {
 
   // Case C: Card exists and star_level < 5 -> Increment dupes and calculate star level
   const newDupes = (existing.dupes_collected || 0) + 1;
-  // Calculate star level based on cumulative dupes (every 5 dupes = +1 star, max 5)
-  const newStarLevel = Math.min(5, 1 + Math.floor(newDupes / 5));
+  // Calculate star level: each dupe = +1 star (max 5)
+  const newStarLevel = Math.min(5, 1 + newDupes);
   const starUpgraded = newStarLevel > existing.star_level;
   const becameShiny = newStarLevel >= 5;
 
