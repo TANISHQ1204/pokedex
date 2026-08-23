@@ -25,6 +25,7 @@ import pokemonList from '../data/pokemon.json' with { type: 'json' };
 import HpBar from '../components/HpBar';
 import BenchRow from '../components/BenchRow';
 import BattleLog from '../components/BattleLog';
+import CardPullReveal from '../components/CardPullReveal';
 import { createMatch } from '../store/matches';
 
 export default function Battle() {
@@ -623,32 +624,40 @@ export default function Battle() {
 
       const nextCpuIdx = cpuTeam.findIndex((p) => p.currentHp > 0);
       if (nextCpuIdx === -1) {
-        setWinner('player');
         addLog('VICTORY! You defeated the Opponent Trainer!', { isSuperEffective: true });
 
-        if (user?.id) {
+        (async () => {
+          let dropState = null;
           try {
-            const userColl = await getUserCollection(user.id);
-            const droppedPkmn = rollCardDrop(userColl, pokemonList);
-            const awardRes = await awardCard(user.id, droppedPkmn.id);
-
-            setAwardedDrop({
-              pokemon: droppedPkmn,
-              ...awardRes,
-            });
-
-            addLog(`🎁 You earned a card drop: ${droppedPkmn.name.toUpperCase()}!`, { isSuperEffective: true });
+            if (user?.id) {
+              const userColl = await getUserCollection(user.id);
+              const droppedPkmn = rollCardDrop(userColl, pokemonList);
+              const awardRes = await awardCard(user.id, droppedPkmn.id);
+              dropState = {
+                pokemon: droppedPkmn,
+                ...awardRes,
+              };
+              addLog(`🎁 You earned a card drop: ${droppedPkmn.name.toUpperCase()}!`, { isSuperEffective: true });
+            } else {
+              const immediateDrop = rollCardDrop([], pokemonList);
+              dropState = {
+                pokemon: immediateDrop,
+                isNew: true,
+                entry: { star_level: 1, dupes_collected: 0, is_shiny: false },
+              };
+            }
           } catch (err) {
-            console.error('Error awarding card drop:', err);
+            console.error('Error awarding card drop from database:', err);
+            const fallbackDrop = rollCardDrop([], pokemonList);
+            dropState = {
+              pokemon: fallbackDrop,
+              isNew: true,
+              entry: { star_level: 1, dupes_collected: 0, is_shiny: false },
+            };
           }
-        } else {
-          const droppedPkmn = rollCardDrop([], pokemonList);
-          setAwardedDrop({
-            pokemon: droppedPkmn,
-            isNew: true,
-            entry: { star_level: 1, dupes_collected: 0, is_shiny: false },
-          });
-        }
+          setAwardedDrop(dropState);
+          setWinner('player');
+        })();
 
         return true;
       }
@@ -992,7 +1001,7 @@ export default function Battle() {
       </div>
 
       {/* DEDICATED CARD PULL REVEAL SCREEN (VICTORY) */}
-      {winner === 'player' && awardedDrop && (
+      {winner === 'player' && (
         <CardPullReveal
           awardedDrop={awardedDrop}
           onContinue={() => navigate('/home')}

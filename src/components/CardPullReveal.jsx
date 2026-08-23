@@ -92,13 +92,33 @@ export default function CardPullReveal({ awardedDrop, onContinue, onPlayAgain })
     flashClass = 'flash-new';
   }
 
+  const handleOverlayClick = (e) => {
+    if (e.target.closest('button')) return;
+
+    if (stage !== 'revealed') {
+      setStage('revealed');
+      setShowFlash(false);
+      if (becameShiny || entry.is_shiny) {
+        setDisplayedSprite(pokemon.sprites.shiny);
+        setIsShinyUnlocked(true);
+        setIsShinyTransforming(false);
+      }
+    }
+  };
+
   return (
-    <div className="card-reveal-overlay">
+    <div className="card-reveal-overlay" onClick={handleOverlayClick}>
       {/* Light Flash Burst */}
       {showFlash && <div className={`flash-burst ${flashClass}`} />}
 
       {/* Dramatic Shiny Transformation Screen Burst */}
       {isShinyTransforming && <div className="shiny-transform-flash" />}
+
+      {stage !== 'revealed' && (
+        <div style={{ color: '#94a3b8', fontSize: '0.8rem', marginBottom: '0.5rem', cursor: 'pointer' }}>
+          (Click anywhere to skip animation)
+        </div>
+      )}
 
       <h2
         style={{
