@@ -52,9 +52,13 @@ export default function Navbar() {
           className={({ isActive }) => (isActive ? 'active nav-preview-link' : 'nav-preview-link')}
           style={{
             background: 'linear-gradient(90deg, #ec4899, #8b5cf6)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
+            color: '#ffffff',
+            padding: '4px 10px',
+            borderRadius: '12px',
             fontWeight: 800,
+            fontSize: '0.85rem',
+            boxShadow: '0 0 10px rgba(236, 72, 153, 0.4)',
+            textDecoration: 'none',
           }}
         >
           ⚡ Power Cards

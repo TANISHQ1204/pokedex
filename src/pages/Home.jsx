@@ -141,14 +141,18 @@ export default function Home() {
             <Link to="/battle" className="hero-btn primary">
               <SwordsIcon size={20} /> Battle Arena
             </Link>
+            <Link
+              to="/design-preview"
+              className="hero-btn primary"
+              style={{ background: 'linear-gradient(90deg, #ec4899, #8b5cf6)', border: 'none' }}
+            >
+              ⚡ Power Cards Showcase
+            </Link>
             <Link to="/collection" className="hero-btn secondary">
               <CardsIcon size={20} /> Card Collection
             </Link>
             <Link to="/trophies" className="hero-btn secondary">
               <TrophyIcon size={20} tier="gold" /> Trophy Hall
-            </Link>
-            <Link to="/badges" className="hero-btn secondary">
-              <GymBadgeIcon size={20} color="#f59e0b" /> Badge Case
             </Link>
           </div>
         </div>
