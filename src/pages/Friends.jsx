@@ -4,7 +4,8 @@ import { supabase, isSupabaseConfigured } from '../store/supabaseClient';
 import { UsersFriendsIcon, PokeballIcon } from '../components/icons/GameIcons';
 
 export default function Friends() {
-  const { user, profile, isConfigured } = useAuth();
+  const { user, profile, onlineUserIds, isConfigured } = useAuth();
+
 
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
@@ -593,65 +594,86 @@ export default function Friends() {
               gap: '1rem',
             }}
           >
-            {friendsList.map((friend) => (
-              <div
-                key={friend.friendshipId}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: '0.875rem 1rem',
-                  backgroundColor: '#0f172a',
-                  border: '1px solid #334155',
-                  borderRadius: '0.5rem',
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  <div
-                    style={{
-                      width: '40px',
-                      height: '40px',
-                      borderRadius: '50%',
-                      backgroundColor: '#0284c7',
-                      color: '#fff',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontWeight: 700,
-                      border: '2px solid #38bdf8',
-                    }}
-                  >
-                    {friend.username.charAt(0).toUpperCase()}
-                  </div>
-                  <div>
-                    <div style={{ fontWeight: 700, color: '#f8fafc', fontSize: '0.95rem' }}>
-                      @{friend.username}
-                    </div>
-                    <div style={{ fontSize: '0.75rem', color: '#38bdf8', marginTop: '0.1rem' }}>
-                      Trainer Partner
-                    </div>
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => removeFriend(friend.friendshipId, friend.username)}
-                  title="Remove friend"
+            {friendsList.map((friend) => {
+              const isOnline = Boolean(onlineUserIds && onlineUserIds[friend.userId]);
+              return (
+                <div
+                  key={friend.friendshipId}
                   style={{
-                    background: 'none',
-                    border: 'none',
-                    color: '#64748b',
-                    cursor: 'pointer',
-                    fontSize: '1.1rem',
-                    padding: '0.2rem 0.4rem',
-                    borderRadius: '0.25rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '0.875rem 1rem',
+                    backgroundColor: '#0f172a',
+                    border: '1px solid #334155',
+                    borderRadius: '0.5rem',
                   }}
-                  onMouseEnter={(e) => (e.target.style.color = '#ef4444')}
-                  onMouseLeave={(e) => (e.target.style.color = '#64748b')}
                 >
-                  ✕
-                </button>
-              </div>
-            ))}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <div style={{ position: 'relative' }}>
+                      <div
+                        style={{
+                          width: '40px',
+                          height: '40px',
+                          borderRadius: '50%',
+                          backgroundColor: '#0284c7',
+                          color: '#fff',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontWeight: 700,
+                          border: '2px solid #38bdf8',
+                        }}
+                      >
+                        {friend.username.charAt(0).toUpperCase()}
+                      </div>
+                      <span
+                        style={{
+                          position: 'absolute',
+                          bottom: 0,
+                          right: 0,
+                          width: '10px',
+                          height: '10px',
+                          borderRadius: '50%',
+                          backgroundColor: isOnline ? '#22c55e' : '#64748b',
+                          border: '2px solid #0f172a',
+                          boxShadow: isOnline ? '0 0 8px #22c55e' : 'none',
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <div style={{ fontWeight: 700, color: '#f8fafc', fontSize: '0.95rem' }}>
+                        @{friend.username}
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginTop: '0.1rem' }}>
+                        <span style={{ fontSize: '0.75rem', color: isOnline ? '#4ade80' : '#94a3b8', fontWeight: 600 }}>
+                          {isOnline ? 'Online' : 'Offline'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => removeFriend(friend.friendshipId, friend.username)}
+                    title="Remove friend"
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: '#64748b',
+                      cursor: 'pointer',
+                      fontSize: '1.1rem',
+                      padding: '0.2rem 0.4rem',
+                      borderRadius: '0.25rem',
+                    }}
+                    onMouseEnter={(e) => (e.target.style.color = '#ef4444')}
+                    onMouseLeave={(e) => (e.target.style.color = '#64748b')}
+                  >
+                    ✕
+                  </button>
+                </div>
+              );
+            })}
+
           </div>
         )}
       </div>

@@ -5,6 +5,7 @@ const AuthContext = createContext({
   session: null,
   user: null,
   profile: null,
+  onlineUserIds: {},
   loading: true,
   loadingProfile: false,
   signInWithGoogle: async () => {},
@@ -19,6 +20,7 @@ export function AuthProvider({ children }) {
   const [session, setSession] = useState(null);
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
+  const [onlineUserIds, setOnlineUserIds] = useState({});
   const [loading, setLoading] = useState(true);
   const [loadingProfile, setLoadingProfile] = useState(true);
   const configured = isSupabaseConfigured();
@@ -53,6 +55,8 @@ export function AuthProvider({ children }) {
     if (!configured) {
       setLoading(false);
       setLoadingProfile(false);
+      // Mock presence for unconfigured preview mode
+      setOnlineUserIds({ 'mock-user-3': true });
       return;
     }
 
@@ -93,6 +97,44 @@ export function AuthProvider({ children }) {
       subscription?.unsubscribe();
     };
   }, [configured]);
+
+  // Realtime Presence Tracking
+  useEffect(() => {
+    if (!configured || !user) {
+      return;
+    }
+
+    const presenceChannel = supabase.channel('online_trainers_presence', {
+      config: {
+        presence: {
+          key: user.id,
+        },
+      },
+    });
+
+    presenceChannel
+      .on('presence', { event: 'sync' }, () => {
+        const state = presenceChannel.presenceState();
+        const activeMap = {};
+        Object.keys(state).forEach((key) => {
+          activeMap[key] = true;
+        });
+        setOnlineUserIds(activeMap);
+      })
+      .subscribe(async (status) => {
+        if (status === 'SUBSCRIBED') {
+          await presenceChannel.track({
+            user_id: user.id,
+            username: profile?.username || 'Trainer',
+            online_at: new Date().toISOString(),
+          });
+        }
+      });
+
+    return () => {
+      supabase.removeChannel(presenceChannel);
+    };
+  }, [configured, user, profile?.username]);
 
   const signInWithGoogle = async () => {
     if (!configured) {
@@ -191,6 +233,7 @@ export function AuthProvider({ children }) {
         session,
         user,
         profile,
+        onlineUserIds,
         loading,
         loadingProfile,
         signInWithGoogle,
@@ -209,4 +252,5 @@ export function AuthProvider({ children }) {
 export function useAuth() {
   return useContext(AuthContext);
 }
+
 
