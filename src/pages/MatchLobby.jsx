@@ -14,6 +14,7 @@ export default function MatchLobby() {
 
   const [player1Name, setPlayer1Name] = useState('');
   const [player2Name, setPlayer2Name] = useState('');
+  const [copied, setCopied] = useState(false);
 
   // Fetch usernames for host and guest
   useEffect(() => {
@@ -56,6 +57,19 @@ export default function MatchLobby() {
     };
   }, [match, isConfigured, user?.id, profile?.username]);
 
+  const shareUrl = `${window.location.origin}/join/${matchId}`;
+
+  const handleShareWhatsApp = () => {
+    const text = encodeURIComponent(`Join my 6v6 Pokémon Battle in PokéDex League! ⚔️\n${shareUrl}`);
+    window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
+  };
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(shareUrl);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   if (loading) {
     return (
       <div className="page-container" style={{ textAlign: 'center', paddingTop: '4rem' }}>
@@ -91,23 +105,9 @@ export default function MatchLobby() {
     );
   }
 
-  const [copied, setCopied] = useState(false);
-
-  const shareUrl = `${window.location.origin}/join/${matchId}`;
-
-  const handleShareWhatsApp = () => {
-    const text = encodeURIComponent(`Join my 6v6 Pokémon Battle in PokéDex League! ⚔️\n${shareUrl}`);
-    window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
-  };
-
-  const handleCopyLink = () => {
-    navigator.clipboard.writeText(shareUrl);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
   const isHost = match.player_1_id === user?.id;
   const isGuest = match.player_2_id === user?.id;
+
 
   return (
     <div className="page-container" style={{ maxWidth: '800px', margin: '0 auto' }}>

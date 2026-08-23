@@ -30,10 +30,13 @@ export default function Navbar() {
           <PokeballIcon size={18} /> Home
         </NavLink>
         <NavLink to="/battle" className={({ isActive }) => (isActive ? 'active' : '')}>
-          <SwordsIcon size={18} /> Battle
+          <SwordsIcon size={18} /> CPU Battle
+        </NavLink>
+        <NavLink to="/game-modes" className={({ isActive }) => (isActive ? 'active' : '')}>
+          <CardsIcon size={18} /> Game Modes
         </NavLink>
         <NavLink to="/collection" className={({ isActive }) => (isActive ? 'active' : '')}>
-          <CardsIcon size={18} /> Collection
+          <PokeballIcon size={18} /> Collection
         </NavLink>
         <NavLink to="/friends" className={({ isActive }) => (isActive ? 'active' : '')}>
           <UsersFriendsIcon size={18} /> Friends
@@ -59,5 +62,6 @@ export default function Navbar() {
     </header>
   );
 }
+
 
 

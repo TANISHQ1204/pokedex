@@ -13,6 +13,7 @@ import Account from './pages/Account';
 import Friends from './pages/Friends';
 import MatchLobby from './pages/MatchLobby';
 import JoinMatch from './pages/JoinMatch';
+import GameModes from './pages/GameModes';
 import MatchInviteBanner from './components/MatchInviteBanner';
 
 function ProtectedRoute({ children }) {
@@ -127,6 +128,14 @@ export default function App() {
           }
         />
         <Route
+          path="/game-modes"
+          element={
+            <ProtectedRoute>
+              <GameModes />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/collection"
           element={
             <ProtectedRoute>
@@ -180,6 +189,7 @@ export default function App() {
     </AuthProvider>
   );
 }
+
 
 
 

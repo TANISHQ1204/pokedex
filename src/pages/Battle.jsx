@@ -711,23 +711,25 @@ export default function Battle() {
   return (
     <div className="page-container">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
-        <h1 style={{ margin: 0, fontSize: '1.5rem', color: '#f8fafc' }}>6v6 Starter Battle Arena</h1>
+        <div>
+          <h1 style={{ margin: 0, fontSize: '1.5rem', color: '#f8fafc' }}>CPU Battle Arena (Solo)</h1>
+          <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>Practice vs AI Trainers</span>
+        </div>
         <div style={{ display: 'flex', gap: '0.5rem' }}>
           <button
-            onClick={handleCreateMatchLink}
-            disabled={isBusy}
+            onClick={() => navigate('/game-modes')}
             style={{
               padding: '0.5rem 1rem',
               backgroundColor: '#0284c7',
               color: '#ffffff',
               border: 'none',
               borderRadius: '0.375rem',
-              cursor: isBusy ? 'not-allowed' : 'pointer',
+              cursor: 'pointer',
               fontSize: '0.875rem',
               fontWeight: 700,
             }}
           >
-            📲 Create Match Link
+            🎮 Multiplayer Game Modes
           </button>
           <button
             onClick={startNewBattle}
@@ -746,6 +748,7 @@ export default function Battle() {
           </button>
         </div>
       </div>
+
 
 
       <div className={`battle-container ${superShake ? 'super-shake' : ''} ${ohkoFlash ? 'ohko-shake' : ''}`}>
