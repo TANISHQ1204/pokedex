@@ -26,6 +26,11 @@ export default function CardPullReveal({ awardedDrop, onContinue, onPlayAgain })
   const [isShinyTransforming, setIsShinyTransforming] = useState(false);
   const [isStarBursting, setIsStarBursting] = useState(false);
 
+  // Reset phase when new drop arrives
+  useEffect(() => {
+    setPhase('normal');
+  }, [awardedDrop]);
+
   useEffect(() => {
     if (!pokemon) return;
 

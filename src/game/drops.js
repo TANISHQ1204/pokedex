@@ -15,10 +15,10 @@ import defaultPokemonList from '../data/pokemon.json' with { type: 'json' };
 export function rollCardDrop(userCollection = [], customList = null) {
   const list = customList && Array.isArray(customList) && customList.length > 0 ? customList : defaultPokemonList;
 
-  // 1. Build set of maxed out pokemon_ids (star_level >= 5)
+  // 1. Build set of maxed out pokemon_ids (star_level >= 5, excluding power cards)
   const maxedPokemonIds = new Set(
     userCollection
-      .filter((item) => item && item.star_level >= 5)
+      .filter((item) => item && !item.is_power_card && !item.isPowerCard && item.star_level >= 5)
       .map((item) => Number(item.pokemon_id))
   );
 

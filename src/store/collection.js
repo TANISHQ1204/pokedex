@@ -86,12 +86,13 @@ export async function awardCard(userId, pokemonId) {
     throw new Error('userId and pokemonId are required to award a card');
   }
 
-  // 1. Fetch existing row for this user & pokemon_id
+  // 1. Fetch existing standard card row for this user & pokemon_id (excluding power cards)
   const { data: existingRows, error: fetchErr } = await supabase
     .from('collections')
     .select('*')
     .eq('user_id', userId)
-    .eq('pokemon_id', pokemonId);
+    .eq('pokemon_id', pokemonId)
+    .or('is_power_card.eq.false,is_power_card.is.null');
 
   if (fetchErr) {
     console.error('Error checking existing card row:', fetchErr.message);
