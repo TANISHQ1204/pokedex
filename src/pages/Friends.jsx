@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { supabase, isSupabaseConfigured } from '../store/supabaseClient';
+import { challengeFriend } from '../store/matches';
 import { UsersFriendsIcon, PokeballIcon } from '../components/icons/GameIcons';
 
 export default function Friends() {
   const { user, profile, onlineUserIds, isConfigured } = useAuth();
-
+  const navigate = useNavigate();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
@@ -18,6 +20,24 @@ export default function Friends() {
   const [loadingLists, setLoadingLists] = useState(true);
   const [actionError, setActionError] = useState('');
   const [actionSuccess, setActionSuccess] = useState('');
+
+  // Challenge Friend Handler
+  const handleChallengeFriend = async (friend) => {
+    if (!user?.id) return;
+    setActionError('');
+    try {
+      const newMatch = await challengeFriend({
+        challengerId: user.id,
+        friendId: friend.userId,
+        mode: '6v6',
+      });
+      navigate(`/match/${newMatch.id}`);
+    } catch (err) {
+      console.error('Challenge error:', err);
+      setActionError(err.message || 'Failed to send battle challenge.');
+    }
+  };
+
 
   // Local storage mock key for non-configured preview mode
   const MOCK_STORAGE_KEY = 'pokedex_mock_friendships';
@@ -653,26 +673,50 @@ export default function Friends() {
                     </div>
                   </div>
 
-                  <button
-                    onClick={() => removeFriend(friend.friendshipId, friend.username)}
-                    title="Remove friend"
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      color: '#64748b',
-                      cursor: 'pointer',
-                      fontSize: '1.1rem',
-                      padding: '0.2rem 0.4rem',
-                      borderRadius: '0.25rem',
-                    }}
-                    onMouseEnter={(e) => (e.target.style.color = '#ef4444')}
-                    onMouseLeave={(e) => (e.target.style.color = '#64748b')}
-                  >
-                    ✕
-                  </button>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <button
+                      onClick={() => handleChallengeFriend(friend)}
+                      title="Challenge to 6v6 Battle"
+                      style={{
+                        padding: '0.35rem 0.65rem',
+                        borderRadius: '0.375rem',
+                        border: 'none',
+                        backgroundColor: '#dc2626',
+                        color: '#ffffff',
+                        fontSize: '0.8rem',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.25rem',
+                        boxShadow: '0 0 10px rgba(220, 38, 38, 0.4)',
+                        transition: 'transform 0.15s ease',
+                      }}
+                    >
+                      ⚔️ Challenge
+                    </button>
+                    <button
+                      onClick={() => removeFriend(friend.friendshipId, friend.username)}
+                      title="Remove friend"
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: '#64748b',
+                        cursor: 'pointer',
+                        fontSize: '1.1rem',
+                        padding: '0.2rem 0.4rem',
+                        borderRadius: '0.25rem',
+                      }}
+                      onMouseEnter={(e) => (e.target.style.color = '#ef4444')}
+                      onMouseLeave={(e) => (e.target.style.color = '#64748b')}
+                    >
+                      ✕
+                    </button>
+                  </div>
                 </div>
               );
             })}
+
 
           </div>
         )}

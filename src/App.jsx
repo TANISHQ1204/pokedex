@@ -11,6 +11,9 @@ import Trophies from './pages/Trophies';
 import Badges from './pages/Badges';
 import Account from './pages/Account';
 import Friends from './pages/Friends';
+import MatchLobby from './pages/MatchLobby';
+import JoinMatch from './pages/JoinMatch';
+import MatchInviteBanner from './components/MatchInviteBanner';
 
 function ProtectedRoute({ children }) {
   const { session, profile, loading, loadingProfile, isConfigured } = useAuth();
@@ -74,6 +77,11 @@ function PublicRoute({ children }) {
     if (!profile) {
       return <Navigate to="/choose-username" replace />;
     }
+    const redirectUrl = sessionStorage.getItem('post_login_redirect');
+    if (redirectUrl) {
+      sessionStorage.removeItem('post_login_redirect');
+      return <Navigate to={redirectUrl} replace />;
+    }
     return <Navigate to="/home" replace />;
   }
 
@@ -83,6 +91,7 @@ function PublicRoute({ children }) {
 export default function App() {
   return (
     <AuthProvider>
+      <MatchInviteBanner />
       <Routes>
         <Route path="/" element={<Navigate to="/home" replace />} />
         <Route
@@ -157,11 +166,22 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/match/:matchId"
+          element={
+            <ProtectedRoute>
+              <MatchLobby />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/join/:matchId" element={<JoinMatch />} />
         <Route path="*" element={<Navigate to="/home" replace />} />
       </Routes>
     </AuthProvider>
   );
 }
+
+
 
 
 

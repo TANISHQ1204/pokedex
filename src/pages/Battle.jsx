@@ -25,9 +25,10 @@ import pokemonList from '../data/pokemon.json' with { type: 'json' };
 import HpBar from '../components/HpBar';
 import BenchRow from '../components/BenchRow';
 import BattleLog from '../components/BattleLog';
-import CardPullReveal from '../components/CardPullReveal';
+import { createMatch } from '../store/matches';
 
 export default function Battle() {
+
   const { user } = useAuth();
   const navigate = useNavigate();
   const [playerTeam, setPlayerTeam] = useState([]);
@@ -695,26 +696,57 @@ export default function Battle() {
     return badges.length > 0 ? <div className="status-badge-container">{badges}</div> : null;
   };
 
+  const handleCreateMatchLink = async () => {
+    try {
+      const newMatch = await createMatch({
+        mode: '6v6',
+        userId: user?.id || 'guest',
+      });
+      navigate(`/match/${newMatch.id}`);
+    } catch (err) {
+      console.error('Error creating match link:', err);
+    }
+  };
+
   return (
     <div className="page-container">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
         <h1 style={{ margin: 0, fontSize: '1.5rem', color: '#f8fafc' }}>6v6 Starter Battle Arena</h1>
-        <button
-          onClick={startNewBattle}
-          disabled={isBusy}
-          style={{
-            padding: '0.5rem 1rem',
-            backgroundColor: '#334155',
-            color: '#f8fafc',
-            border: 'none',
-            borderRadius: '0.375rem',
-            cursor: isBusy ? 'not-allowed' : 'pointer',
-            fontSize: '0.875rem',
-          }}
-        >
-          Reset Battle
-        </button>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <button
+            onClick={handleCreateMatchLink}
+            disabled={isBusy}
+            style={{
+              padding: '0.5rem 1rem',
+              backgroundColor: '#0284c7',
+              color: '#ffffff',
+              border: 'none',
+              borderRadius: '0.375rem',
+              cursor: isBusy ? 'not-allowed' : 'pointer',
+              fontSize: '0.875rem',
+              fontWeight: 700,
+            }}
+          >
+            📲 Create Match Link
+          </button>
+          <button
+            onClick={startNewBattle}
+            disabled={isBusy}
+            style={{
+              padding: '0.5rem 1rem',
+              backgroundColor: '#334155',
+              color: '#f8fafc',
+              border: 'none',
+              borderRadius: '0.375rem',
+              cursor: isBusy ? 'not-allowed' : 'pointer',
+              fontSize: '0.875rem',
+            }}
+          >
+            Reset Battle
+          </button>
+        </div>
       </div>
+
 
       <div className={`battle-container ${superShake ? 'super-shake' : ''} ${ohkoFlash ? 'ohko-shake' : ''}`}>
         {/* OHKO Dramatic Flash Screen Overlay */}
