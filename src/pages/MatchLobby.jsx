@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { supabase, isSupabaseConfigured } from '../store/supabaseClient';
 import { useMatchSubscription } from '../store/matches';
 import { SwordsIcon, PokeballIcon } from '../components/icons/GameIcons';
+import RealtimeBattleArena from '../components/RealtimeBattleArena';
 
 export default function MatchLobby() {
   const { matchId } = useParams();
@@ -401,30 +402,19 @@ export default function MatchLobby() {
         </div>
       </div>
 
-      {/* Active Battle Placeholder Banner */}
-      {match.status === 'active' && (
-        <div
-          className="card"
-          style={{
-            textAlign: 'center',
-            padding: '2rem',
-            border: '2px solid #16a34a',
-            backgroundColor: '#064e3b',
-            color: '#a7f3d0',
-            marginBottom: '2rem',
-          }}
-        >
-          <div style={{ display: 'inline-block', marginBottom: '0.5rem' }}>
-            <PokeballIcon size={36} />
-          </div>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#ffffff', margin: '0 0 0.5rem 0' }}>
-            Match Started! @{player1Name} vs @{player2Name}
-          </h2>
-          <p style={{ fontSize: '0.95rem', color: '#d1fae5', margin: 0 }}>
-            Real-time battle lobby established successfully. Full 6v6 turn-based battle engine integration will take place in Phase 4!
-          </p>
+      {/* Live 6v6 Multiplayer Battle Arena */}
+      {(match.status === 'active' || match.status === 'completed' || match.state?.winner) && (
+        <div style={{ marginBottom: '2rem' }}>
+          <RealtimeBattleArena
+            match={match}
+            userId={user?.id}
+            onUpdateState={updateState}
+            player1Name={player1Name}
+            player2Name={player2Name}
+          />
         </div>
       )}
+
 
       {/* Navigation Footer */}
       <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem' }}>

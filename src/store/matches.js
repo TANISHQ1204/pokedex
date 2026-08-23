@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase, isSupabaseConfigured } from './supabaseClient';
+import { initMultiplayerMatchState } from '../game/mpBattleEngine';
 
 const MOCK_MATCHES_KEY = 'pokedex_mock_matches_store';
 const BROADCAST_CHANNEL_NAME = 'pokedex_matches_realtime_channel';
@@ -16,6 +17,10 @@ const getBroadcastChannel = () => {
 export async function createMatch({ mode = 'test', initialState = {}, userId }) {
   const configured = isSupabaseConfigured();
 
+  const initState = (mode === '6v6' && (!initialState || !initialState.team1))
+    ? initMultiplayerMatchState()
+    : initialState;
+
   if (!configured) {
     const mockId = `mock-match-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
     const mockMatch = {
@@ -24,7 +29,7 @@ export async function createMatch({ mode = 'test', initialState = {}, userId }) 
       player_1_id: userId || 'mock-player-1',
       player_2_id: null,
       status: 'waiting',
-      state: initialState,
+      state: initState,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };
@@ -47,7 +52,7 @@ export async function createMatch({ mode = 'test', initialState = {}, userId }) 
         mode,
         player_1_id: userId,
         status: 'waiting',
-        state: initialState,
+        state: initState,
       },
     ])
     .select()
@@ -89,16 +94,23 @@ export async function fetchMatch(matchId) {
 export async function joinMatch(matchId, userId) {
   const configured = isSupabaseConfigured();
 
+  // Fetch current match to see if state is missing
+  const existing = await fetchMatch(matchId);
+  let updatedState = existing?.state || {};
+  if (existing?.mode === '6v6' && (!updatedState || !updatedState.team1)) {
+    updatedState = initMultiplayerMatchState();
+  }
+
   if (!configured) {
     const raw = localStorage.getItem(MOCK_MATCHES_KEY);
     const matchesMap = raw ? JSON.parse(raw) : {};
-    const existing = matchesMap[matchId];
     if (!existing) throw new Error('Match not found.');
 
     const updated = {
       ...existing,
       player_2_id: userId || 'mock-player-2',
       status: 'active',
+      state: updatedState,
       updated_at: new Date().toISOString(),
     };
     matchesMap[matchId] = updated;
@@ -114,6 +126,7 @@ export async function joinMatch(matchId, userId) {
     .update({
       player_2_id: userId,
       status: 'active',
+      state: updatedState,
       updated_at: new Date().toISOString(),
     })
     .eq('id', matchId)
@@ -230,6 +243,10 @@ export function subscribeToMatch(matchId, onUpdate) {
 export async function challengeFriend({ challengerId, friendId, mode = '6v6', initialState = {} }) {
   const configured = isSupabaseConfigured();
 
+  const initState = (mode === '6v6' && (!initialState || !initialState.team1))
+    ? initMultiplayerMatchState()
+    : initialState;
+
   if (!configured) {
     const mockId = `mock-match-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
     const mockMatch = {
@@ -238,7 +255,7 @@ export async function challengeFriend({ challengerId, friendId, mode = '6v6', in
       player_1_id: challengerId,
       player_2_id: friendId,
       status: 'waiting',
-      state: initialState,
+      state: initState,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };
@@ -263,7 +280,7 @@ export async function challengeFriend({ challengerId, friendId, mode = '6v6', in
         player_1_id: challengerId,
         player_2_id: friendId,
         status: 'waiting',
-        state: initialState,
+        state: initState,
       },
     ])
     .select()
@@ -281,15 +298,21 @@ export async function challengeFriend({ challengerId, friendId, mode = '6v6', in
 export async function acceptChallenge(matchId) {
   const configured = isSupabaseConfigured();
 
+  const existing = await fetchMatch(matchId);
+  let updatedState = existing?.state || {};
+  if (existing?.mode === '6v6' && (!updatedState || !updatedState.team1)) {
+    updatedState = initMultiplayerMatchState();
+  }
+
   if (!configured) {
     const raw = localStorage.getItem(MOCK_MATCHES_KEY);
     const matchesMap = raw ? JSON.parse(raw) : {};
-    const existing = matchesMap[matchId];
     if (!existing) throw new Error('Match not found.');
 
     const updated = {
       ...existing,
       status: 'active',
+      state: updatedState,
       updated_at: new Date().toISOString(),
     };
     matchesMap[matchId] = updated;
@@ -304,6 +327,7 @@ export async function acceptChallenge(matchId) {
     .from('matches')
     .update({
       status: 'active',
+      state: updatedState,
       updated_at: new Date().toISOString(),
     })
     .eq('id', matchId)
@@ -317,6 +341,7 @@ export async function acceptChallenge(matchId) {
 
   return data;
 }
+
 
 // 8. Decline Challenge
 export async function declineChallenge(matchId) {
