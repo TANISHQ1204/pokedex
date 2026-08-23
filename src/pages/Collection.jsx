@@ -59,7 +59,7 @@ export default function Collection() {
   const [ownershipFilter, setOwnershipFilter] = useState('all'); // 'all' | 'owned' | 'unowned' | 'power_cards'
   const [typeFilter, setTypeFilter] = useState('all');
   const [genFilter, setGenFilter] = useState('all');
-  const [sortBy, setSortBy] = useState('id-asc');
+  const [sortBy, setSortBy] = useState('id-asc'); // 'id-asc' | 'id-desc' | 'name-asc' | 'star-desc'
   const [currentPage, setCurrentPage] = useState(1);
 
   // Detail Modal state
@@ -420,7 +420,7 @@ export default function Collection() {
 
             {/* Modal Body */}
             {viewPowerCardInModal ? (
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px 0' }}>
+              <div className="modal-body" style={{ flexDirection: 'column', alignItems: 'center', padding: '20px 0' }}>
                 <PowerCard pokemon={selectedPokemon} isShiny={previewShiny} />
                 <div style={{ marginTop: '12px', display: 'flex', gap: '8px' }}>
                   <button
@@ -576,10 +576,11 @@ export default function Collection() {
                   </div>
                 </div>
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
-      )}
+      </div>
+    )}
     </div>
   );
 }
