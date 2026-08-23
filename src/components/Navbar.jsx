@@ -7,12 +7,14 @@ import {
   CardsIcon,
   TrophyIcon,
   GymBadgeIcon,
+  UsersFriendsIcon,
 } from './icons/GameIcons';
 
 export default function Navbar() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const avatarUrl = user?.user_metadata?.avatar_url || user?.user_metadata?.picture;
   const fullName = user?.user_metadata?.full_name || user?.user_metadata?.name || 'Trainer Account';
+  const displayName = profile?.username ? `@${profile.username}` : fullName;
 
   return (
     <header className="nav-bar">
@@ -33,6 +35,9 @@ export default function Navbar() {
         <NavLink to="/collection" className={({ isActive }) => (isActive ? 'active' : '')}>
           <CardsIcon size={18} /> Collection
         </NavLink>
+        <NavLink to="/friends" className={({ isActive }) => (isActive ? 'active' : '')}>
+          <UsersFriendsIcon size={18} /> Friends
+        </NavLink>
         <NavLink to="/trophies" className={({ isActive }) => (isActive ? 'active' : '')}>
           <TrophyIcon size={18} tier="gold" /> Trophies
         </NavLink>
@@ -48,9 +53,11 @@ export default function Navbar() {
           ) : (
             <span className="nav-avatar-fallback">👤</span>
           )}
-          <span>{fullName}</span>
+          <span>{displayName}</span>
         </NavLink>
       </nav>
     </header>
   );
 }
+
+

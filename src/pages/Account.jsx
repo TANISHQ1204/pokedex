@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export default function Account() {
-  const { user, signOut } = useAuth();
+  const { user, profile, signOut } = useAuth();
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
@@ -15,6 +15,7 @@ export default function Account() {
   const avatarUrl = metadata.avatar_url || metadata.picture;
   const fullName = metadata.full_name || metadata.name || 'Trainer';
   const email = user?.email || 'No email provided';
+  const username = profile?.username ? `@${profile.username}` : 'Not set';
 
   return (
     <div className="page-container">
@@ -55,6 +56,24 @@ export default function Account() {
 
           <div>
             <h2 style={{ margin: '0 0 0.25rem 0', color: '#f8fafc' }}>{fullName}</h2>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
+              <span style={{ color: '#38bdf8', fontWeight: 700, fontSize: '1.1rem' }}>{username}</span>
+              {profile?.username && (
+                <span
+                  title="Usernames cannot be changed"
+                  style={{
+                    padding: '0.1rem 0.4rem',
+                    fontSize: '0.7rem',
+                    borderRadius: '0.25rem',
+                    backgroundColor: '#1e293b',
+                    color: '#94a3b8',
+                    border: '1px solid #334155',
+                  }}
+                >
+                  Permanent
+                </span>
+              )}
+            </div>
             <p style={{ margin: 0, color: '#94a3b8', fontSize: '0.95rem' }}>{email}</p>
             <span
               style={{
@@ -95,3 +114,4 @@ export default function Account() {
     </div>
   );
 }
+
