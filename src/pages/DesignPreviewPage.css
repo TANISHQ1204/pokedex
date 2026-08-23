@@ -1,0 +1,350 @@
+/* ==========================================
+   DESIGN PREVIEW PAGE STYLING
+   ========================================== */
+
+.preview-page-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 32px 20px 80px 20px;
+  color: #f8fafc;
+}
+
+/* Header Section */
+.preview-header {
+  text-align: center;
+  margin-bottom: 32px;
+  background: radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.15), transparent 70%);
+  padding: 30px 20px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.preview-badge-row {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.preview-tag {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 800;
+  font-size: 0.75rem;
+  letter-spacing: 1.5px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  background: rgba(99, 102, 241, 0.2);
+  color: #a5b4fc;
+  border: 1px solid rgba(99, 102, 241, 0.4);
+}
+
+.dev-tag {
+  background: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.preview-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 2.4rem;
+  font-weight: 900;
+  background: linear-gradient(90deg, #ffffff, #ffd700, #ff8c00);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 10px;
+  letter-spacing: -0.5px;
+}
+
+.preview-subtitle {
+  font-size: 1rem;
+  color: #94a3b8;
+  max-width: 760px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* Toolbar */
+.preview-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  padding: 16px 20px;
+  margin-bottom: 32px;
+  backdrop-filter: blur(8px);
+}
+
+.toolbar-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.toolbar-label {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #cbd5e1;
+}
+
+.segmented-control {
+  display: flex;
+  background: rgba(30, 41, 59, 0.9);
+  padding: 4px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.segmented-btn {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.segmented-btn.active {
+  background: linear-gradient(90deg, #6366f1, #4f46e5);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+}
+
+.preview-toggle-btn {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(30, 41, 59, 0.7);
+  color: #f1f5f9;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.preview-toggle-btn.shiny-active {
+  background: linear-gradient(90deg, #f59e0b, #d97706);
+  border-color: #f59e0b;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.5);
+}
+
+.preview-toggle-btn.tilt-active {
+  border-color: #38bdf8;
+  color: #38bdf8;
+}
+
+.preview-trigger-reveal-btn {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
+  font-size: 0.85rem;
+  padding: 10px 18px;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(90deg, #ec4899, #8b5cf6);
+  color: #ffffff;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(236, 72, 153, 0.4);
+  transition: transform 0.2s;
+}
+
+.preview-trigger-reveal-btn:hover {
+  transform: translateY(-2px) scale(1.03);
+}
+
+/* Type Filter Bar */
+.type-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 12px;
+  margin-bottom: 24px;
+}
+
+.filter-label {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #94a3b8;
+  margin-right: 4px;
+  white-space: nowrap;
+}
+
+.type-filter-pill {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 800;
+  font-size: 0.75rem;
+  padding: 5px 12px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(30, 41, 59, 0.6);
+  color: #cbd5e1;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.type-filter-pill.active {
+  background: #38bdf8;
+  color: #0f172a;
+  border-color: #38bdf8;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.6);
+}
+
+/* Cards Grid */
+.power-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 36px 24px;
+  justify-items: center;
+}
+
+.preview-card-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  background: rgba(15, 23, 42, 0.5);
+  padding: 16px;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.card-item-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4px;
+}
+
+.card-type-label {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 800;
+  font-size: 0.85rem;
+  color: #ffd700;
+  letter-spacing: 1px;
+}
+
+.card-shiny-toggle {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(30, 41, 59, 0.8);
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.card-item-footer {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.card-reveal-btn {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(99, 102, 241, 0.4);
+  background: rgba(99, 102, 241, 0.2);
+  color: #c7d2fe;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.card-reveal-btn:hover {
+  background: rgba(99, 102, 241, 0.5);
+}
+
+/* Dual-Type Comparison Section */
+.comparison-intro {
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto 36px auto;
+}
+
+.comparison-intro h2 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.8rem;
+  color: #ffffff;
+  margin-bottom: 8px;
+}
+
+.comparison-intro p {
+  color: #94a3b8;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.comparison-block {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  padding: 24px;
+}
+
+.comparison-pokemon-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.4rem;
+  color: #ffd700;
+  margin-bottom: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 8px;
+}
+
+.comparison-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+  gap: 24px;
+  justify-items: center;
+}
+
+.comparison-card-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 20px;
+  background: rgba(30, 41, 59, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  width: 100%;
+}
+
+.comparison-card-wrapper.recommended {
+  border-color: #e879f9;
+  box-shadow: 0 0 20px rgba(232, 121, 249, 0.2);
+  background: rgba(232, 121, 249, 0.05);
+}
+
+.comp-version-tag {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 800;
+  font-size: 0.85rem;
+  color: #cbd5e1;
+  letter-spacing: 0.5px;
+}
+
+.rec-tag {
+  color: #e879f9;
+}
+
+.comp-desc {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  text-align: center;
+  max-width: 280px;
+}

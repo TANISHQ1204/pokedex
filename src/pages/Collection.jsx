@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { getUserCollection } from '../store/collection';
 import pokemonList from '../data/pokemon.json' with { type: 'json' };
+import PowerCard from '../components/PowerCard';
 
 const ITEMS_PER_PAGE = 48;
 
@@ -50,19 +51,21 @@ function formatTitle(str) {
 export default function Collection() {
   const { user } = useAuth();
   const [collectionMap, setCollectionMap] = useState(new Map());
+  const [powerCollectionMap, setPowerCollectionMap] = useState(new Map());
   const [isLoading, setIsLoading] = useState(true);
 
   // Filters & Pagination state
   const [searchQuery, setSearchQuery] = useState('');
-  const [ownershipFilter, setOwnershipFilter] = useState('all'); // 'all' | 'owned' | 'unowned'
+  const [ownershipFilter, setOwnershipFilter] = useState('all'); // 'all' | 'owned' | 'unowned' | 'power_cards'
   const [typeFilter, setTypeFilter] = useState('all');
   const [genFilter, setGenFilter] = useState('all');
-  const [sortBy, setSortBy] = useState('id-asc'); // 'id-asc' | 'id-desc' | 'name-asc' | 'star-desc'
+  const [sortBy, setSortBy] = useState('id-asc');
   const [currentPage, setCurrentPage] = useState(1);
 
   // Detail Modal state
   const [selectedPokemon, setSelectedPokemon] = useState(null);
   const [previewShiny, setPreviewShiny] = useState(false);
+  const [viewPowerCardInModal, setViewPowerCardInModal] = useState(false);
 
   // Fetch collection from Supabase
   useEffect(() => {
@@ -74,11 +77,20 @@ export default function Collection() {
       try {
         setIsLoading(true);
         const data = await getUserCollection(user.id);
-        const map = new Map();
+        const normalMap = new Map();
+        const powerMap = new Map();
+
         data.forEach((entry) => {
-          map.set(Number(entry.pokemon_id), entry);
+          const pId = Number(entry.pokemon_id);
+          if (entry.is_power_card) {
+            powerMap.set(pId, entry);
+          } else {
+            normalMap.set(pId, entry);
+          }
         });
-        setCollectionMap(map);
+
+        setCollectionMap(normalMap);
+        setPowerCollectionMap(powerMap);
       } catch (err) {
         console.error('Failed to load collection:', err.message);
       } finally {
@@ -100,9 +112,11 @@ export default function Collection() {
 
     // Ownership filter
     if (ownershipFilter === 'owned') {
-      result = result.filter((p) => collectionMap.has(p.id));
+      result = result.filter((p) => collectionMap.has(p.id) || powerCollectionMap.has(p.id));
     } else if (ownershipFilter === 'unowned') {
-      result = result.filter((p) => !collectionMap.has(p.id));
+      result = result.filter((p) => !collectionMap.has(p.id) && !powerCollectionMap.has(p.id));
+    } else if (ownershipFilter === 'power_cards') {
+      result = result.filter((p) => powerCollectionMap.has(p.id));
     }
 
     // Type filter
@@ -131,7 +145,7 @@ export default function Collection() {
       }
       return 0;
     });
-  }, [searchQuery, ownershipFilter, typeFilter, genFilter, sortBy, collectionMap]);
+  }, [searchQuery, ownershipFilter, typeFilter, genFilter, sortBy, collectionMap, powerCollectionMap]);
 
   // Reset page when filters change
   useEffect(() => {
@@ -147,7 +161,7 @@ export default function Collection() {
   }, [filteredPokemon, validCurrentPage]);
 
   // Statistics
-  const ownedCount = collectionMap.size;
+  const ownedCount = new Set([...collectionMap.keys(), ...powerCollectionMap.keys()]).size;
   const totalCount = pokemonList.length;
   const completionPercentage = Math.round((ownedCount / totalCount) * 100);
 
@@ -155,6 +169,7 @@ export default function Collection() {
     setSelectedPokemon(p);
     const entry = collectionMap.get(p.id);
     setPreviewShiny(entry?.is_shiny || (entry?.star_level >= 5));
+    setViewPowerCardInModal(powerCollectionMap.has(p.id) && !collectionMap.has(p.id));
   };
 
   return (
@@ -215,7 +230,8 @@ export default function Collection() {
           onChange={(e) => setOwnershipFilter(e.target.value)}
         >
           <option value="all">All Ownership Status</option>
-          <option value="owned">Owned Only</option>
+          <option value="owned">Owned Cards</option>
+          <option value="power_cards">⚡ Power Cards Only</option>
           <option value="unowned">Unowned Only</option>
         </select>
 
@@ -271,13 +287,15 @@ export default function Collection() {
         <div className="collection-grid">
           {paginatedPokemon.map((p) => {
             const entry = collectionMap.get(p.id);
-            const isOwned = Boolean(entry);
+            const hasPowerCard = powerCollectionMap.has(p.id);
+            const isOwned = Boolean(entry) || hasPowerCard;
             const starLevel = entry?.star_level || 0;
             const isShiny = entry?.is_shiny || starLevel >= 5;
             const spriteSrc = isOwned ? (isShiny ? p.sprites.shiny : p.sprites.normal) : p.sprites.normal;
 
             let rarityClass = 'rarity-card-common';
-            if (starLevel === 2) rarityClass = 'rarity-card-uncommon';
+            if (hasPowerCard) rarityClass = 'rarity-card-shiny holo-shimmer-effect';
+            else if (starLevel === 2) rarityClass = 'rarity-card-uncommon';
             else if (starLevel === 3) rarityClass = 'rarity-card-rare';
             else if (starLevel === 4) rarityClass = 'rarity-card-legendary';
             else if (starLevel >= 5 || isShiny) rarityClass = 'rarity-card-shiny holo-shimmer-effect';
@@ -296,7 +314,12 @@ export default function Collection() {
                     alt={isOwned ? p.name : '???'}
                     className={isOwned ? '' : 'card-silhouette'}
                   />
-                  {isShiny && isOwned && <div className="shiny-sparkle-badge">✨ Shiny</div>}
+                  {hasPowerCard && (
+                    <div className="shiny-sparkle-badge" style={{ background: 'linear-gradient(90deg, #ec4899, #8b5cf6)', color: '#ffffff', fontWeight: 800 }}>
+                      ⚡ POWER
+                    </div>
+                  )}
+                  {isShiny && isOwned && !hasPowerCard && <div className="shiny-sparkle-badge">✨ Shiny</div>}
                 </div>
 
                 <div className="card-info">
@@ -305,8 +328,14 @@ export default function Collection() {
                   {isOwned ? (
                     <>
                       <div className="star-rating">
-                        {'★'.repeat(starLevel)}
-                        {'☆'.repeat(5 - starLevel)}
+                        {starLevel > 0 ? (
+                          <>
+                            {'★'.repeat(starLevel)}
+                            {'☆'.repeat(5 - starLevel)}
+                          </>
+                        ) : (
+                          <span style={{ color: '#ec4899', fontWeight: 800, fontSize: '0.75rem' }}>ULTRA TROPHY</span>
+                        )}
                       </div>
                       <div className="card-types">
                         {p.types.map((t) => (
@@ -360,7 +389,9 @@ export default function Collection() {
               <div>
                 <span className="modal-dex-id">#{String(selectedPokemon.id).padStart(4, '0')}</span>
                 <h2 className="modal-title">
-                  {collectionMap.has(selectedPokemon.id) ? formatTitle(selectedPokemon.name) : '???'}
+                  {collectionMap.has(selectedPokemon.id) || powerCollectionMap.has(selectedPokemon.id)
+                    ? formatTitle(selectedPokemon.name)
+                    : '???'}
                 </h2>
               </div>
               <button className="modal-close-btn" onClick={() => setSelectedPokemon(null)}>
@@ -368,57 +399,99 @@ export default function Collection() {
               </button>
             </div>
 
+            {/* Power Card View Toggle Bar */}
+            {powerCollectionMap.has(selectedPokemon.id) && collectionMap.has(selectedPokemon.id) && (
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+                <button
+                  className={`preview-toggle-btn ${!viewPowerCardInModal ? 'active' : ''}`}
+                  onClick={() => setViewPowerCardInModal(false)}
+                >
+                  Standard Card
+                </button>
+                <button
+                  className={`preview-toggle-btn ${viewPowerCardInModal ? 'active' : ''}`}
+                  style={viewPowerCardInModal ? { background: 'linear-gradient(90deg, #ec4899, #8b5cf6)', color: '#ffffff', border: 'none' } : {}}
+                  onClick={() => setViewPowerCardInModal(true)}
+                >
+                  ⚡ Power Card
+                </button>
+              </div>
+            )}
+
             {/* Modal Body */}
-            <div className="modal-body">
-              {/* Left Column: Image & Ownership status */}
-              <div className="modal-left">
-                <div className="modal-image-card">
-                  <img
-                    src={
-                      previewShiny && collectionMap.has(selectedPokemon.id)
-                        ? selectedPokemon.sprites.shiny
-                        : selectedPokemon.sprites.normal
-                    }
-                    alt={selectedPokemon.name}
-                    className={collectionMap.has(selectedPokemon.id) ? '' : 'modal-silhouette'}
-                  />
-                </div>
-
-                {collectionMap.has(selectedPokemon.id) && (
-                  <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', marginTop: '0.5rem' }}>
-                    <button
-                      className={`preview-toggle-btn ${!previewShiny ? 'active' : ''}`}
-                      onClick={() => setPreviewShiny(false)}
-                    >
-                      Normal
-                    </button>
-                    <button
-                      className={`preview-toggle-btn ${previewShiny ? 'active' : ''}`}
-                      onClick={() => setPreviewShiny(true)}
-                    >
-                      ✨ Shiny
-                    </button>
-                  </div>
-                )}
-
-                <div className="modal-status-box">
-                  {collectionMap.has(selectedPokemon.id) ? (
-                    <>
-                      <div className="modal-star-row">
-                        {'★'.repeat(collectionMap.get(selectedPokemon.id).star_level)}
-                        {'☆'.repeat(5 - collectionMap.get(selectedPokemon.id).star_level)}
-                      </div>
-                      <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '0.25rem' }}>
-                        Duplicates Collected: {collectionMap.get(selectedPokemon.id).dupes_collected || 0}
-                      </div>
-                    </>
-                  ) : (
-                    <div style={{ color: '#f87171', fontWeight: 600, fontSize: '0.875rem' }}>
-                      Not in Collection Yet (Win battles to unlock!)
-                    </div>
-                  )}
+            {viewPowerCardInModal ? (
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px 0' }}>
+                <PowerCard pokemon={selectedPokemon} isShiny={previewShiny} />
+                <div style={{ marginTop: '12px', display: 'flex', gap: '8px' }}>
+                  <button
+                    className={`preview-toggle-btn ${!previewShiny ? 'active' : ''}`}
+                    onClick={() => setPreviewShiny(false)}
+                  >
+                    Normal
+                  </button>
+                  <button
+                    className={`preview-toggle-btn ${previewShiny ? 'active' : ''}`}
+                    onClick={() => setPreviewShiny(true)}
+                  >
+                    ✨ Shiny
+                  </button>
                 </div>
               </div>
+            ) : (
+              <div className="modal-body">
+                {/* Left Column: Image & Ownership status */}
+                <div className="modal-left">
+                  <div className="modal-image-card">
+                    <img
+                      src={
+                        previewShiny && (collectionMap.has(selectedPokemon.id) || powerCollectionMap.has(selectedPokemon.id))
+                          ? selectedPokemon.sprites.shiny
+                          : selectedPokemon.sprites.normal
+                      }
+                      alt={selectedPokemon.name}
+                      className={collectionMap.has(selectedPokemon.id) || powerCollectionMap.has(selectedPokemon.id) ? '' : 'modal-silhouette'}
+                    />
+                  </div>
+
+                  {(collectionMap.has(selectedPokemon.id) || powerCollectionMap.has(selectedPokemon.id)) && (
+                    <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', marginTop: '0.5rem' }}>
+                      <button
+                        className={`preview-toggle-btn ${!previewShiny ? 'active' : ''}`}
+                        onClick={() => setPreviewShiny(false)}
+                      >
+                        Normal
+                      </button>
+                      <button
+                        className={`preview-toggle-btn ${previewShiny ? 'active' : ''}`}
+                        onClick={() => setPreviewShiny(true)}
+                      >
+                        ✨ Shiny
+                      </button>
+                    </div>
+                  )}
+
+                  <div className="modal-status-box">
+                    {collectionMap.has(selectedPokemon.id) ? (
+                      <>
+                        <div className="modal-star-row">
+                          {'★'.repeat(collectionMap.get(selectedPokemon.id).star_level)}
+                          {'☆'.repeat(5 - collectionMap.get(selectedPokemon.id).star_level)}
+                        </div>
+                        <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '0.25rem' }}>
+                          Duplicates Collected: {collectionMap.get(selectedPokemon.id).dupes_collected || 0}
+                        </div>
+                      </>
+                    ) : powerCollectionMap.has(selectedPokemon.id) ? (
+                      <div style={{ color: '#ec4899', fontWeight: 700, fontSize: '0.875rem' }}>
+                        ⚡ Ultra Power Card Owned!
+                      </div>
+                    ) : (
+                      <div style={{ color: '#f87171', fontWeight: 600, fontSize: '0.875rem' }}>
+                        Not in Collection Yet (Win battles to unlock!)
+                      </div>
+                    )}
+                  </div>
+                </div>
 
               {/* Right Column: Types, Stats & Moveset */}
               <div className="modal-right">

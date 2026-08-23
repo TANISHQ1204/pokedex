@@ -30,25 +30,35 @@ export async function upsertCollectionEntry(entry) {
     throw new Error('user_id and pokemon_id are required to upsert collection entry');
   }
 
+  const payload = {
+    user_id: entry.user_id,
+    pokemon_id: entry.pokemon_id,
+    star_level: entry.star_level ?? 1,
+    dupes_collected: entry.dupes_collected ?? 0,
+    is_shiny: entry.is_shiny ?? false,
+    is_power_card: entry.is_power_card ?? false,
+    updated_at: new Date().toISOString(),
+  };
+
   const { data, error } = await supabase
     .from('collections')
-    .upsert(
-      {
-        user_id: entry.user_id,
-        pokemon_id: entry.pokemon_id,
-        star_level: entry.star_level ?? 1,
-        dupes_collected: entry.dupes_collected ?? 0,
-        is_shiny: entry.is_shiny ?? false,
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: 'user_id,pokemon_id' }
-    )
+    .upsert(payload, { onConflict: entry.is_power_card ? 'user_id,pokemon_id,is_power_card' : 'user_id,pokemon_id' })
     .select()
     .single();
 
   if (error) {
-    console.error('Error upserting collection entry:', error.message);
-    throw error;
+    // If table schema unique constraint doesn't include is_power_card yet, fallback to normal upsert
+    console.warn('Upsert notice (retrying basic payload if needed):', error.message);
+    const { data: retryData, error: retryErr } = await supabase
+      .from('collections')
+      .upsert(payload)
+      .select()
+      .single();
+    if (retryErr) {
+      console.error('Error upserting collection entry:', retryErr.message);
+      throw retryErr;
+    }
+    return retryData;
   }
 
   return data;
@@ -139,5 +149,51 @@ export async function awardCard(userId, pokemonId) {
     entry: updatedEntry,
     starUpgraded,
     becameShiny,
+  };
+}
+
+/**
+ * Award a bonus Power Card to the user.
+ * Power Cards are unlevelable single-state trophy cards (is_power_card = true).
+ * 
+ * @param {string} userId - Auth user UUID
+ * @param {number} pokemonId - Pokémon ID awarded
+ * @returns {Promise<Object>} Award summary { isNew, entry, isPowerCard: true }
+ */
+export async function awardPowerCard(userId, pokemonId) {
+  if (!userId || !pokemonId) {
+    throw new Error('userId and pokemonId are required to award a power card');
+  }
+
+  // Fetch existing power card row
+  const { data: existingRows, error: fetchErr } = await supabase
+    .from('collections')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('pokemon_id', pokemonId)
+    .eq('is_power_card', true);
+
+  if (!fetchErr && existingRows && existingRows.length > 0) {
+    return {
+      isNew: false,
+      entry: existingRows[0],
+      isPowerCard: true,
+      alreadyOwned: true,
+    };
+  }
+
+  const newEntry = await upsertCollectionEntry({
+    user_id: userId,
+    pokemon_id: pokemonId,
+    star_level: 1,
+    dupes_collected: 0,
+    is_shiny: false,
+    is_power_card: true,
+  });
+
+  return {
+    isNew: true,
+    entry: newEntry,
+    isPowerCard: true,
   };
 }

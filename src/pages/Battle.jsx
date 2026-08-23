@@ -18,8 +18,8 @@ import {
   isOhkoMove,
   applyStatChange,
 } from '../game/battle';
-import { rollCardDrop } from '../game/drops';
-import { getUserCollection, awardCard } from '../store/collection';
+import { rollCardDrop, rollPowerCardDrop } from '../game/drops';
+import { getUserCollection, awardCard, awardPowerCard } from '../store/collection';
 import { useAuth } from '../context/AuthContext';
 import pokemonList from '../data/pokemon.json' with { type: 'json' };
 import HpBar from '../components/HpBar';
@@ -633,17 +633,38 @@ export default function Battle() {
               const userColl = await getUserCollection(user.id);
               const droppedPkmn = rollCardDrop(userColl, pokemonList);
               const awardRes = await awardCard(user.id, droppedPkmn.id);
+
+              // Roll separate 5% bonus Power Card drop check
+              let powerCardState = null;
+              const powerCardPkmn = rollPowerCardDrop(userColl, pokemonList, 0.05);
+              if (powerCardPkmn) {
+                const pcAwardRes = await awardPowerCard(user.id, powerCardPkmn.id);
+                powerCardState = {
+                  pokemon: powerCardPkmn,
+                  ...pcAwardRes,
+                };
+                addLog(`⚡ BONUS POWER CARD DROP! You earned ${powerCardPkmn.name.toUpperCase()} Power Card!`, { isSuperEffective: true });
+              }
+
               dropState = {
                 pokemon: droppedPkmn,
                 ...awardRes,
+                powerCardDrop: powerCardState,
               };
               addLog(`🎁 You earned a card drop: ${droppedPkmn.name.toUpperCase()}!`, { isSuperEffective: true });
             } else {
               const immediateDrop = rollCardDrop([], pokemonList);
+              // In preview mode without user login, test a bonus Power Card roll
+              const pcTestPkmn = rollPowerCardDrop([], pokemonList, 0.15); // Slightly higher for preview testing
               dropState = {
                 pokemon: immediateDrop,
                 isNew: true,
                 entry: { star_level: 1, dupes_collected: 0, is_shiny: false },
+                powerCardDrop: pcTestPkmn ? {
+                  pokemon: pcTestPkmn,
+                  isNew: true,
+                  isPowerCard: true,
+                } : null,
               };
             }
           } catch (err) {

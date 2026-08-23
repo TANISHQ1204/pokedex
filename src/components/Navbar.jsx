@@ -48,6 +48,18 @@ export default function Navbar() {
           <GymBadgeIcon size={18} color="#f59e0b" /> Badges
         </NavLink>
         <NavLink
+          to="/design-preview"
+          className={({ isActive }) => (isActive ? 'active nav-preview-link' : 'nav-preview-link')}
+          style={{
+            background: 'linear-gradient(90deg, #ec4899, #8b5cf6)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            fontWeight: 800,
+          }}
+        >
+          ⚡ Power Cards
+        </NavLink>
+        <NavLink
           to="/account"
           className={({ isActive }) => (isActive ? 'active nav-user-link' : 'nav-user-link')}
         >

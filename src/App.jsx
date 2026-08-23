@@ -14,6 +14,7 @@ import Friends from './pages/Friends';
 import MatchLobby from './pages/MatchLobby';
 import JoinMatch from './pages/JoinMatch';
 import GameModes from './pages/GameModes';
+import DesignPreviewPage from './pages/DesignPreviewPage';
 import MatchInviteBanner from './components/MatchInviteBanner';
 
 function ProtectedRoute({ children }) {
@@ -180,6 +181,22 @@ export default function App() {
           element={
             <ProtectedRoute>
               <MatchLobby />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/design-preview"
+          element={
+            <ProtectedRoute>
+              <DesignPreviewPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/power-cards"
+          element={
+            <ProtectedRoute>
+              <DesignPreviewPage />
             </ProtectedRoute>
           }
         />
