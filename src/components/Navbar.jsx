@@ -47,22 +47,7 @@ export default function Navbar() {
         <NavLink to="/badges" className={({ isActive }) => (isActive ? 'active' : '')}>
           <GymBadgeIcon size={18} color="#f59e0b" /> Badges
         </NavLink>
-        <NavLink
-          to="/collection?view=power-cards"
-          className={({ isActive }) => (isActive ? 'active nav-preview-link' : 'nav-preview-link')}
-          style={{
-            background: 'linear-gradient(90deg, #ec4899, #8b5cf6)',
-            color: '#ffffff',
-            padding: '4px 10px',
-            borderRadius: '12px',
-            fontWeight: 800,
-            fontSize: '0.85rem',
-            boxShadow: '0 0 10px rgba(236, 72, 153, 0.4)',
-            textDecoration: 'none',
-          }}
-        >
-          ⚡ Power Cards
-        </NavLink>
+
         <NavLink
           to="/account"
           className={({ isActive }) => (isActive ? 'active nav-user-link' : 'nav-user-link')}

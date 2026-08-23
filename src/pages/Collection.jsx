@@ -84,6 +84,10 @@ export default function Collection() {
   const [cardShinyMap, setCardShinyMap] = useState({});
   const [revealPokemon, setRevealPokemon] = useState(null);
   const [isRevealOpen, setIsRevealOpen] = useState(false);
+  const [powerSearch, setPowerSearch] = useState('');
+  const [powerTypeFilter, setPowerTypeFilter] = useState('all');
+  const [powerPage, setPowerPage] = useState(1);
+  const POWER_PER_PAGE = 24;
 
   // Fetch collection from Supabase
   useEffect(() => {
@@ -183,10 +187,49 @@ export default function Collection() {
   const totalCount = pokemonList.length;
   const completionPercentage = Math.round((ownedCount / totalCount) * 100);
 
-  // Power cards collectibles list
-  const ownedPowerCards = useMemo(() => {
-    return pokemonList.filter((p) => powerCollectionMap.has(p.id));
-  }, [powerCollectionMap]);
+  // Power cards collectibles: one entry per type for dual-type Pokémon
+  const ownedPowerCardCount = powerCollectionMap.size;
+
+  const allPowerCardEntries = useMemo(() => {
+    let entries = [];
+    pokemonList.forEach((p) => {
+      if (p.types.length > 1) {
+        // Dual-type: one card per type
+        p.types.forEach((type) => {
+          entries.push({ pokemon: p, themeType: type, key: `${p.id}-${type}` });
+        });
+      } else {
+        entries.push({ pokemon: p, themeType: p.types[0], key: `${p.id}-${p.types[0]}` });
+      }
+    });
+
+    // Search filter
+    if (powerSearch.trim()) {
+      const q = powerSearch.toLowerCase().trim();
+      entries = entries.filter(
+        (e) => e.pokemon.name.toLowerCase().includes(q) || String(e.pokemon.id).includes(q)
+      );
+    }
+
+    // Type filter
+    if (powerTypeFilter !== 'all') {
+      entries = entries.filter((e) => e.themeType === powerTypeFilter);
+    }
+
+    return entries;
+  }, [powerSearch, powerTypeFilter]);
+
+  // Reset power page on filter change
+  useEffect(() => {
+    setPowerPage(1);
+  }, [powerSearch, powerTypeFilter]);
+
+  const powerTotalPages = Math.max(1, Math.ceil(allPowerCardEntries.length / POWER_PER_PAGE));
+  const powerValidPage = Math.min(powerPage, powerTotalPages);
+  const paginatedPowerCards = useMemo(() => {
+    const start = (powerValidPage - 1) * POWER_PER_PAGE;
+    return allPowerCardEntries.slice(start, start + POWER_PER_PAGE);
+  }, [allPowerCardEntries, powerValidPage]);
 
   const handleCardClick = (p) => {
     setSelectedPokemon(p);
@@ -281,7 +324,7 @@ export default function Collection() {
             boxShadow: viewMode === 'power-cards' ? '0 4px 16px rgba(236, 72, 153, 0.4)' : 'none',
           }}
         >
-          ⚡ Power Cards ({ownedPowerCards.length})
+          ⚡ Power Cards ({ownedPowerCardCount})
         </button>
       </div>
 
@@ -294,126 +337,264 @@ export default function Collection() {
           <div style={{
             textAlign: 'center',
             padding: '20px',
-            marginBottom: '24px',
+            marginBottom: '20px',
             background: 'radial-gradient(circle at 50% 0%, rgba(236, 72, 153, 0.12), transparent 70%)',
             borderRadius: '20px',
             border: '1px solid rgba(236, 72, 153, 0.2)',
           }}>
             <div style={{ fontSize: '0.8rem', color: '#94a3b8', letterSpacing: '1.5px', fontWeight: 700, marginBottom: '6px', fontFamily: "'Rajdhani', sans-serif" }}>ULTRA RARE COLLECTIBLES</div>
             <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#f8fafc', fontFamily: "'Outfit', sans-serif" }}>
-              ⚡ {ownedPowerCards.length} <span style={{ color: '#94a3b8', fontWeight: 400, fontSize: '1rem' }}>/ {totalCount} Power Cards Collected</span>
+              ⚡ {ownedPowerCardCount} <span style={{ color: '#94a3b8', fontWeight: 400, fontSize: '1rem' }}>/ {totalCount} Power Cards Collected</span>
             </div>
             <div className="hp-bar-outer" style={{ height: '8px', maxWidth: '400px', margin: '10px auto 0' }}>
               <div
                 className="hp-bar-inner"
                 style={{
-                  width: `${Math.round((ownedPowerCards.length / totalCount) * 100)}%`,
+                  width: `${Math.round((ownedPowerCardCount / totalCount) * 100)}%`,
                   background: 'linear-gradient(90deg, #ec4899, #8b5cf6)',
                 }}
               />
             </div>
           </div>
 
+          {/* Power Cards Search & Type Filter */}
+          <div style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            alignItems: 'center',
+            gap: '12px',
+            marginBottom: '16px',
+            padding: '14px 16px',
+            background: 'rgba(15, 23, 42, 0.7)',
+            borderRadius: '14px',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            backdropFilter: 'blur(8px)',
+          }}>
+            <input
+              type="text"
+              className="search-input"
+              placeholder="Search Power Cards by name or ID..."
+              value={powerSearch}
+              onChange={(e) => setPowerSearch(e.target.value)}
+              style={{ flex: '1 1 220px', minWidth: '180px' }}
+            />
+            <select
+              className="filter-select"
+              value={powerTypeFilter}
+              onChange={(e) => setPowerTypeFilter(e.target.value)}
+            >
+              <option value="all">All Types</option>
+              {POKEMON_TYPES.map((t) => (
+                <option key={t} value={t}>
+                  {t.charAt(0).toUpperCase() + t.slice(1)}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Results count */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', color: '#94a3b8', fontSize: '0.85rem' }}>
+            <span>
+              Showing {allPowerCardEntries.length} cards {powerSearch || powerTypeFilter !== 'all' ? '(Filtered)' : ''}
+              {' · '}<span style={{ color: '#ec4899' }}>{allPowerCardEntries.filter(e => powerCollectionMap.has(e.pokemon.id)).length} owned</span>
+            </span>
+            {powerTotalPages > 1 && <span>Page {powerValidPage} of {powerTotalPages}</span>}
+          </div>
+
           {isLoading ? (
             <div style={{ textAlign: 'center', padding: '3rem', color: '#94a3b8' }}>
               Loading Power Cards...
             </div>
-          ) : ownedPowerCards.length === 0 ? (
+          ) : allPowerCardEntries.length === 0 ? (
             <div style={{
               textAlign: 'center',
-              padding: '60px 20px',
+              padding: '40px 20px',
               color: '#64748b',
               background: 'rgba(15, 23, 42, 0.5)',
               borderRadius: '24px',
               border: '1px solid rgba(255, 255, 255, 0.06)',
             }}>
-              <div style={{ fontSize: '3rem', marginBottom: '12px' }}>⚡</div>
-              <div style={{ fontSize: '1.25rem', fontWeight: 700, color: '#94a3b8', marginBottom: '8px' }}>No Power Cards Yet</div>
-              <div style={{ fontSize: '0.9rem', maxWidth: '400px', margin: '0 auto', lineHeight: 1.5 }}>
-                Win battles to earn ultra-rare Power Cards! These holographic collectibles feature interactive 3D tilt, animated type effects, and stunning reveal animations.
-              </div>
+              <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#94a3b8' }}>No cards match your search.</div>
             </div>
           ) : (
+            <>
             <div style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
               gap: '36px 24px',
               justifyItems: 'center',
             }}>
-              {ownedPowerCards.map((pokemon) => {
+              {paginatedPowerCards.map(({ pokemon, themeType, key }) => {
+                const isOwned = powerCollectionMap.has(pokemon.id);
                 const shiny = isCardShiny(pokemon.id);
+                const typeName = themeType.charAt(0).toUpperCase() + themeType.slice(1);
+
                 return (
                   <div
-                    key={pokemon.id}
+                    key={key}
                     style={{
                       display: 'flex',
                       flexDirection: 'column',
                       alignItems: 'center',
                       gap: '12px',
-                      background: 'rgba(15, 23, 42, 0.5)',
+                      background: isOwned ? 'rgba(15, 23, 42, 0.5)' : 'rgba(15, 23, 42, 0.3)',
                       padding: '16px',
                       borderRadius: '24px',
-                      border: '1px solid rgba(255, 255, 255, 0.08)',
+                      border: isOwned ? '1px solid rgba(236, 72, 153, 0.25)' : '1px solid rgba(255, 255, 255, 0.05)',
                       transition: 'border-color 0.3s, box-shadow 0.3s',
+                      opacity: isOwned ? 1 : 0.55,
+                      filter: isOwned ? 'none' : 'grayscale(0.6)',
+                      position: 'relative',
                     }}
                   >
-                    {/* Card Header: Name + Shiny Toggle */}
+                    {/* Card Header */}
                     <div style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 4px' }}>
                       <span style={{
                         fontFamily: "'Rajdhani', sans-serif",
                         fontWeight: 800,
                         fontSize: '0.85rem',
-                        color: '#ffd700',
+                        color: isOwned ? '#ffd700' : '#475569',
                         letterSpacing: '1px',
                       }}>
-                        #{String(pokemon.id).padStart(4, '0')} — {formatTitle(pokemon.name)}
+                        #{String(pokemon.id).padStart(4, '0')} — {isOwned ? formatTitle(pokemon.name) : '???'}
+                        {pokemon.types.length > 1 && (
+                          <span style={{ marginLeft: '6px', fontSize: '0.7rem', color: isOwned ? '#a78bfa' : '#475569', fontWeight: 600 }}>({typeName})</span>
+                        )}
                       </span>
-                      <button
-                        onClick={() => toggleCardShiny(pokemon.id)}
-                        style={{
-                          fontFamily: "'Outfit', sans-serif",
-                          fontSize: '0.75rem',
-                          fontWeight: 700,
-                          padding: '4px 10px',
-                          borderRadius: '8px',
-                          border: '1px solid rgba(255, 255, 255, 0.2)',
-                          background: shiny ? 'linear-gradient(90deg, #f59e0b, #d97706)' : 'rgba(30, 41, 59, 0.8)',
-                          color: '#ffffff',
-                          cursor: 'pointer',
-                          transition: 'all 0.2s',
-                        }}
-                      >
-                        {shiny ? '✨ Shiny' : '⭐ Normal'}
-                      </button>
+                      {isOwned && (
+                        <button
+                          onClick={() => toggleCardShiny(pokemon.id)}
+                          style={{
+                            fontFamily: "'Outfit', sans-serif",
+                            fontSize: '0.75rem',
+                            fontWeight: 700,
+                            padding: '4px 10px',
+                            borderRadius: '8px',
+                            border: '1px solid rgba(255, 255, 255, 0.2)',
+                            background: shiny ? 'linear-gradient(90deg, #f59e0b, #d97706)' : 'rgba(30, 41, 59, 0.8)',
+                            color: '#ffffff',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s',
+                          }}
+                        >
+                          {shiny ? '✨ Shiny' : '⭐ Normal'}
+                        </button>
+                      )}
                     </div>
 
-                    {/* The Power Card Component */}
-                    <PowerCard pokemon={pokemon} isShiny={shiny} enableTilt={true} />
+                    {/* Power Card or Locked Placeholder */}
+                    {isOwned ? (
+                      <PowerCard pokemon={pokemon} isShiny={shiny} enableTilt={true} themeTypeOverride={themeType} />
+                    ) : (
+                      <div style={{
+                        width: '280px',
+                        height: '420px',
+                        borderRadius: '18px',
+                        background: 'linear-gradient(180deg, rgba(30,41,59,0.9) 0%, rgba(15,23,42,0.95) 100%)',
+                        border: '2px dashed rgba(100, 116, 139, 0.3)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '12px',
+                        position: 'relative',
+                        overflow: 'hidden',
+                      }}>
+                        {/* Faint silhouette */}
+                        <img
+                          src={pokemon.sprites.normal}
+                          alt=""
+                          style={{
+                            width: '120px',
+                            height: '120px',
+                            filter: 'brightness(0) invert(0.15)',
+                            opacity: 0.3,
+                            userSelect: 'none',
+                            pointerEvents: 'none',
+                          }}
+                        />
+                        <div style={{
+                          fontSize: '0.75rem',
+                          fontFamily: "'Rajdhani', sans-serif",
+                          fontWeight: 800,
+                          letterSpacing: '2px',
+                          color: '#475569',
+                          textAlign: 'center',
+                        }}>
+                          🔒 LOCKED
+                        </div>
+                        <div style={{
+                          fontSize: '0.65rem',
+                          color: '#334155',
+                          textAlign: 'center',
+                          padding: '0 20px',
+                        }}>
+                          Win battles to unlock
+                        </div>
+                        {/* Type badge on placeholder */}
+                        <span className={`pokemon-type-badge type-${themeType}`} style={{
+                          position: 'absolute',
+                          top: '12px',
+                          right: '12px',
+                          fontSize: '0.65rem',
+                          padding: '2px 8px',
+                          opacity: 0.5,
+                        }}>
+                          {themeType}
+                        </span>
+                      </div>
+                    )}
 
-                    {/* Play Reveal Button */}
-                    <button
-                      onClick={() => handleOpenReveal(pokemon)}
-                      style={{
-                        fontFamily: "'Outfit', sans-serif",
-                        fontSize: '0.8rem',
-                        fontWeight: 700,
-                        padding: '8px 18px',
-                        borderRadius: '10px',
-                        border: '1px solid rgba(99, 102, 241, 0.4)',
-                        background: 'rgba(99, 102, 241, 0.2)',
-                        color: '#c7d2fe',
-                        cursor: 'pointer',
-                        transition: 'background 0.2s',
-                      }}
-                      onMouseEnter={(e) => e.target.style.background = 'rgba(99, 102, 241, 0.5)'}
-                      onMouseLeave={(e) => e.target.style.background = 'rgba(99, 102, 241, 0.2)'}
-                    >
-                      ▶ Play Reveal
-                    </button>
+                    {/* Footer actions for owned cards */}
+                    {isOwned && (
+                      <button
+                        onClick={() => handleOpenReveal(pokemon)}
+                        style={{
+                          fontFamily: "'Outfit', sans-serif",
+                          fontSize: '0.8rem',
+                          fontWeight: 700,
+                          padding: '8px 18px',
+                          borderRadius: '10px',
+                          border: '1px solid rgba(99, 102, 241, 0.4)',
+                          background: 'rgba(99, 102, 241, 0.2)',
+                          color: '#c7d2fe',
+                          cursor: 'pointer',
+                          transition: 'background 0.2s',
+                        }}
+                        onMouseEnter={(e) => e.target.style.background = 'rgba(99, 102, 241, 0.5)'}
+                        onMouseLeave={(e) => e.target.style.background = 'rgba(99, 102, 241, 0.2)'}
+                      >
+                        ▶ Play Reveal
+                      </button>
+                    )}
                   </div>
                 );
               })}
             </div>
+
+            {/* Power Cards Pagination */}
+            {powerTotalPages > 1 && (
+              <div className="pagination-bar">
+                <button
+                  className="page-btn"
+                  disabled={powerValidPage === 1}
+                  onClick={() => setPowerPage((p) => Math.max(1, p - 1))}
+                >
+                  &laquo; Prev
+                </button>
+                <span style={{ fontSize: '0.875rem', color: '#94a3b8' }}>
+                  Page {powerValidPage} of {powerTotalPages}
+                </span>
+                <button
+                  className="page-btn"
+                  disabled={powerValidPage === powerTotalPages}
+                  onClick={() => setPowerPage((p) => Math.min(powerTotalPages, p + 1))}
+                >
+                  Next &raquo;
+                </button>
+              </div>
+            )}
+            </>
           )}
 
           {/* Reveal Modal */}
