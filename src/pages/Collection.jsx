@@ -57,10 +57,23 @@ export default function Collection() {
   const [powerCollectionMap, setPowerCollectionMap] = useState(new Map());
   const [isLoading, setIsLoading] = useState(true);
 
-  // View mode: 'dex' (default grid) or 'power-cards' (collectibles gallery)
-  const viewMode = searchParams.get('view') === 'power-cards' ? 'power-cards' : 'dex';
-  const setViewMode = (mode) => {
-    if (mode === 'power-cards') {
+  // View mode state: 'dex' (default grid) or 'power-cards' (collectibles gallery)
+  const [activeTab, setActiveTab] = useState(() => {
+    return searchParams.get('view') === 'power-cards' ? 'power-cards' : 'dex';
+  });
+
+  useEffect(() => {
+    const paramView = searchParams.get('view');
+    if (paramView === 'power-cards' && activeTab !== 'power-cards') {
+      setActiveTab('power-cards');
+    } else if (!paramView && activeTab === 'power-cards') {
+      setActiveTab('dex');
+    }
+  }, [searchParams]);
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    if (tab === 'power-cards') {
       setSearchParams({ view: 'power-cards' });
     } else {
       setSearchParams({});
@@ -282,46 +295,47 @@ export default function Collection() {
       <div style={{
         display: 'flex',
         justifyContent: 'center',
-        gap: '8px',
-        margin: '0 0 1.25rem 0',
-        padding: '6px',
-        background: 'rgba(15, 23, 42, 0.7)',
-        borderRadius: '16px',
-        border: '1px solid rgba(255, 255, 255, 0.1)',
-        backdropFilter: 'blur(8px)',
+        gap: '12px',
+        margin: '0 0 1.5rem 0',
+        padding: '8px',
+        background: 'rgba(15, 23, 42, 0.85)',
+        borderRadius: '20px',
+        border: '1px solid rgba(255, 255, 255, 0.15)',
+        backdropFilter: 'blur(12px)',
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
       }}>
         <button
-          onClick={() => setViewMode('dex')}
+          onClick={() => handleTabChange('dex')}
           style={{
             fontFamily: "'Outfit', sans-serif",
-            fontWeight: 700,
-            fontSize: '0.9rem',
-            padding: '10px 24px',
-            borderRadius: '12px',
+            fontWeight: 800,
+            fontSize: '0.95rem',
+            padding: '12px 28px',
+            borderRadius: '14px',
             border: 'none',
             cursor: 'pointer',
             transition: 'all 0.25s ease',
-            background: viewMode === 'dex' ? 'linear-gradient(90deg, #6366f1, #4f46e5)' : 'transparent',
-            color: viewMode === 'dex' ? '#ffffff' : '#94a3b8',
-            boxShadow: viewMode === 'dex' ? '0 4px 14px rgba(99, 102, 241, 0.4)' : 'none',
+            background: activeTab === 'dex' ? 'linear-gradient(90deg, #6366f1, #4f46e5)' : 'transparent',
+            color: activeTab === 'dex' ? '#ffffff' : '#94a3b8',
+            boxShadow: activeTab === 'dex' ? '0 4px 16px rgba(99, 102, 241, 0.5)' : 'none',
           }}
         >
           🗂️ Dex Collection
         </button>
         <button
-          onClick={() => setViewMode('power-cards')}
+          onClick={() => handleTabChange('power-cards')}
           style={{
             fontFamily: "'Outfit', sans-serif",
             fontWeight: 800,
-            fontSize: '0.9rem',
-            padding: '10px 24px',
-            borderRadius: '12px',
+            fontSize: '0.95rem',
+            padding: '12px 28px',
+            borderRadius: '14px',
             border: 'none',
             cursor: 'pointer',
             transition: 'all 0.25s ease',
-            background: viewMode === 'power-cards' ? 'linear-gradient(90deg, #ec4899, #8b5cf6)' : 'transparent',
-            color: viewMode === 'power-cards' ? '#ffffff' : '#94a3b8',
-            boxShadow: viewMode === 'power-cards' ? '0 4px 16px rgba(236, 72, 153, 0.4)' : 'none',
+            background: activeTab === 'power-cards' ? 'linear-gradient(90deg, #ec4899, #8b5cf6)' : 'transparent',
+            color: activeTab === 'power-cards' ? '#ffffff' : '#94a3b8',
+            boxShadow: activeTab === 'power-cards' ? '0 4px 18px rgba(236, 72, 153, 0.5)' : 'none',
           }}
         >
           ⚡ Power Cards ({ownedPowerCardCount})
@@ -331,7 +345,7 @@ export default function Collection() {
       {/* ========================================= */}
       {/* VIEW: POWER CARDS COLLECTIBLES GALLERY    */}
       {/* ========================================= */}
-      {viewMode === 'power-cards' ? (
+      {activeTab === 'power-cards' ? (
         <div>
           {/* Power Cards Summary */}
           <div style={{
