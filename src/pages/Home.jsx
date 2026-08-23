@@ -142,11 +142,11 @@ export default function Home() {
               <SwordsIcon size={20} /> Battle Arena
             </Link>
             <Link
-              to="/design-preview"
+              to="/collection?view=power-cards"
               className="hero-btn primary"
               style={{ background: 'linear-gradient(90deg, #ec4899, #8b5cf6)', border: 'none' }}
             >
-              ⚡ Power Cards Showcase
+              ⚡ Power Cards
             </Link>
             <Link to="/collection" className="hero-btn secondary">
               <CardsIcon size={20} /> Card Collection

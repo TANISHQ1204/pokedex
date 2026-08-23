@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { getUserCollection } from '../store/collection';
 import pokemonList from '../data/pokemon.json' with { type: 'json' };
 import PowerCard from '../components/PowerCard';
+import PowerCardRevealModal from '../components/PowerCardRevealModal';
 
 const ITEMS_PER_PAGE = 48;
 
@@ -50,9 +52,20 @@ function formatTitle(str) {
 
 export default function Collection() {
   const { user } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [collectionMap, setCollectionMap] = useState(new Map());
   const [powerCollectionMap, setPowerCollectionMap] = useState(new Map());
   const [isLoading, setIsLoading] = useState(true);
+
+  // View mode: 'dex' (default grid) or 'power-cards' (collectibles gallery)
+  const viewMode = searchParams.get('view') === 'power-cards' ? 'power-cards' : 'dex';
+  const setViewMode = (mode) => {
+    if (mode === 'power-cards') {
+      setSearchParams({ view: 'power-cards' });
+    } else {
+      setSearchParams({});
+    }
+  };
 
   // Filters & Pagination state
   const [searchQuery, setSearchQuery] = useState('');
@@ -66,6 +79,11 @@ export default function Collection() {
   const [selectedPokemon, setSelectedPokemon] = useState(null);
   const [previewShiny, setPreviewShiny] = useState(false);
   const [viewPowerCardInModal, setViewPowerCardInModal] = useState(false);
+
+  // Power Cards Gallery state
+  const [cardShinyMap, setCardShinyMap] = useState({});
+  const [revealPokemon, setRevealPokemon] = useState(null);
+  const [isRevealOpen, setIsRevealOpen] = useState(false);
 
   // Fetch collection from Supabase
   useEffect(() => {
@@ -165,11 +183,29 @@ export default function Collection() {
   const totalCount = pokemonList.length;
   const completionPercentage = Math.round((ownedCount / totalCount) * 100);
 
+  // Power cards collectibles list
+  const ownedPowerCards = useMemo(() => {
+    return pokemonList.filter((p) => powerCollectionMap.has(p.id));
+  }, [powerCollectionMap]);
+
   const handleCardClick = (p) => {
     setSelectedPokemon(p);
     const entry = collectionMap.get(p.id);
     setPreviewShiny(entry?.is_shiny || (entry?.star_level >= 5));
     setViewPowerCardInModal(powerCollectionMap.has(p.id) && !collectionMap.has(p.id));
+  };
+
+  const toggleCardShiny = (id) => {
+    setCardShinyMap((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const isCardShiny = (pokemonId) => {
+    return cardShinyMap[pokemonId] ?? false;
+  };
+
+  const handleOpenReveal = (pokemon) => {
+    setRevealPokemon(pokemon);
+    setIsRevealOpen(true);
   };
 
   return (
@@ -198,6 +234,201 @@ export default function Collection() {
           </div>
         </div>
       </div>
+
+      {/* VIEW MODE TOGGLE: Dex Collection / Power Cards */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        gap: '8px',
+        margin: '0 0 1.25rem 0',
+        padding: '6px',
+        background: 'rgba(15, 23, 42, 0.7)',
+        borderRadius: '16px',
+        border: '1px solid rgba(255, 255, 255, 0.1)',
+        backdropFilter: 'blur(8px)',
+      }}>
+        <button
+          onClick={() => setViewMode('dex')}
+          style={{
+            fontFamily: "'Outfit', sans-serif",
+            fontWeight: 700,
+            fontSize: '0.9rem',
+            padding: '10px 24px',
+            borderRadius: '12px',
+            border: 'none',
+            cursor: 'pointer',
+            transition: 'all 0.25s ease',
+            background: viewMode === 'dex' ? 'linear-gradient(90deg, #6366f1, #4f46e5)' : 'transparent',
+            color: viewMode === 'dex' ? '#ffffff' : '#94a3b8',
+            boxShadow: viewMode === 'dex' ? '0 4px 14px rgba(99, 102, 241, 0.4)' : 'none',
+          }}
+        >
+          🗂️ Dex Collection
+        </button>
+        <button
+          onClick={() => setViewMode('power-cards')}
+          style={{
+            fontFamily: "'Outfit', sans-serif",
+            fontWeight: 800,
+            fontSize: '0.9rem',
+            padding: '10px 24px',
+            borderRadius: '12px',
+            border: 'none',
+            cursor: 'pointer',
+            transition: 'all 0.25s ease',
+            background: viewMode === 'power-cards' ? 'linear-gradient(90deg, #ec4899, #8b5cf6)' : 'transparent',
+            color: viewMode === 'power-cards' ? '#ffffff' : '#94a3b8',
+            boxShadow: viewMode === 'power-cards' ? '0 4px 16px rgba(236, 72, 153, 0.4)' : 'none',
+          }}
+        >
+          ⚡ Power Cards ({ownedPowerCards.length})
+        </button>
+      </div>
+
+      {/* ========================================= */}
+      {/* VIEW: POWER CARDS COLLECTIBLES GALLERY    */}
+      {/* ========================================= */}
+      {viewMode === 'power-cards' ? (
+        <div>
+          {/* Power Cards Summary */}
+          <div style={{
+            textAlign: 'center',
+            padding: '20px',
+            marginBottom: '24px',
+            background: 'radial-gradient(circle at 50% 0%, rgba(236, 72, 153, 0.12), transparent 70%)',
+            borderRadius: '20px',
+            border: '1px solid rgba(236, 72, 153, 0.2)',
+          }}>
+            <div style={{ fontSize: '0.8rem', color: '#94a3b8', letterSpacing: '1.5px', fontWeight: 700, marginBottom: '6px', fontFamily: "'Rajdhani', sans-serif" }}>ULTRA RARE COLLECTIBLES</div>
+            <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#f8fafc', fontFamily: "'Outfit', sans-serif" }}>
+              ⚡ {ownedPowerCards.length} <span style={{ color: '#94a3b8', fontWeight: 400, fontSize: '1rem' }}>/ {totalCount} Power Cards Collected</span>
+            </div>
+            <div className="hp-bar-outer" style={{ height: '8px', maxWidth: '400px', margin: '10px auto 0' }}>
+              <div
+                className="hp-bar-inner"
+                style={{
+                  width: `${Math.round((ownedPowerCards.length / totalCount) * 100)}%`,
+                  background: 'linear-gradient(90deg, #ec4899, #8b5cf6)',
+                }}
+              />
+            </div>
+          </div>
+
+          {isLoading ? (
+            <div style={{ textAlign: 'center', padding: '3rem', color: '#94a3b8' }}>
+              Loading Power Cards...
+            </div>
+          ) : ownedPowerCards.length === 0 ? (
+            <div style={{
+              textAlign: 'center',
+              padding: '60px 20px',
+              color: '#64748b',
+              background: 'rgba(15, 23, 42, 0.5)',
+              borderRadius: '24px',
+              border: '1px solid rgba(255, 255, 255, 0.06)',
+            }}>
+              <div style={{ fontSize: '3rem', marginBottom: '12px' }}>⚡</div>
+              <div style={{ fontSize: '1.25rem', fontWeight: 700, color: '#94a3b8', marginBottom: '8px' }}>No Power Cards Yet</div>
+              <div style={{ fontSize: '0.9rem', maxWidth: '400px', margin: '0 auto', lineHeight: 1.5 }}>
+                Win battles to earn ultra-rare Power Cards! These holographic collectibles feature interactive 3D tilt, animated type effects, and stunning reveal animations.
+              </div>
+            </div>
+          ) : (
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+              gap: '36px 24px',
+              justifyItems: 'center',
+            }}>
+              {ownedPowerCards.map((pokemon) => {
+                const shiny = isCardShiny(pokemon.id);
+                return (
+                  <div
+                    key={pokemon.id}
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: '12px',
+                      background: 'rgba(15, 23, 42, 0.5)',
+                      padding: '16px',
+                      borderRadius: '24px',
+                      border: '1px solid rgba(255, 255, 255, 0.08)',
+                      transition: 'border-color 0.3s, box-shadow 0.3s',
+                    }}
+                  >
+                    {/* Card Header: Name + Shiny Toggle */}
+                    <div style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 4px' }}>
+                      <span style={{
+                        fontFamily: "'Rajdhani', sans-serif",
+                        fontWeight: 800,
+                        fontSize: '0.85rem',
+                        color: '#ffd700',
+                        letterSpacing: '1px',
+                      }}>
+                        #{String(pokemon.id).padStart(4, '0')} — {formatTitle(pokemon.name)}
+                      </span>
+                      <button
+                        onClick={() => toggleCardShiny(pokemon.id)}
+                        style={{
+                          fontFamily: "'Outfit', sans-serif",
+                          fontSize: '0.75rem',
+                          fontWeight: 700,
+                          padding: '4px 10px',
+                          borderRadius: '8px',
+                          border: '1px solid rgba(255, 255, 255, 0.2)',
+                          background: shiny ? 'linear-gradient(90deg, #f59e0b, #d97706)' : 'rgba(30, 41, 59, 0.8)',
+                          color: '#ffffff',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s',
+                        }}
+                      >
+                        {shiny ? '✨ Shiny' : '⭐ Normal'}
+                      </button>
+                    </div>
+
+                    {/* The Power Card Component */}
+                    <PowerCard pokemon={pokemon} isShiny={shiny} enableTilt={true} />
+
+                    {/* Play Reveal Button */}
+                    <button
+                      onClick={() => handleOpenReveal(pokemon)}
+                      style={{
+                        fontFamily: "'Outfit', sans-serif",
+                        fontSize: '0.8rem',
+                        fontWeight: 700,
+                        padding: '8px 18px',
+                        borderRadius: '10px',
+                        border: '1px solid rgba(99, 102, 241, 0.4)',
+                        background: 'rgba(99, 102, 241, 0.2)',
+                        color: '#c7d2fe',
+                        cursor: 'pointer',
+                        transition: 'background 0.2s',
+                      }}
+                      onMouseEnter={(e) => e.target.style.background = 'rgba(99, 102, 241, 0.5)'}
+                      onMouseLeave={(e) => e.target.style.background = 'rgba(99, 102, 241, 0.2)'}
+                    >
+                      ▶ Play Reveal
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Reveal Modal */}
+          <PowerCardRevealModal
+            pokemon={revealPokemon}
+            isOpen={isRevealOpen}
+            onClose={() => setIsRevealOpen(false)}
+            initialShiny={revealPokemon ? isCardShiny(revealPokemon.id) : false}
+          />
+        </div>
+      ) : (
+      /* ========================================= */
+      /* VIEW: DEX COLLECTION (existing grid)      */
+      /* ========================================= */
+      <>
 
       {/* QUICK GENERATION SHORTCUT BUTTONS */}
       <div className="gen-shortcuts">
@@ -580,6 +811,8 @@ export default function Collection() {
           )}
         </div>
       </div>
+    )}
+    </>
     )}
     </div>
   );

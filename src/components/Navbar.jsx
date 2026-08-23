@@ -48,7 +48,7 @@ export default function Navbar() {
           <GymBadgeIcon size={18} color="#f59e0b" /> Badges
         </NavLink>
         <NavLink
-          to="/design-preview"
+          to="/collection?view=power-cards"
           className={({ isActive }) => (isActive ? 'active nav-preview-link' : 'nav-preview-link')}
           style={{
             background: 'linear-gradient(90deg, #ec4899, #8b5cf6)',
