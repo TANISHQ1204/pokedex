@@ -1,76 +1,150 @@
 import defaultPokemonList from '../data/pokemon.json' with { type: 'json' };
 
 /**
- * Rolls a random Pokémon card drop from available starters on battle victory.
- * 
- * Exclusion Rules:
- * - Excludes any pokemon_id where user's collection has reached star_level >= 5 (maxed).
- * - Equal odds across all eligible non-maxed starter Pokémon.
- * - Fallback to full pool if all cards in list are maxed.
- * 
+ * Unified battle win drop resolver — Either/Or model.
+ *
+ * On a battle win, the player receives EITHER a normal card OR a special
+ * collection card (Power Card or Ancient Card) — never both.
+ *
+ * Base rates:
+ *   Power Card: 5%    |    Ancient Card: 3%    |    Normal: ~92.15%
+ *
+ * Completion boost — when ALL normal cards are maxed (star_level >= 5):
+ *   Power Card: 40%   |    Ancient Card: 40%   |    Normal: ~24%
+ *
+ * Drop resolution per win:
+ *  1. Roll Power Card
+ *  2. Roll Ancient Card
+ *  3. If both succeed → 50/50 pick between them
+ *  4. If only one succeeds → that one wins (special card)
+ *  5. If neither succeeds → normal card drop
+ *
  * @param {Array} userCollection - Array of collection records from Supabase
- * @param {Array} [customList=null] - Optional list of Pokémon templates
- * @returns {Object} Selected Pokémon template object
+ * @param {Array} [customList=null] - Optional list of Pokemon templates
+ * @returns {{ type: 'normal'|'power'|'ancient', pokemon: Object, collectionComplete: boolean }} Drop result
  */
-export function rollCardDrop(userCollection = [], customList = null) {
+export function rollBattleDrop(userCollection = [], customList = null) {
   const list = customList && Array.isArray(customList) && customList.length > 0 ? customList : defaultPokemonList;
 
-  // 1. Build set of maxed out pokemon_ids (star_level >= 5, excluding power cards)
-  const maxedPokemonIds = new Set(
-    userCollection
-      .filter((item) => item && !item.is_power_card && !item.isPowerCard && item.star_level >= 5)
-      .map((item) => Number(item.pokemon_id))
-  );
+  // --- Check if normal collection is fully completed ---
+  const collectionComplete = isNormalCollectionComplete(userCollection, list);
 
-  // 2. Filter eligible pool excluding maxed Pokémon
-  let eligiblePool = list.filter((pkmn) => !maxedPokemonIds.has(Number(pkmn.id)));
+  // --- Determine rates based on completion ---
+  const powerRate = collectionComplete ? 0.40 : 0.05;
+  const ancientRate = collectionComplete ? 0.40 : 0.03;
 
-  // Fallback to full list if user has maxed out every single card
-  if (eligiblePool.length === 0) {
-    eligiblePool = list;
+  // --- Roll Power Card ---
+  const powerWin = Math.random() < powerRate;
+  let powerPkmn = null;
+  if (powerWin) {
+    const ownedPowerIds = new Set(
+      userCollection
+        .filter((r) => r && (r.is_power_card || r.isPowerCard))
+        .map((r) => Number(r.pokemon_id))
+    );
+    const eligiblePower = list.filter((p) => !ownedPowerIds.has(Number(p.id)));
+    if (eligiblePower.length > 0) {
+      powerPkmn = eligiblePower[Math.floor(Math.random() * eligiblePower.length)];
+    }
   }
 
-  // 3. Roll a random card from the eligible pool (equal probability)
-  const randomIndex = Math.floor(Math.random() * eligiblePool.length);
-  return eligiblePool[randomIndex];
+  // --- Roll Ancient Card ---
+  const ancientWin = Math.random() < ancientRate;
+  let ancientPkmn = null;
+  if (ancientWin) {
+    const ownedAncientIds = new Set(
+      userCollection
+        .filter((r) => r && (r.is_ancient_card || r.isAncientCard))
+        .map((r) => Number(r.pokemon_id))
+    );
+    const eligibleAncient = list.filter((p) => !ownedAncientIds.has(Number(p.id)));
+    if (eligibleAncient.length > 0) {
+      ancientPkmn = eligibleAncient[Math.floor(Math.random() * eligibleAncient.length)];
+    }
+  }
+
+  // --- Resolve: special card wins over normal ---
+  if (powerPkmn && ancientPkmn) {
+    if (Math.random() < 0.5) {
+      return { type: 'power', pokemon: powerPkmn, collectionComplete };
+    }
+    return { type: 'ancient', pokemon: ancientPkmn, collectionComplete };
+  }
+
+  if (powerPkmn) {
+    return { type: 'power', pokemon: powerPkmn, collectionComplete };
+  }
+
+  if (ancientPkmn) {
+    return { type: 'ancient', pokemon: ancientPkmn, collectionComplete };
+  }
+
+  // --- Normal card drop ---
+  return { type: 'normal', pokemon: rollNormalCard(userCollection, list), collectionComplete };
 }
 
 /**
- * Rolls a bonus Power Card drop check (5% chance on battle victory).
- * 
- * Exclusion Rules:
- * - Excludes any pokemon_id where user's collection already owns a Power Card (is_power_card = true).
- * - Equal odds across all unowned Power Card Pokémon.
- * - Returns null if the 5% roll fails or if user already owns all Power Cards.
- * 
- * @param {Array} userCollection - Array of collection records from Supabase
- * @param {Array} [customList=null] - Optional list of Pokémon templates
- * @param {number} [rate=0.05] - Drop rate (default 5%)
- * @returns {Object|null} Selected Pokémon template object or null if no drop
+ * Checks if the user's normal card collection is fully completed.
+ * Completion = every Pokemon in the list has a normal card entry at star_level >= 5.
+ * Power cards and ancient cards are excluded from this check.
+ *
+ * @param {Array} userCollection
+ * @param {Array} list - Pokemon template list
+ * @returns {boolean}
  */
-export function rollPowerCardDrop(userCollection = [], customList = null, rate = 0.05) {
-  // 1. Roll probability check (5% default)
-  if (Math.random() >= rate) {
-    return null;
-  }
+function isNormalCollectionComplete(userCollection, list) {
+  if (!userCollection || userCollection.length === 0) return false;
 
-  const list = customList && Array.isArray(customList) && customList.length > 0 ? customList : defaultPokemonList;
-
-  // 2. Build set of owned Power Card pokemon_ids
-  const ownedPowerCardIds = new Set(
+  const maxedIds = new Set(
     userCollection
-      .filter((item) => item && (item.is_power_card || item.isPowerCard))
-      .map((item) => Number(item.pokemon_id))
+      .filter((r) => r && !r.is_power_card && !r.isPowerCard && !r.is_ancient_card && !r.isAncientCard && r.star_level >= 5)
+      .map((r) => Number(r.pokemon_id))
   );
 
-  // 3. Filter eligible pool excluding already owned Power Cards
-  const eligiblePool = list.filter((pkmn) => !ownedPowerCardIds.has(Number(pkmn.id)));
+  return list.every((p) => maxedIds.has(Number(p.id)));
+}
 
-  if (eligiblePool.length === 0) {
-    return null;
+/**
+ * Rolls a normal card drop from the pool.
+ * Excludes Pokemon where the user has reached star_level >= 5 (fully maxed).
+ * Fallback to full pool if all cards are maxed.
+ *
+ * @param {Array} userCollection
+ * @param {Array} list
+ * @returns {Object} Pokemon template
+ */
+function rollNormalCard(userCollection, list) {
+  const maxedIds = new Set(
+    userCollection
+      .filter((r) => r && !r.is_power_card && !r.isPowerCard && !r.is_ancient_card && !r.isAncientCard && r.star_level >= 5)
+      .map((r) => Number(r.pokemon_id))
+  );
+
+  let eligible = list.filter((p) => !maxedIds.has(Number(p.id)));
+  if (eligible.length === 0) eligible = list;
+
+  return eligible[Math.floor(Math.random() * eligible.length)];
+}
+
+/**
+ * Preview/test mode drop — uses higher special rates for testing.
+ * Returns the same shape as rollBattleDrop.
+ */
+export function rollPreviewDrop(customList = null) {
+  const list = customList && Array.isArray(customList) && customList.length > 0 ? customList : defaultPokemonList;
+
+  // Higher rates for preview: 15% power, 10% ancient
+  const powerWin = Math.random() < 0.15;
+  const ancientWin = !powerWin && Math.random() < 0.10;
+
+  if (powerWin) {
+    const pkmn = list[Math.floor(Math.random() * list.length)];
+    return { type: 'power', pokemon: pkmn, collectionComplete: false };
+  }
+  if (ancientWin) {
+    const pkmn = list[Math.floor(Math.random() * list.length)];
+    return { type: 'ancient', pokemon: pkmn, collectionComplete: false };
   }
 
-  // 4. Select random Power Card from eligible pool
-  const randomIndex = Math.floor(Math.random() * eligiblePool.length);
-  return eligiblePool[randomIndex];
+  return { type: 'normal', pokemon: list[Math.floor(Math.random() * list.length)], collectionComplete: false };
 }

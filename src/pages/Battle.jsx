@@ -18,8 +18,8 @@ import {
   isOhkoMove,
   applyStatChange,
 } from '../game/battle';
-import { rollCardDrop, rollPowerCardDrop } from '../game/drops';
-import { getUserCollection, awardCard, awardPowerCard } from '../store/collection';
+import { rollBattleDrop, rollPreviewDrop } from '../game/drops';
+import { getUserCollection, awardCard, awardPowerCard, awardAncientCard } from '../store/collection';
 import { useAuth } from '../context/AuthContext';
 import pokemonList from '../data/pokemon.json' with { type: 'json' };
 import HpBar from '../components/HpBar';
@@ -666,47 +666,40 @@ export default function Battle() {
           try {
             if (user?.id) {
               const userColl = await getUserCollection(user.id);
-              const droppedPkmn = rollCardDrop(userColl, pokemonList);
-              const awardRes = await awardCard(user.id, droppedPkmn.id);
+              const drop = rollBattleDrop(userColl, pokemonList);
 
-              // Roll separate 5% bonus Power Card drop check
-              let powerCardState = null;
-              const powerCardPkmn = rollPowerCardDrop(userColl, pokemonList, 0.05);
-              if (powerCardPkmn) {
-                const pcAwardRes = await awardPowerCard(user.id, powerCardPkmn.id);
-                powerCardState = {
-                  pokemon: powerCardPkmn,
-                  ...pcAwardRes,
-                };
-                addLog(`⚡ BONUS POWER CARD DROP! You earned ${powerCardPkmn.name.toUpperCase()} Power Card!`, { isSuperEffective: true });
+              if (drop.collectionComplete) {
+                addLog('🏆 COLLECTION COMPLETE! Special card drop rate boosted to 80%!', { isSuperEffective: true });
               }
 
-              dropState = {
-                pokemon: droppedPkmn,
-                ...awardRes,
-                powerCardDrop: powerCardState,
-              };
-              addLog(`🎁 You earned a card drop: ${droppedPkmn.name.toUpperCase()}!`, { isSuperEffective: true });
+              if (drop.type === 'power') {
+                const awardRes = await awardPowerCard(user.id, drop.pokemon.id);
+                dropState = { dropType: 'power', pokemon: drop.pokemon, ...awardRes };
+                addLog(`⚡ POWER CARD DROP! You earned ${drop.pokemon.name.toUpperCase()} Power Card!`, { isSuperEffective: true });
+              } else if (drop.type === 'ancient') {
+                const awardRes = await awardAncientCard(user.id, drop.pokemon.id);
+                dropState = { dropType: 'ancient', pokemon: drop.pokemon, ...awardRes };
+                addLog(`🏛️ ANCIENT CARD DROP! You earned ${drop.pokemon.name.toUpperCase()} Ancient Card!`, { isSuperEffective: true });
+              } else {
+                const awardRes = await awardCard(user.id, drop.pokemon.id);
+                dropState = { dropType: 'normal', pokemon: drop.pokemon, ...awardRes };
+                addLog(`🎁 You earned a card drop: ${drop.pokemon.name.toUpperCase()}!`, { isSuperEffective: true });
+              }
             } else {
-              const immediateDrop = rollCardDrop([], pokemonList);
-              // In preview mode without user login, test a bonus Power Card roll
-              const pcTestPkmn = rollPowerCardDrop([], pokemonList, 0.15); // Slightly higher for preview testing
+              const drop = rollPreviewDrop(pokemonList);
               dropState = {
-                pokemon: immediateDrop,
+                dropType: drop.type,
+                pokemon: drop.pokemon,
                 isNew: true,
                 entry: { star_level: 1, dupes_collected: 0, is_shiny: false },
-                powerCardDrop: pcTestPkmn ? {
-                  pokemon: pcTestPkmn,
-                  isNew: true,
-                  isPowerCard: true,
-                } : null,
               };
             }
           } catch (err) {
             console.error('Error awarding card drop from database:', err);
-            const fallbackDrop = rollCardDrop([], pokemonList);
+            const fallbackPkmn = pokemonList[Math.floor(Math.random() * pokemonList.length)];
             dropState = {
-              pokemon: fallbackDrop,
+              dropType: 'normal',
+              pokemon: fallbackPkmn,
               isNew: true,
               entry: { star_level: 1, dupes_collected: 0, is_shiny: false },
             };

@@ -78,7 +78,7 @@ export default function Collection() {
 
         data.forEach((entry) => {
           const pId = Number(entry.pokemon_id);
-          if (!entry.is_power_card) {
+          if (!entry.is_power_card && !entry.is_ancient_card) {
             normalMap.set(pId, entry);
           }
         });

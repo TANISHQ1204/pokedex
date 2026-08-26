@@ -37,12 +37,13 @@ export async function upsertCollectionEntry(entry) {
     dupes_collected: entry.dupes_collected ?? 0,
     is_shiny: entry.is_shiny ?? false,
     is_power_card: entry.is_power_card ?? false,
+    is_ancient_card: entry.is_ancient_card ?? false,
     updated_at: new Date().toISOString(),
   };
 
   const { data, error } = await supabase
     .from('collections')
-    .upsert(payload, { onConflict: entry.is_power_card ? 'user_id,pokemon_id,is_power_card' : 'user_id,pokemon_id' })
+    .upsert(payload, { onConflict: entry.is_power_card ? 'user_id,pokemon_id,is_power_card' : (entry.is_ancient_card ? 'user_id,pokemon_id,is_ancient_card' : 'user_id,pokemon_id') })
     .select()
     .single();
 
@@ -196,5 +197,50 @@ export async function awardPowerCard(userId, pokemonId) {
     isNew: true,
     entry: newEntry,
     isPowerCard: true,
+  };
+}
+
+/**
+ * Award a bonus Ancient Card to the user.
+ * Ancient Cards are unlevelable single-state trophy cards (is_ancient_card = true).
+ *
+ * @param {string} userId - Auth user UUID
+ * @param {number} pokemonId - Pokemon ID awarded
+ * @returns {Promise<Object>} Award summary { isNew, entry, isAncientCard: true }
+ */
+export async function awardAncientCard(userId, pokemonId) {
+  if (!userId || !pokemonId) {
+    throw new Error('userId and pokemonId are required to award an ancient card');
+  }
+
+  const { data: existingRows, error: fetchErr } = await supabase
+    .from('collections')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('pokemon_id', pokemonId)
+    .eq('is_ancient_card', true);
+
+  if (!fetchErr && existingRows && existingRows.length > 0) {
+    return {
+      isNew: false,
+      entry: existingRows[0],
+      isAncientCard: true,
+      alreadyOwned: true,
+    };
+  }
+
+  const newEntry = await upsertCollectionEntry({
+    user_id: userId,
+    pokemon_id: pokemonId,
+    star_level: 1,
+    dupes_collected: 0,
+    is_shiny: false,
+    is_ancient_card: true,
+  });
+
+  return {
+    isNew: true,
+    entry: newEntry,
+    isAncientCard: true,
   };
 }

@@ -1,0 +1,633 @@
+/* ==========================================
+   ANCIENT CARD — Generation-Themed Trophy Card
+   Premium ancient relic aesthetic per generation
+   ========================================== */
+
+.ancient-card-stage {
+  perspective: 1000px;
+  display: inline-block;
+  user-select: none;
+}
+
+.ancient-card {
+  position: relative;
+  width: 320px;
+  height: 480px;
+  border-radius: 18px;
+  transform-style: preserve-3d;
+  transition: transform 0.15s ease-out, box-shadow 0.3s ease;
+  box-shadow:
+    0 20px 40px rgba(0, 0, 0, 0.8),
+    0 0 1px rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.ancient-card:hover {
+  box-shadow:
+    0 24px 48px rgba(0, 0, 0, 0.85),
+    0 0 30px var(--ancient-glow, rgba(255, 255, 255, 0.08));
+}
+
+/* Animated edge glow */
+.ancient-card::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 20px;
+  background: conic-gradient(
+    from 0deg,
+    var(--ancient-accent, #a8896c) 0deg,
+    transparent 45deg,
+    var(--ancient-accent, #a8896c) 90deg,
+    transparent 135deg,
+    var(--ancient-accent, #a8896c) 180deg,
+    transparent 225deg,
+    var(--ancient-accent, #a8896c) 270deg,
+    transparent 315deg,
+    var(--ancient-accent, #a8896c) 360deg
+  );
+  opacity: 0.45;
+  z-index: -1;
+  animation: ancientEdgeSpin 12s linear infinite;
+}
+
+@keyframes ancientEdgeSpin {
+  to { transform: rotate(360deg); }
+}
+
+.ancient-card:hover::before {
+  opacity: 0.8;
+}
+
+/* ==========================================
+   CANVAS — Base card surface
+   ========================================== */
+
+.ancient-canvas {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 18px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: var(--ancient-bg, linear-gradient(180deg, #1a1612 0%, #0f0d0a 100%));
+}
+
+/* Worn texture overlay — shared across all gens */
+.ancient-texture {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  opacity: var(--ancient-texture-opacity, 0.35);
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      var(--ancient-texture-color, rgba(255,255,255,0.02)) 2px,
+      var(--ancient-texture-color, rgba(255,255,255,0.02)) 3px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 3px,
+      var(--ancient-texture-color, rgba(255,255,255,0.015)) 3px,
+      var(--ancient-texture-color, rgba(255,255,255,0.015)) 4px
+    );
+}
+
+/* Aged vignette */
+.ancient-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+  background: radial-gradient(
+    ellipse at 50% 50%,
+    transparent 40%,
+    rgba(0, 0, 0, 0.6) 100%
+  );
+}
+
+/* Inner worn border */
+.ancient-inner-border {
+  position: absolute;
+  inset: 7px;
+  border-radius: 12px;
+  border: 1.5px solid var(--ancient-border-color, rgba(168, 137, 108, 0.25));
+  pointer-events: none;
+  z-index: 15;
+  box-shadow: inset 0 0 12px var(--ancient-border-glow, rgba(168, 137, 108, 0.08));
+}
+
+/* ==========================================
+   HEADER
+   ========================================== */
+
+.ancient-header {
+  position: relative;
+  z-index: 16;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px 10px;
+  background: linear-gradient(180deg, var(--ancient-header-bg, rgba(0,0,0,0.7)) 0%, transparent 100%);
+}
+
+.ancient-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ancient-badge {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 800;
+  font-size: 0.55rem;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 4px;
+  background: var(--ancient-accent, #a8896c);
+  color: var(--ancient-badge-text, #1a1612);
+  box-shadow: 0 0 12px var(--ancient-glow, rgba(168, 137, 108, 0.4));
+}
+
+.ancient-gen-badge {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 0.55rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 3px;
+  background: transparent;
+  border: 1px solid var(--ancient-accent-dim, rgba(168, 137, 108, 0.3));
+  color: var(--ancient-accent, #a8896c);
+}
+
+.ancient-name {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--ancient-name-color, #f5f0e8);
+  text-transform: capitalize;
+  letter-spacing: 0.5px;
+}
+
+.ancient-hp {
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 800;
+}
+
+.ancient-hp-label {
+  font-size: 0.7rem;
+  color: #ef4444;
+  text-transform: uppercase;
+}
+
+.ancient-hp-val {
+  font-size: 1.2rem;
+  color: var(--ancient-name-color, #f5f0e8);
+}
+
+/* ==========================================
+   ARTWORK AREA
+   ========================================== */
+
+.ancient-art-area {
+  position: relative;
+  width: 100%;
+  height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible !important;
+  z-index: 10;
+}
+
+.ancient-art-frame {
+  position: absolute;
+  width: 86%;
+  height: 80%;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--ancient-frame-bg, radial-gradient(ellipse at 50% 40%, rgba(168,137,108,0.08) 0%, transparent 60%), linear-gradient(180deg, #0c0a08 0%, #080606 100%));
+  border: 1px solid var(--ancient-frame-border, rgba(168, 137, 108, 0.12));
+  box-shadow:
+    inset 0 0 30px rgba(0, 0, 0, 0.8),
+    0 0 20px rgba(0, 0, 0, 0.5);
+  z-index: 1;
+}
+
+.ancient-sprite {
+  position: absolute;
+  z-index: 12;
+  width: 180px;
+  height: 180px;
+  object-fit: contain;
+  filter:
+    drop-shadow(0 8px 16px rgba(0, 0, 0, 0.8))
+    drop-shadow(0 0 10px var(--ancient-glow, rgba(168, 137, 108, 0.2)));
+  transform: translateZ(20px) scale(1.08);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.3s ease;
+  animation: ancientSpriteFloat 5s ease-in-out infinite alternate;
+}
+
+.ancient-card:hover .ancient-sprite {
+  transform: translateZ(35px) scale(1.15) translateY(-5px);
+  filter:
+    drop-shadow(0 14px 24px rgba(0, 0, 0, 0.9))
+    drop-shadow(0 0 20px var(--ancient-glow, rgba(168, 137, 108, 0.3)));
+}
+
+@keyframes ancientSpriteFloat {
+  0%   { transform: translateZ(20px) translateY(0) scale(1.08); }
+  100% { transform: translateZ(25px) translateY(-5px) scale(1.1); }
+}
+
+/* ==========================================
+   BODY SECTION
+   ========================================== */
+
+.ancient-body {
+  position: relative;
+  z-index: 16;
+  padding: 10px 16px 14px;
+  background: linear-gradient(0deg, var(--ancient-body-bg, rgba(0,0,0,0.85)) 0%, rgba(0, 0, 0, 0.4) 70%, transparent 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ancient-types-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.ancient-type-pill {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  padding: 2px 10px;
+  border-radius: 3px;
+  color: var(--ancient-pill-color, #a8896c);
+  background: transparent;
+  border: 1px solid var(--ancient-pill-color, #a8896c);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--ancient-pill-color, #a8896c) 25%, transparent);
+}
+
+.ancient-move-box {
+  background: var(--ancient-move-bg, rgba(168, 137, 108, 0.06));
+  border: 1px solid var(--ancient-border-color, rgba(168, 137, 108, 0.15));
+  border-radius: 6px;
+  padding: 6px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ancient-move-name {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--ancient-name-color, #f5f0e8);
+}
+
+.ancient-move-power {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: var(--ancient-accent, #a8896c);
+  text-shadow: 0 0 8px var(--ancient-glow, rgba(168, 137, 108, 0.3));
+}
+
+.ancient-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  background: var(--ancient-move-bg, rgba(168, 137, 108, 0.04));
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  padding: 6px;
+  border-radius: 6px;
+}
+
+.ancient-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.ancient-stat-label {
+  font-size: 0.5rem;
+  text-transform: uppercase;
+  color: var(--ancient-dim-text, #8a7e6e);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.ancient-stat-val {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--ancient-name-color, #f5f0e8);
+}
+
+.ancient-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.55rem;
+  color: var(--ancient-dim-text, #8a7e6e);
+  padding-top: 4px;
+  border-top: 1px solid var(--ancient-border-color, rgba(168, 137, 108, 0.1));
+}
+
+.ancient-footer-rarity {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  color: var(--ancient-accent, #a8896c);
+  letter-spacing: 1px;
+}
+
+/* ==========================================
+   GENERATION 1 — Kanto: Weathered Stone Tablet
+   ========================================== */
+
+.ancient-gen-1 {
+  --ancient-accent: #b89a6c;
+  --ancient-accent-dim: rgba(184, 154, 108, 0.3);
+  --ancient-glow: rgba(184, 154, 108, 0.35);
+  --ancient-border-color: rgba(184, 154, 108, 0.3);
+  --ancient-border-glow: rgba(184, 154, 108, 0.1);
+  --ancient-name-color: #f0e6d2;
+  --ancient-badge-text: #1a1612;
+  --ancient-dim-text: #8a7a62;
+  --ancient-pill-color: #c4a87a;
+  --ancient-bg: linear-gradient(180deg, #1e1a14 0%, #141210 50%, #0c0a08 100%);
+  --ancient-header-bg: rgba(30, 26, 20, 0.8);
+  --ancient-body-bg: rgba(30, 26, 20, 0.9);
+  --ancient-frame-bg: radial-gradient(ellipse at 50% 40%, rgba(184,154,108,0.08) 0%, transparent 60%), linear-gradient(180deg, #0e0c0a 0%, #080606 100%);
+  --ancient-frame-border: rgba(184, 154, 108, 0.15);
+  --ancient-move-bg: rgba(184, 154, 108, 0.06);
+  --ancient-texture-color: rgba(184, 154, 108, 0.04);
+  --ancient-texture-opacity: 0.5;
+}
+
+/* ==========================================
+   GENERATION 2 — Johto: Aged Parchment Scroll
+   ========================================== */
+
+.ancient-gen-2 {
+  --ancient-accent: #c9a84c;
+  --ancient-accent-dim: rgba(201, 168, 76, 0.3);
+  --ancient-glow: rgba(201, 168, 76, 0.35);
+  --ancient-border-color: rgba(201, 168, 76, 0.3);
+  --ancient-border-glow: rgba(201, 168, 76, 0.1);
+  --ancient-name-color: #fdf3d7;
+  --ancient-badge-text: #2a2010;
+  --ancient-dim-text: #a89060;
+  --ancient-pill-color: #d4b860;
+  --ancient-bg: linear-gradient(180deg, #1c1810 0%, #141208 50%, #0c0a06 100%);
+  --ancient-header-bg: rgba(28, 24, 16, 0.8);
+  --ancient-body-bg: rgba(28, 24, 16, 0.9);
+  --ancient-frame-bg: radial-gradient(ellipse at 50% 40%, rgba(201,168,76,0.07) 0%, transparent 60%), linear-gradient(180deg, #0c0a06 0%, #080604 100%);
+  --ancient-frame-border: rgba(201, 168, 76, 0.15);
+  --ancient-move-bg: rgba(201, 168, 76, 0.06);
+  --ancient-texture-color: rgba(201, 168, 76, 0.03);
+  --ancient-texture-opacity: 0.45;
+}
+
+/* ==========================================
+   GENERATION 3 — Hoenn: Sun-Bleached Sandstone
+   ========================================== */
+
+.ancient-gen-3 {
+  --ancient-accent: #c47a3c;
+  --ancient-accent-dim: rgba(196, 122, 60, 0.3);
+  --ancient-glow: rgba(196, 122, 60, 0.35);
+  --ancient-border-color: rgba(196, 122, 60, 0.3);
+  --ancient-border-glow: rgba(196, 122, 60, 0.1);
+  --ancient-name-color: #fde8d0;
+  --ancient-badge-text: #2a1a0a;
+  --ancient-dim-text: #a07048;
+  --ancient-pill-color: #d48848;
+  --ancient-bg: linear-gradient(180deg, #1e1610 0%, #16100a 50%, #0e0a06 100%);
+  --ancient-header-bg: rgba(30, 22, 16, 0.8);
+  --ancient-body-bg: rgba(30, 22, 16, 0.9);
+  --ancient-frame-bg: radial-gradient(ellipse at 50% 40%, rgba(196,122,60,0.07) 0%, transparent 60%), linear-gradient(180deg, #0c0a06 0%, #060404 100%);
+  --ancient-frame-border: rgba(196, 122, 60, 0.15);
+  --ancient-move-bg: rgba(196, 122, 60, 0.06);
+  --ancient-texture-color: rgba(196, 122, 60, 0.035);
+  --ancient-texture-opacity: 0.5;
+}
+
+/* ==========================================
+   GENERATION 4 — Sinnoh: Frost-Worn Ice/Stone
+   ========================================== */
+
+.ancient-gen-4 {
+  --ancient-accent: #7ca8c4;
+  --ancient-accent-dim: rgba(124, 168, 196, 0.3);
+  --ancient-glow: rgba(124, 168, 196, 0.35);
+  --ancient-border-color: rgba(124, 168, 196, 0.3);
+  --ancient-border-glow: rgba(124, 168, 196, 0.12);
+  --ancient-name-color: #e0f0fa;
+  --ancient-badge-text: #0a1a24;
+  --ancient-dim-text: #6a8ea8;
+  --ancient-pill-color: #8cbcd4;
+  --ancient-bg: linear-gradient(180deg, #14181e 0%, #0e1218 50%, #080c12 100%);
+  --ancient-header-bg: rgba(20, 24, 30, 0.8);
+  --ancient-body-bg: rgba(20, 24, 30, 0.9);
+  --ancient-frame-bg: radial-gradient(ellipse at 50% 40%, rgba(124,168,196,0.07) 0%, transparent 60%), linear-gradient(180deg, #080c12 0%, #060810 100%);
+  --ancient-frame-border: rgba(124, 168, 196, 0.15);
+  --ancient-move-bg: rgba(124, 168, 196, 0.06);
+  --ancient-texture-color: rgba(124, 168, 196, 0.04);
+  --ancient-texture-opacity: 0.4;
+}
+
+/* ==========================================
+   GENERATION 5 — Unova: Weathered Iron/Bronze
+   ========================================== */
+
+.ancient-gen-5 {
+  --ancient-accent: #8a7a68;
+  --ancient-accent-dim: rgba(138, 122, 104, 0.3);
+  --ancient-glow: rgba(138, 122, 104, 0.35);
+  --ancient-border-color: rgba(138, 122, 104, 0.3);
+  --ancient-border-glow: rgba(138, 122, 104, 0.1);
+  --ancient-name-color: #e8e0d4;
+  --ancient-badge-text: #1a1814;
+  --ancient-dim-text: #6a6050;
+  --ancient-pill-color: #9a8a78;
+  --ancient-bg: linear-gradient(180deg, #181614 0%, #121010 50%, #0a0a08 100%);
+  --ancient-header-bg: rgba(24, 22, 20, 0.8);
+  --ancient-body-bg: rgba(24, 22, 20, 0.9);
+  --ancient-frame-bg: radial-gradient(ellipse at 50% 40%, rgba(138,122,104,0.06) 0%, transparent 60%), linear-gradient(180deg, #0a0a08 0%, #060606 100%);
+  --ancient-frame-border: rgba(138, 122, 104, 0.15);
+  --ancient-move-bg: rgba(138, 122, 104, 0.05);
+  --ancient-texture-color: rgba(138, 122, 104, 0.03);
+  --ancient-texture-opacity: 0.55;
+}
+
+/* ==========================================
+   GENERATION 6 — Kalos: Faded Royal Tapestry
+   ========================================== */
+
+.ancient-gen-6 {
+  --ancient-accent: #9a7ab0;
+  --ancient-accent-dim: rgba(154, 122, 176, 0.3);
+  --ancient-glow: rgba(154, 122, 176, 0.35);
+  --ancient-border-color: rgba(154, 122, 176, 0.3);
+  --ancient-border-glow: rgba(154, 122, 176, 0.12);
+  --ancient-name-color: #f0e4f8;
+  --ancient-badge-text: #1a1220;
+  --ancient-dim-text: #7a6890;
+  --ancient-pill-color: #b090c4;
+  --ancient-bg: linear-gradient(180deg, #1a141e 0%, #14101a 50%, #0e0a14 100%);
+  --ancient-header-bg: rgba(26, 20, 30, 0.8);
+  --ancient-body-bg: rgba(26, 20, 30, 0.9);
+  --ancient-frame-bg: radial-gradient(ellipse at 50% 40%, rgba(154,122,176,0.07) 0%, transparent 60%), linear-gradient(180deg, #0e0a14 0%, #0a0810 100%);
+  --ancient-frame-border: rgba(154, 122, 176, 0.15);
+  --ancient-move-bg: rgba(154, 122, 176, 0.06);
+  --ancient-texture-color: rgba(154, 122, 176, 0.035);
+  --ancient-texture-opacity: 0.4;
+}
+
+/* ==========================================
+   GENERATION 7 — Alola: Carved Wood / Tribal Totem
+   ========================================== */
+
+.ancient-gen-7 {
+  --ancient-accent: #b85a38;
+  --ancient-accent-dim: rgba(184, 90, 56, 0.3);
+  --ancient-glow: rgba(184, 90, 56, 0.35);
+  --ancient-border-color: rgba(184, 90, 56, 0.3);
+  --ancient-border-glow: rgba(184, 90, 56, 0.12);
+  --ancient-name-color: #fce4d4;
+  --ancient-badge-text: #2a1208;
+  --ancient-dim-text: #906040;
+  --ancient-pill-color: #cc7048;
+  --ancient-bg: linear-gradient(180deg, #1e1410 0%, #160e0a 50%, #100a06 100%);
+  --ancient-header-bg: rgba(30, 20, 16, 0.8);
+  --ancient-body-bg: rgba(30, 20, 16, 0.9);
+  --ancient-frame-bg: radial-gradient(ellipse at 50% 40%, rgba(184,90,56,0.07) 0%, transparent 60%), linear-gradient(180deg, #100a06 0%, #0a0604 100%);
+  --ancient-frame-border: rgba(184, 90, 56, 0.15);
+  --ancient-move-bg: rgba(184, 90, 56, 0.06);
+  --ancient-texture-color: rgba(184, 90, 56, 0.04);
+  --ancient-texture-opacity: 0.45;
+}
+
+/* ==========================================
+   GENERATION 8 — Galar: Castle Stone / Heraldic
+   ========================================== */
+
+.ancient-gen-8 {
+  --ancient-accent: #7a8a9a;
+  --ancient-accent-dim: rgba(122, 138, 154, 0.3);
+  --ancient-glow: rgba(122, 138, 154, 0.35);
+  --ancient-border-color: rgba(122, 138, 154, 0.3);
+  --ancient-border-glow: rgba(122, 138, 154, 0.1);
+  --ancient-name-color: #e0e8f0;
+  --ancient-badge-text: #121820;
+  --ancient-dim-text: #5a6a7a;
+  --ancient-pill-color: #90a0b4;
+  --ancient-bg: linear-gradient(180deg, #16181e 0%, #101218 50%, #0a0c12 100%);
+  --ancient-header-bg: rgba(22, 24, 30, 0.8);
+  --ancient-body-bg: rgba(22, 24, 30, 0.9);
+  --ancient-frame-bg: radial-gradient(ellipse at 50% 40%, rgba(122,138,154,0.06) 0%, transparent 60%), linear-gradient(180deg, #0a0c12 0%, #080a0e 100%);
+  --ancient-frame-border: rgba(122, 138, 154, 0.15);
+  --ancient-move-bg: rgba(122, 138, 154, 0.05);
+  --ancient-texture-color: rgba(122, 138, 154, 0.03);
+  --ancient-texture-opacity: 0.5;
+}
+
+/* ==========================================
+   GENERATION 9 — Paldea: Aged Mosaic / Terracotta
+   ========================================== */
+
+.ancient-gen-9 {
+  --ancient-accent: #c4884c;
+  --ancient-accent-dim: rgba(196, 136, 76, 0.3);
+  --ancient-glow: rgba(196, 136, 76, 0.35);
+  --ancient-border-color: rgba(196, 136, 76, 0.3);
+  --ancient-border-glow: rgba(196, 136, 76, 0.12);
+  --ancient-name-color: #fdf0dc;
+  --ancient-badge-text: #2a1a0c;
+  --ancient-dim-text: #9a7a50;
+  --ancient-pill-color: #d8a060;
+  --ancient-bg: linear-gradient(180deg, #1e1814 0%, #161210 50%, #100c0a 100%);
+  --ancient-header-bg: rgba(30, 24, 20, 0.8);
+  --ancient-body-bg: rgba(30, 24, 20, 0.9);
+  --ancient-frame-bg: radial-gradient(ellipse at 50% 40%, rgba(196,136,76,0.07) 0%, transparent 60%), linear-gradient(180deg, #100c0a 0%, #0a0808 100%);
+  --ancient-frame-border: rgba(196, 136, 76, 0.15);
+  --ancient-move-bg: rgba(196, 136, 76, 0.06);
+  --ancient-texture-color: rgba(196, 136, 76, 0.035);
+  --ancient-texture-opacity: 0.45;
+}
+
+/* ==========================================
+   SHARED — Holographic dust particles
+   ========================================== */
+
+.ancient-dust {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 18;
+  overflow: hidden;
+  opacity: 0.4;
+}
+
+.ancient-dust::before,
+.ancient-dust::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  animation: ancientDustFloat 8s ease-in-out infinite alternate;
+}
+
+.ancient-dust::before {
+  width: 3px;
+  height: 3px;
+  background: var(--ancient-accent, #a8896c);
+  top: 20%;
+  left: 30%;
+  box-shadow:
+    40px 20px 0 1px var(--ancient-accent, #a8896c),
+    100px 60px 0 0 var(--ancient-accent, #a8896c),
+    180px 30px 0 1px var(--ancient-accent, #a8896c),
+    220px 100px 0 0 var(--ancient-accent, #a8896c),
+    60px 140px 0 1px var(--ancient-accent, #a8896c),
+    140px 180px 0 0 var(--ancient-accent, #a8896c);
+}
+
+.ancient-dust::after {
+  width: 2px;
+  height: 2px;
+  background: var(--ancient-accent, #a8896c);
+  top: 50%;
+  left: 60%;
+  box-shadow:
+    -30px -40px 0 0 var(--ancient-accent, #a8896c),
+    20px -70px 0 1px var(--ancient-accent, #a8896c),
+    -80px 20px 0 0 var(--ancient-accent, #a8896c),
+    50px 50px 0 1px var(--ancient-accent, #a8896c),
+    -60px 80px 0 0 var(--ancient-accent, #a8896c);
+}
+
+@keyframes ancientDustFloat {
+  0%   { transform: translateY(0) translateX(0); }
+  100% { transform: translateY(-8px) translateX(4px); }
+}
