@@ -2,9 +2,8 @@ import React, { useState, useEffect } from 'react';
 import PowerCard from './PowerCard';
 import './PowerCardRevealModal.css';
 
-export default function PowerCardRevealModal({ pokemon, isOpen, onClose, initialShiny = false }) {
-  const [stage, setStage] = useState('anticipating'); // 'anticipating' -> 'flipping' -> 'revealed'
-  const [isShiny, setIsShiny] = useState(initialShiny);
+export default function PowerCardRevealModal({ pokemon, isOpen, onClose }) {
+  const [stage, setStage] = useState('anticipating');
   const [showFlash, setShowFlash] = useState(false);
 
   useEffect(() => {
@@ -14,48 +13,21 @@ export default function PowerCardRevealModal({ pokemon, isOpen, onClose, initial
       return;
     }
 
-    setIsShiny(initialShiny);
     setStage('anticipating');
 
-    // Stage 1: Shake anticipation (1.2s)
-    const t1 = setTimeout(() => {
-      setStage('flipping');
-    }, 1200);
+    const t1 = setTimeout(() => setStage('flipping'), 1200);
+    const t2 = setTimeout(() => { setStage('revealed'); setShowFlash(true); }, 2000);
+    const t3 = setTimeout(() => setShowFlash(false), 2800);
 
-    // Stage 2: Flip & flash burst (2.0s)
-    const t2 = setTimeout(() => {
-      setStage('revealed');
-      setShowFlash(true);
-    }, 2000);
-
-    // Stage 3: Turn off flash burst (2.8s)
-    const t3 = setTimeout(() => {
-      setShowFlash(false);
-    }, 2800);
-
-    return () => {
-      clearTimeout(t1);
-      clearTimeout(t2);
-      clearTimeout(t3);
-    };
-  }, [isOpen, initialShiny]);
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
+  }, [isOpen]);
 
   const handleReplay = () => {
     setStage('anticipating');
     setShowFlash(false);
-
-    setTimeout(() => {
-      setStage('flipping');
-    }, 1200);
-
-    setTimeout(() => {
-      setStage('revealed');
-      setShowFlash(true);
-    }, 2000);
-
-    setTimeout(() => {
-      setShowFlash(false);
-    }, 2800);
+    setTimeout(() => setStage('flipping'), 1200);
+    setTimeout(() => { setStage('revealed'); setShowFlash(true); }, 2000);
+    setTimeout(() => setShowFlash(false), 2800);
   };
 
   if (!isOpen || !pokemon) return null;
@@ -67,7 +39,7 @@ export default function PowerCardRevealModal({ pokemon, isOpen, onClose, initial
       <div className="power-reveal-content" onClick={(e) => e.stopPropagation()}>
         <div className="power-reveal-header">
           <div className="power-reveal-title">
-            <span className="reveal-sparkle">✨</span> POWER CARD REVEAL CONCEPT <span className="reveal-sparkle">✨</span>
+            <span className="reveal-sparkle">✨</span> POWER CARD REVEAL <span className="reveal-sparkle">✨</span>
           </div>
           <button className="power-reveal-close" onClick={onClose}>✕</button>
         </div>
@@ -82,19 +54,13 @@ export default function PowerCardRevealModal({ pokemon, isOpen, onClose, initial
 
           {(stage === 'flipping' || stage === 'revealed') && (
             <div className={`power-card-flip-container ${stage === 'flipping' ? 'is-flipping' : 'is-revealed'}`}>
-              <PowerCard pokemon={pokemon} isShiny={isShiny} enableTilt={stage === 'revealed'} />
+              <PowerCard pokemon={pokemon} enableTilt={stage === 'revealed'} />
             </div>
           )}
         </div>
 
         {stage === 'revealed' && (
           <div className="power-reveal-actions">
-            <button
-              className="power-btn power-btn-shiny"
-              onClick={() => setIsShiny(!isShiny)}
-            >
-              {isShiny ? '✨ Shiny Active' : '⭐ Toggle Shiny'}
-            </button>
             <button className="power-btn power-btn-replay" onClick={handleReplay}>
               🔄 Replay Reveal
             </button>

@@ -11,7 +11,7 @@ export default function MatchLobby() {
   const navigate = useNavigate();
   const { user, profile, isConfigured } = useAuth();
 
-  const { match, loading, error } = useMatchSubscription(matchId, user?.id);
+  const { match, loading, error, updateState } = useMatchSubscription(matchId, user?.id);
 
   const [player1Name, setPlayer1Name] = useState('');
   const [player2Name, setPlayer2Name] = useState('');
@@ -405,13 +405,32 @@ export default function MatchLobby() {
       {/* Live 6v6 Multiplayer Battle Arena */}
       {(match.status === 'active' || match.status === 'completed' || match.state?.winner) && (
         <div style={{ marginBottom: '2rem' }}>
-          <RealtimeBattleArena
-            match={match}
-            userId={user?.id}
-            onUpdateState={updateState}
-            player1Name={player1Name}
-            player2Name={player2Name}
-          />
+          {match.state?.team1 && match.state?.team2 ? (
+            <RealtimeBattleArena
+              match={match}
+              userId={user?.id}
+              onUpdateState={updateState}
+              player1Name={player1Name}
+              player2Name={player2Name}
+            />
+          ) : (
+            <div className="card" style={{ textAlign: 'center', padding: '3rem' }}>
+              <div
+                style={{
+                  width: '40px',
+                  height: '40px',
+                  margin: '0 auto 1rem auto',
+                  borderRadius: '50%',
+                  border: '3px solid #38bdf8',
+                  borderTopColor: 'transparent',
+                  animation: 'spin 1s linear infinite',
+                }}
+              />
+              <p style={{ color: '#94a3b8', fontSize: '1.05rem' }}>
+                Loading battle data...
+              </p>
+            </div>
+          )}
         </div>
       )}
 

@@ -161,7 +161,7 @@ export default function CardPullReveal({ awardedDrop, onContinue, onPlayAgain })
       {/* RENDER POWER CARD IF IN POWER CARD PHASE */}
       {isPowerCard ? (
         <div style={{ margin: '10px 0 20px 0', transform: stage === 'anticipating' ? 'scale(0.85)' : 'scale(1)', transition: 'transform 0.4s' }}>
-          <PowerCard pokemon={pokemon} isShiny={entry.is_shiny} enableTilt={stage === 'revealed'} />
+          <PowerCard pokemon={pokemon} enableTilt={stage === 'revealed'} />
         </div>
       ) : (
         /* STANDARD 3D CARD CONTAINER */

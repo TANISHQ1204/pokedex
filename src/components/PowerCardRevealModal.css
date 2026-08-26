@@ -188,12 +188,6 @@
   transform: translateY(-2px);
 }
 
-.power-btn-shiny {
-  background: linear-gradient(90deg, #f59e0b, #d97706);
-  color: #ffffff;
-  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4);
-}
-
 .power-btn-replay {
   background: linear-gradient(90deg, #6366f1, #4f46e5);
   color: #ffffff;

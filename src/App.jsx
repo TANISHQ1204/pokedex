@@ -11,6 +11,7 @@ import Trophies from './pages/Trophies';
 import Badges from './pages/Badges';
 import Account from './pages/Account';
 import Friends from './pages/Friends';
+import SpecialCollection from './pages/SpecialCollection';
 import MatchLobby from './pages/MatchLobby';
 import JoinMatch from './pages/JoinMatch';
 import GameModes from './pages/GameModes';
@@ -141,6 +142,14 @@ export default function App() {
           element={
             <ProtectedRoute>
               <Collection />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/special-collection"
+          element={
+            <ProtectedRoute>
+              <SpecialCollection />
             </ProtectedRoute>
           }
         />

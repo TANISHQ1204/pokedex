@@ -202,6 +202,25 @@ body {
   align-items: center;
 }
 
+.bench-header-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 1.5rem;
+  background-color: #1e293b;
+  border-top: 1px solid #334155;
+}
+
+.bench-label {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin-bottom: 0.25rem;
+}
+
+.bench-switch-warning {
+  font-size: 0.7rem;
+  color: #f87171;
+}
+
 .bench-slot {
   width: 36px;
   height: 36px;
@@ -379,8 +398,22 @@ body {
 
 @keyframes hurtShake {
   0%, 100% { transform: translate(0, 0); filter: brightness(1); }
-  20%, 60% { transform: translate(-8px, -4px); filter: brightness(2) sepia(1) hue-rotate(-50deg); }
+  20%, 60% { transform: translate(-8px, -4px); filter: brightness(2); }
   40%, 80% { transform: translate(8px, 4px); filter: brightness(1.5); }
+}
+
+.hit-type-flash {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 10;
+  animation: hitFlash 0.45s ease-out forwards;
+}
+
+@keyframes hitFlash {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
 }
 
 .faint-drop {
@@ -2089,8 +2122,13 @@ body {
   }
 
   .pokemon-status-card {
-    min-width: 170px;
+    min-width: 0;
+    flex: 1 1 auto;
     padding: 0.6rem 0.8rem;
+  }
+
+  .pokemon-status-header {
+    font-size: 0.85rem;
   }
 
   .battle-controls {
@@ -2106,6 +2144,31 @@ body {
 
   .move-btn {
     padding: 0.65rem 0.5rem;
+    font-size: 0.8rem;
+  }
+
+  .move-tooltip {
+    width: 200px;
+    font-size: 0.78rem;
+  }
+
+  .bench-row {
+    gap: 0.35rem;
+  }
+
+  .bench-slot {
+    width: 30px;
+    height: 30px;
+  }
+
+  .bench-slot img {
+    width: 26px;
+    height: 26px;
+  }
+
+  .battle-log-container {
+    height: 90px;
+    padding: 0.75rem 1rem;
     font-size: 0.8rem;
   }
 
@@ -2189,6 +2252,19 @@ body {
 
   .battle-arena {
     padding: 0.75rem 0.5rem;
+    min-height: auto;
+  }
+
+  .player-zone,
+  .opponent-zone {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .pokemon-sprite-container {
+    width: 100px;
+    height: 100px;
   }
 
   .pokemon-sprite-container img {
@@ -2196,9 +2272,74 @@ body {
     height: 85px;
   }
 
+  .pokemon-status-card {
+    min-width: 0;
+    width: 100%;
+    padding: 0.5rem 0.6rem;
+    box-sizing: border-box;
+  }
+
+  .pokemon-status-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.2rem;
+    font-size: 0.8rem;
+  }
+
   .move-btn-wrapper {
     max-width: 100%;
     flex: 1 1 100%;
+  }
+
+  .move-tooltip {
+    width: 180px;
+    left: 0;
+    transform: none;
+    bottom: auto;
+    top: 110%;
+  }
+
+  .move-btn-wrapper:hover .move-tooltip {
+    transform: none;
+  }
+
+  .battle-controls {
+    padding: 0.65rem 0.5rem;
+    gap: 0.4rem;
+  }
+
+  .bench-slot {
+    width: 26px;
+    height: 26px;
+  }
+
+  .bench-slot img {
+    width: 22px;
+    height: 22px;
+  }
+
+  .bench-unknown-q {
+    font-size: 0.8rem;
+  }
+
+  .bench-label {
+    font-size: 0.65rem;
+  }
+
+  .bench-switch-warning {
+    font-size: 0.6rem;
+  }
+
+  .bench-header-row {
+    padding: 0.4rem 0.75rem;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .battle-log-container {
+    height: 70px;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
   }
 
   .card-3d-wrapper {

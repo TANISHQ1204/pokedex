@@ -7,6 +7,7 @@ import {
   CardsIcon,
   TrophyIcon,
   GymBadgeIcon,
+  SparkleStarIcon,
   UsersFriendsIcon,
 } from './icons/GameIcons';
 
@@ -37,6 +38,9 @@ export default function Navbar() {
         </NavLink>
         <NavLink to="/collection" className={({ isActive }) => (isActive ? 'active' : '')}>
           <PokeballIcon size={18} /> Collection
+        </NavLink>
+        <NavLink to="/special-collection" className={({ isActive }) => (isActive ? 'active' : '')}>
+          <SparkleStarIcon size={18} /> Special Collection
         </NavLink>
         <NavLink to="/friends" className={({ isActive }) => (isActive ? 'active' : '')}>
           <UsersFriendsIcon size={18} /> Friends

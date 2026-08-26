@@ -1,10 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { getUserCollection } from '../store/collection';
 import pokemonList from '../data/pokemon.json' with { type: 'json' };
-import PowerCard from '../components/PowerCard';
-import PowerCardRevealModal from '../components/PowerCardRevealModal';
 
 const ITEMS_PER_PAGE = 48;
 
@@ -52,55 +49,20 @@ function formatTitle(str) {
 
 export default function Collection() {
   const { user } = useAuth();
-  const [searchParams, setSearchParams] = useSearchParams();
   const [collectionMap, setCollectionMap] = useState(new Map());
-  const [powerCollectionMap, setPowerCollectionMap] = useState(new Map());
   const [isLoading, setIsLoading] = useState(true);
-
-  // View mode state: 'dex' (default grid) or 'power-cards' (collectibles gallery)
-  const [activeTab, setActiveTab] = useState(() => {
-    return searchParams.get('view') === 'power-cards' ? 'power-cards' : 'dex';
-  });
-
-  useEffect(() => {
-    const paramView = searchParams.get('view');
-    if (paramView === 'power-cards' && activeTab !== 'power-cards') {
-      setActiveTab('power-cards');
-    } else if (!paramView && activeTab === 'power-cards') {
-      setActiveTab('dex');
-    }
-  }, [searchParams]);
-
-  const handleTabChange = (tab) => {
-    setActiveTab(tab);
-    if (tab === 'power-cards') {
-      setSearchParams({ view: 'power-cards' });
-    } else {
-      setSearchParams({});
-    }
-  };
 
   // Filters & Pagination state
   const [searchQuery, setSearchQuery] = useState('');
-  const [ownershipFilter, setOwnershipFilter] = useState('all'); // 'all' | 'owned' | 'unowned' | 'power_cards'
+  const [ownershipFilter, setOwnershipFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
   const [genFilter, setGenFilter] = useState('all');
-  const [sortBy, setSortBy] = useState('id-asc'); // 'id-asc' | 'id-desc' | 'name-asc' | 'star-desc'
+  const [sortBy, setSortBy] = useState('id-asc');
   const [currentPage, setCurrentPage] = useState(1);
 
   // Detail Modal state
   const [selectedPokemon, setSelectedPokemon] = useState(null);
   const [previewShiny, setPreviewShiny] = useState(false);
-  const [viewPowerCardInModal, setViewPowerCardInModal] = useState(false);
-
-  // Power Cards Gallery state
-  const [cardShinyMap, setCardShinyMap] = useState({});
-  const [revealPokemon, setRevealPokemon] = useState(null);
-  const [isRevealOpen, setIsRevealOpen] = useState(false);
-  const [powerSearch, setPowerSearch] = useState('');
-  const [powerTypeFilter, setPowerTypeFilter] = useState('all');
-  const [powerPage, setPowerPage] = useState(1);
-  const POWER_PER_PAGE = 24;
 
   // Fetch collection from Supabase
   useEffect(() => {
@@ -113,19 +75,15 @@ export default function Collection() {
         setIsLoading(true);
         const data = await getUserCollection(user.id);
         const normalMap = new Map();
-        const powerMap = new Map();
 
         data.forEach((entry) => {
           const pId = Number(entry.pokemon_id);
-          if (entry.is_power_card) {
-            powerMap.set(pId, entry);
-          } else {
+          if (!entry.is_power_card) {
             normalMap.set(pId, entry);
           }
         });
 
         setCollectionMap(normalMap);
-        setPowerCollectionMap(powerMap);
       } catch (err) {
         console.error('Failed to load collection:', err.message);
       } finally {
@@ -145,13 +103,11 @@ export default function Collection() {
       result = result.filter((p) => p.name.toLowerCase().includes(q) || String(p.id).includes(q));
     }
 
-    // Ownership filter
+    // Ownership filter (normal cards only)
     if (ownershipFilter === 'owned') {
-      result = result.filter((p) => collectionMap.has(p.id) || powerCollectionMap.has(p.id));
+      result = result.filter((p) => collectionMap.has(p.id));
     } else if (ownershipFilter === 'unowned') {
-      result = result.filter((p) => !collectionMap.has(p.id) && !powerCollectionMap.has(p.id));
-    } else if (ownershipFilter === 'power_cards') {
-      result = result.filter((p) => powerCollectionMap.has(p.id));
+      result = result.filter((p) => !collectionMap.has(p.id));
     }
 
     // Type filter
@@ -180,7 +136,7 @@ export default function Collection() {
       }
       return 0;
     });
-  }, [searchQuery, ownershipFilter, typeFilter, genFilter, sortBy, collectionMap, powerCollectionMap]);
+  }, [searchQuery, ownershipFilter, typeFilter, genFilter, sortBy, collectionMap]);
 
   // Reset page when filters change
   useEffect(() => {
@@ -195,73 +151,15 @@ export default function Collection() {
     return filteredPokemon.slice(start, start + ITEMS_PER_PAGE);
   }, [filteredPokemon, validCurrentPage]);
 
-  // Statistics
-  const ownedCount = new Set([...collectionMap.keys(), ...powerCollectionMap.keys()]).size;
+  // Statistics (normal cards only)
+  const ownedCount = collectionMap.size;
   const totalCount = pokemonList.length;
   const completionPercentage = Math.round((ownedCount / totalCount) * 100);
-
-  // Power cards collectibles: one entry per type for dual-type Pokémon
-  const ownedPowerCardCount = powerCollectionMap.size;
-
-  const allPowerCardEntries = useMemo(() => {
-    let entries = [];
-    pokemonList.forEach((p) => {
-      if (p.types.length > 1) {
-        // Dual-type: one card per type
-        p.types.forEach((type) => {
-          entries.push({ pokemon: p, themeType: type, key: `${p.id}-${type}` });
-        });
-      } else {
-        entries.push({ pokemon: p, themeType: p.types[0], key: `${p.id}-${p.types[0]}` });
-      }
-    });
-
-    // Search filter
-    if (powerSearch.trim()) {
-      const q = powerSearch.toLowerCase().trim();
-      entries = entries.filter(
-        (e) => e.pokemon.name.toLowerCase().includes(q) || String(e.pokemon.id).includes(q)
-      );
-    }
-
-    // Type filter
-    if (powerTypeFilter !== 'all') {
-      entries = entries.filter((e) => e.themeType === powerTypeFilter);
-    }
-
-    return entries;
-  }, [powerSearch, powerTypeFilter]);
-
-  // Reset power page on filter change
-  useEffect(() => {
-    setPowerPage(1);
-  }, [powerSearch, powerTypeFilter]);
-
-  const powerTotalPages = Math.max(1, Math.ceil(allPowerCardEntries.length / POWER_PER_PAGE));
-  const powerValidPage = Math.min(powerPage, powerTotalPages);
-  const paginatedPowerCards = useMemo(() => {
-    const start = (powerValidPage - 1) * POWER_PER_PAGE;
-    return allPowerCardEntries.slice(start, start + POWER_PER_PAGE);
-  }, [allPowerCardEntries, powerValidPage]);
 
   const handleCardClick = (p) => {
     setSelectedPokemon(p);
     const entry = collectionMap.get(p.id);
     setPreviewShiny(entry?.is_shiny || (entry?.star_level >= 5));
-    setViewPowerCardInModal(powerCollectionMap.has(p.id) && !collectionMap.has(p.id));
-  };
-
-  const toggleCardShiny = (id) => {
-    setCardShinyMap((prev) => ({ ...prev, [id]: !prev[id] }));
-  };
-
-  const isCardShiny = (pokemonId) => {
-    return cardShinyMap[pokemonId] ?? false;
-  };
-
-  const handleOpenReveal = (pokemon) => {
-    setRevealPokemon(pokemon);
-    setIsRevealOpen(true);
   };
 
   return (
@@ -290,340 +188,6 @@ export default function Collection() {
           </div>
         </div>
       </div>
-
-      {/* VIEW MODE TOGGLE: Dex Collection / Power Cards */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        gap: '12px',
-        margin: '0 0 1.5rem 0',
-        padding: '8px',
-        background: 'rgba(15, 23, 42, 0.85)',
-        borderRadius: '20px',
-        border: '1px solid rgba(255, 255, 255, 0.15)',
-        backdropFilter: 'blur(12px)',
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
-      }}>
-        <button
-          onClick={() => handleTabChange('dex')}
-          style={{
-            fontFamily: "'Outfit', sans-serif",
-            fontWeight: 800,
-            fontSize: '0.95rem',
-            padding: '12px 28px',
-            borderRadius: '14px',
-            border: 'none',
-            cursor: 'pointer',
-            transition: 'all 0.25s ease',
-            background: activeTab === 'dex' ? 'linear-gradient(90deg, #6366f1, #4f46e5)' : 'transparent',
-            color: activeTab === 'dex' ? '#ffffff' : '#94a3b8',
-            boxShadow: activeTab === 'dex' ? '0 4px 16px rgba(99, 102, 241, 0.5)' : 'none',
-          }}
-        >
-          🗂️ Dex Collection
-        </button>
-        <button
-          onClick={() => handleTabChange('power-cards')}
-          style={{
-            fontFamily: "'Outfit', sans-serif",
-            fontWeight: 800,
-            fontSize: '0.95rem',
-            padding: '12px 28px',
-            borderRadius: '14px',
-            border: 'none',
-            cursor: 'pointer',
-            transition: 'all 0.25s ease',
-            background: activeTab === 'power-cards' ? 'linear-gradient(90deg, #ec4899, #8b5cf6)' : 'transparent',
-            color: activeTab === 'power-cards' ? '#ffffff' : '#94a3b8',
-            boxShadow: activeTab === 'power-cards' ? '0 4px 18px rgba(236, 72, 153, 0.5)' : 'none',
-          }}
-        >
-          ⚡ Power Cards ({ownedPowerCardCount})
-        </button>
-      </div>
-
-      {/* ========================================= */}
-      {/* VIEW: POWER CARDS COLLECTIBLES GALLERY    */}
-      {/* ========================================= */}
-      {activeTab === 'power-cards' ? (
-        <div>
-          {/* Power Cards Summary */}
-          <div style={{
-            textAlign: 'center',
-            padding: '20px',
-            marginBottom: '20px',
-            background: 'radial-gradient(circle at 50% 0%, rgba(236, 72, 153, 0.12), transparent 70%)',
-            borderRadius: '20px',
-            border: '1px solid rgba(236, 72, 153, 0.2)',
-          }}>
-            <div style={{ fontSize: '0.8rem', color: '#94a3b8', letterSpacing: '1.5px', fontWeight: 700, marginBottom: '6px', fontFamily: "'Rajdhani', sans-serif" }}>ULTRA RARE COLLECTIBLES</div>
-            <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#f8fafc', fontFamily: "'Outfit', sans-serif" }}>
-              ⚡ {ownedPowerCardCount} <span style={{ color: '#94a3b8', fontWeight: 400, fontSize: '1rem' }}>/ {totalCount} Power Cards Collected</span>
-            </div>
-            <div className="hp-bar-outer" style={{ height: '8px', maxWidth: '400px', margin: '10px auto 0' }}>
-              <div
-                className="hp-bar-inner"
-                style={{
-                  width: `${Math.round((ownedPowerCardCount / totalCount) * 100)}%`,
-                  background: 'linear-gradient(90deg, #ec4899, #8b5cf6)',
-                }}
-              />
-            </div>
-          </div>
-
-          {/* Power Cards Search & Type Filter */}
-          <div style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            alignItems: 'center',
-            gap: '12px',
-            marginBottom: '16px',
-            padding: '14px 16px',
-            background: 'rgba(15, 23, 42, 0.7)',
-            borderRadius: '14px',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
-            backdropFilter: 'blur(8px)',
-          }}>
-            <input
-              type="text"
-              className="search-input"
-              placeholder="Search Power Cards by name or ID..."
-              value={powerSearch}
-              onChange={(e) => setPowerSearch(e.target.value)}
-              style={{ flex: '1 1 220px', minWidth: '180px' }}
-            />
-            <select
-              className="filter-select"
-              value={powerTypeFilter}
-              onChange={(e) => setPowerTypeFilter(e.target.value)}
-            >
-              <option value="all">All Types</option>
-              {POKEMON_TYPES.map((t) => (
-                <option key={t} value={t}>
-                  {t.charAt(0).toUpperCase() + t.slice(1)}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Results count */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', color: '#94a3b8', fontSize: '0.85rem' }}>
-            <span>
-              Showing {allPowerCardEntries.length} cards {powerSearch || powerTypeFilter !== 'all' ? '(Filtered)' : ''}
-              {' · '}<span style={{ color: '#ec4899' }}>{allPowerCardEntries.filter(e => powerCollectionMap.has(e.pokemon.id)).length} owned</span>
-            </span>
-            {powerTotalPages > 1 && <span>Page {powerValidPage} of {powerTotalPages}</span>}
-          </div>
-
-          {isLoading ? (
-            <div style={{ textAlign: 'center', padding: '3rem', color: '#94a3b8' }}>
-              Loading Power Cards...
-            </div>
-          ) : allPowerCardEntries.length === 0 ? (
-            <div style={{
-              textAlign: 'center',
-              padding: '40px 20px',
-              color: '#64748b',
-              background: 'rgba(15, 23, 42, 0.5)',
-              borderRadius: '24px',
-              border: '1px solid rgba(255, 255, 255, 0.06)',
-            }}>
-              <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#94a3b8' }}>No cards match your search.</div>
-            </div>
-          ) : (
-            <>
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-              gap: '36px 24px',
-              justifyItems: 'center',
-            }}>
-              {paginatedPowerCards.map(({ pokemon, themeType, key }) => {
-                const isOwned = powerCollectionMap.has(pokemon.id);
-                const shiny = isCardShiny(pokemon.id);
-                const typeName = themeType.charAt(0).toUpperCase() + themeType.slice(1);
-
-                return (
-                  <div
-                    key={key}
-                    style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      gap: '12px',
-                      background: isOwned ? 'rgba(15, 23, 42, 0.5)' : 'rgba(15, 23, 42, 0.3)',
-                      padding: '16px',
-                      borderRadius: '24px',
-                      border: isOwned ? '1px solid rgba(236, 72, 153, 0.25)' : '1px solid rgba(255, 255, 255, 0.05)',
-                      transition: 'border-color 0.3s, box-shadow 0.3s',
-                      opacity: isOwned ? 1 : 0.55,
-                      filter: isOwned ? 'none' : 'grayscale(0.6)',
-                      position: 'relative',
-                    }}
-                  >
-                    {/* Card Header */}
-                    <div style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 4px' }}>
-                      <span style={{
-                        fontFamily: "'Rajdhani', sans-serif",
-                        fontWeight: 800,
-                        fontSize: '0.85rem',
-                        color: isOwned ? '#ffd700' : '#475569',
-                        letterSpacing: '1px',
-                      }}>
-                        #{String(pokemon.id).padStart(4, '0')} — {isOwned ? formatTitle(pokemon.name) : '???'}
-                        {pokemon.types.length > 1 && (
-                          <span style={{ marginLeft: '6px', fontSize: '0.7rem', color: isOwned ? '#a78bfa' : '#475569', fontWeight: 600 }}>({typeName})</span>
-                        )}
-                      </span>
-                      {isOwned && (
-                        <button
-                          onClick={() => toggleCardShiny(pokemon.id)}
-                          style={{
-                            fontFamily: "'Outfit', sans-serif",
-                            fontSize: '0.75rem',
-                            fontWeight: 700,
-                            padding: '4px 10px',
-                            borderRadius: '8px',
-                            border: '1px solid rgba(255, 255, 255, 0.2)',
-                            background: shiny ? 'linear-gradient(90deg, #f59e0b, #d97706)' : 'rgba(30, 41, 59, 0.8)',
-                            color: '#ffffff',
-                            cursor: 'pointer',
-                            transition: 'all 0.2s',
-                          }}
-                        >
-                          {shiny ? '✨ Shiny' : '⭐ Normal'}
-                        </button>
-                      )}
-                    </div>
-
-                    {/* Power Card or Locked Placeholder */}
-                    {isOwned ? (
-                      <PowerCard pokemon={pokemon} isShiny={shiny} enableTilt={true} themeTypeOverride={themeType} />
-                    ) : (
-                      <div style={{
-                        width: '280px',
-                        height: '420px',
-                        borderRadius: '18px',
-                        background: 'linear-gradient(180deg, rgba(30,41,59,0.9) 0%, rgba(15,23,42,0.95) 100%)',
-                        border: '2px dashed rgba(100, 116, 139, 0.3)',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '12px',
-                        position: 'relative',
-                        overflow: 'hidden',
-                      }}>
-                        {/* Faint silhouette */}
-                        <img
-                          src={pokemon.sprites.normal}
-                          alt=""
-                          style={{
-                            width: '120px',
-                            height: '120px',
-                            filter: 'brightness(0) invert(0.15)',
-                            opacity: 0.3,
-                            userSelect: 'none',
-                            pointerEvents: 'none',
-                          }}
-                        />
-                        <div style={{
-                          fontSize: '0.75rem',
-                          fontFamily: "'Rajdhani', sans-serif",
-                          fontWeight: 800,
-                          letterSpacing: '2px',
-                          color: '#475569',
-                          textAlign: 'center',
-                        }}>
-                          🔒 LOCKED
-                        </div>
-                        <div style={{
-                          fontSize: '0.65rem',
-                          color: '#334155',
-                          textAlign: 'center',
-                          padding: '0 20px',
-                        }}>
-                          Win battles to unlock
-                        </div>
-                        {/* Type badge on placeholder */}
-                        <span className={`pokemon-type-badge type-${themeType}`} style={{
-                          position: 'absolute',
-                          top: '12px',
-                          right: '12px',
-                          fontSize: '0.65rem',
-                          padding: '2px 8px',
-                          opacity: 0.5,
-                        }}>
-                          {themeType}
-                        </span>
-                      </div>
-                    )}
-
-                    {/* Footer actions for owned cards */}
-                    {isOwned && (
-                      <button
-                        onClick={() => handleOpenReveal(pokemon)}
-                        style={{
-                          fontFamily: "'Outfit', sans-serif",
-                          fontSize: '0.8rem',
-                          fontWeight: 700,
-                          padding: '8px 18px',
-                          borderRadius: '10px',
-                          border: '1px solid rgba(99, 102, 241, 0.4)',
-                          background: 'rgba(99, 102, 241, 0.2)',
-                          color: '#c7d2fe',
-                          cursor: 'pointer',
-                          transition: 'background 0.2s',
-                        }}
-                        onMouseEnter={(e) => e.target.style.background = 'rgba(99, 102, 241, 0.5)'}
-                        onMouseLeave={(e) => e.target.style.background = 'rgba(99, 102, 241, 0.2)'}
-                      >
-                        ▶ Play Reveal
-                      </button>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Power Cards Pagination */}
-            {powerTotalPages > 1 && (
-              <div className="pagination-bar">
-                <button
-                  className="page-btn"
-                  disabled={powerValidPage === 1}
-                  onClick={() => setPowerPage((p) => Math.max(1, p - 1))}
-                >
-                  &laquo; Prev
-                </button>
-                <span style={{ fontSize: '0.875rem', color: '#94a3b8' }}>
-                  Page {powerValidPage} of {powerTotalPages}
-                </span>
-                <button
-                  className="page-btn"
-                  disabled={powerValidPage === powerTotalPages}
-                  onClick={() => setPowerPage((p) => Math.min(powerTotalPages, p + 1))}
-                >
-                  Next &raquo;
-                </button>
-              </div>
-            )}
-            </>
-          )}
-
-          {/* Reveal Modal */}
-          <PowerCardRevealModal
-            pokemon={revealPokemon}
-            isOpen={isRevealOpen}
-            onClose={() => setIsRevealOpen(false)}
-            initialShiny={revealPokemon ? isCardShiny(revealPokemon.id) : false}
-          />
-        </div>
-      ) : (
-      /* ========================================= */
-      /* VIEW: DEX COLLECTION (existing grid)      */
-      /* ========================================= */
-      <>
 
       {/* QUICK GENERATION SHORTCUT BUTTONS */}
       <div className="gen-shortcuts">
@@ -657,7 +221,6 @@ export default function Collection() {
         >
           <option value="all">All Ownership Status</option>
           <option value="owned">Owned Cards</option>
-          <option value="power_cards">⚡ Power Cards Only</option>
           <option value="unowned">Unowned Only</option>
         </select>
 
@@ -713,15 +276,13 @@ export default function Collection() {
         <div className="collection-grid">
           {paginatedPokemon.map((p) => {
             const entry = collectionMap.get(p.id);
-            const hasPowerCard = powerCollectionMap.has(p.id);
-            const isOwned = Boolean(entry) || hasPowerCard;
+            const isOwned = Boolean(entry);
             const starLevel = entry?.star_level || 0;
             const isShiny = entry?.is_shiny || starLevel >= 5;
             const spriteSrc = isOwned ? (isShiny ? p.sprites.shiny : p.sprites.normal) : p.sprites.normal;
 
             let rarityClass = 'rarity-card-common';
-            if (hasPowerCard) rarityClass = 'rarity-card-shiny holo-shimmer-effect';
-            else if (starLevel === 2) rarityClass = 'rarity-card-uncommon';
+            if (starLevel === 2) rarityClass = 'rarity-card-uncommon';
             else if (starLevel === 3) rarityClass = 'rarity-card-rare';
             else if (starLevel === 4) rarityClass = 'rarity-card-legendary';
             else if (starLevel >= 5 || isShiny) rarityClass = 'rarity-card-shiny holo-shimmer-effect';
@@ -740,12 +301,7 @@ export default function Collection() {
                     alt={isOwned ? p.name : '???'}
                     className={isOwned ? '' : 'card-silhouette'}
                   />
-                  {hasPowerCard && (
-                    <div className="shiny-sparkle-badge" style={{ background: 'linear-gradient(90deg, #ec4899, #8b5cf6)', color: '#ffffff', fontWeight: 800 }}>
-                      ⚡ POWER
-                    </div>
-                  )}
-                  {isShiny && isOwned && !hasPowerCard && <div className="shiny-sparkle-badge">✨ Shiny</div>}
+                  {isShiny && isOwned && <div className="shiny-sparkle-badge">✨ Shiny</div>}
                 </div>
 
                 <div className="card-info">
@@ -754,14 +310,8 @@ export default function Collection() {
                   {isOwned ? (
                     <>
                       <div className="star-rating">
-                        {starLevel > 0 ? (
-                          <>
-                            {'★'.repeat(starLevel)}
-                            {'☆'.repeat(5 - starLevel)}
-                          </>
-                        ) : (
-                          <span style={{ color: '#ec4899', fontWeight: 800, fontSize: '0.75rem' }}>ULTRA TROPHY</span>
-                        )}
+                        {'★'.repeat(starLevel)}
+                        {'☆'.repeat(5 - starLevel)}
                       </div>
                       <div className="card-types">
                         {p.types.map((t) => (
@@ -815,7 +365,7 @@ export default function Collection() {
               <div>
                 <span className="modal-dex-id">#{String(selectedPokemon.id).padStart(4, '0')}</span>
                 <h2 className="modal-title">
-                  {collectionMap.has(selectedPokemon.id) || powerCollectionMap.has(selectedPokemon.id)
+                  {collectionMap.has(selectedPokemon.id)
                     ? formatTitle(selectedPokemon.name)
                     : '???'}
                 </h2>
@@ -825,99 +375,57 @@ export default function Collection() {
               </button>
             </div>
 
-            {/* Power Card View Toggle Bar */}
-            {powerCollectionMap.has(selectedPokemon.id) && collectionMap.has(selectedPokemon.id) && (
-              <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-                <button
-                  className={`preview-toggle-btn ${!viewPowerCardInModal ? 'active' : ''}`}
-                  onClick={() => setViewPowerCardInModal(false)}
-                >
-                  Standard Card
-                </button>
-                <button
-                  className={`preview-toggle-btn ${viewPowerCardInModal ? 'active' : ''}`}
-                  style={viewPowerCardInModal ? { background: 'linear-gradient(90deg, #ec4899, #8b5cf6)', color: '#ffffff', border: 'none' } : {}}
-                  onClick={() => setViewPowerCardInModal(true)}
-                >
-                  ⚡ Power Card
-                </button>
-              </div>
-            )}
-
             {/* Modal Body */}
-            {viewPowerCardInModal ? (
-              <div className="modal-body" style={{ flexDirection: 'column', alignItems: 'center', padding: '20px 0' }}>
-                <PowerCard pokemon={selectedPokemon} isShiny={previewShiny} />
-                <div style={{ marginTop: '12px', display: 'flex', gap: '8px' }}>
-                  <button
-                    className={`preview-toggle-btn ${!previewShiny ? 'active' : ''}`}
-                    onClick={() => setPreviewShiny(false)}
-                  >
-                    Normal
-                  </button>
-                  <button
-                    className={`preview-toggle-btn ${previewShiny ? 'active' : ''}`}
-                    onClick={() => setPreviewShiny(true)}
-                  >
-                    ✨ Shiny
-                  </button>
+            <div className="modal-body">
+              {/* Left Column: Image & Ownership status */}
+              <div className="modal-left">
+                <div className="modal-image-card">
+                  <img
+                    src={
+                      previewShiny && collectionMap.has(selectedPokemon.id)
+                        ? selectedPokemon.sprites.shiny
+                        : selectedPokemon.sprites.normal
+                    }
+                    alt={selectedPokemon.name}
+                    className={collectionMap.has(selectedPokemon.id) ? '' : 'modal-silhouette'}
+                  />
                 </div>
-              </div>
-            ) : (
-              <div className="modal-body">
-                {/* Left Column: Image & Ownership status */}
-                <div className="modal-left">
-                  <div className="modal-image-card">
-                    <img
-                      src={
-                        previewShiny && (collectionMap.has(selectedPokemon.id) || powerCollectionMap.has(selectedPokemon.id))
-                          ? selectedPokemon.sprites.shiny
-                          : selectedPokemon.sprites.normal
-                      }
-                      alt={selectedPokemon.name}
-                      className={collectionMap.has(selectedPokemon.id) || powerCollectionMap.has(selectedPokemon.id) ? '' : 'modal-silhouette'}
-                    />
-                  </div>
 
-                  {(collectionMap.has(selectedPokemon.id) || powerCollectionMap.has(selectedPokemon.id)) && (
-                    <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', marginTop: '0.5rem' }}>
-                      <button
-                        className={`preview-toggle-btn ${!previewShiny ? 'active' : ''}`}
-                        onClick={() => setPreviewShiny(false)}
-                      >
-                        Normal
-                      </button>
-                      <button
-                        className={`preview-toggle-btn ${previewShiny ? 'active' : ''}`}
-                        onClick={() => setPreviewShiny(true)}
-                      >
-                        ✨ Shiny
-                      </button>
+                {collectionMap.has(selectedPokemon.id) && (
+                  <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', marginTop: '0.5rem' }}>
+                    <button
+                      className={`preview-toggle-btn ${!previewShiny ? 'active' : ''}`}
+                      onClick={() => setPreviewShiny(false)}
+                    >
+                      Normal
+                    </button>
+                    <button
+                      className={`preview-toggle-btn ${previewShiny ? 'active' : ''}`}
+                      onClick={() => setPreviewShiny(true)}
+                    >
+                      ✨ Shiny
+                    </button>
+                  </div>
+                )}
+
+                <div className="modal-status-box">
+                  {collectionMap.has(selectedPokemon.id) ? (
+                    <>
+                      <div className="modal-star-row">
+                        {'★'.repeat(collectionMap.get(selectedPokemon.id).star_level)}
+                        {'☆'.repeat(5 - collectionMap.get(selectedPokemon.id).star_level)}
+                      </div>
+                      <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '0.25rem' }}>
+                        Duplicates Collected: {collectionMap.get(selectedPokemon.id).dupes_collected || 0}
+                      </div>
+                    </>
+                  ) : (
+                    <div style={{ color: '#f87171', fontWeight: 600, fontSize: '0.875rem' }}>
+                      Not in Collection Yet (Win battles to unlock!)
                     </div>
                   )}
-
-                  <div className="modal-status-box">
-                    {collectionMap.has(selectedPokemon.id) ? (
-                      <>
-                        <div className="modal-star-row">
-                          {'★'.repeat(collectionMap.get(selectedPokemon.id).star_level)}
-                          {'☆'.repeat(5 - collectionMap.get(selectedPokemon.id).star_level)}
-                        </div>
-                        <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '0.25rem' }}>
-                          Duplicates Collected: {collectionMap.get(selectedPokemon.id).dupes_collected || 0}
-                        </div>
-                      </>
-                    ) : powerCollectionMap.has(selectedPokemon.id) ? (
-                      <div style={{ color: '#ec4899', fontWeight: 700, fontSize: '0.875rem' }}>
-                        ⚡ Ultra Power Card Owned!
-                      </div>
-                    ) : (
-                      <div style={{ color: '#f87171', fontWeight: 600, fontSize: '0.875rem' }}>
-                        Not in Collection Yet (Win battles to unlock!)
-                      </div>
-                    )}
-                  </div>
                 </div>
+              </div>
 
               {/* Right Column: Types, Stats & Moveset */}
               <div className="modal-right">
@@ -1003,12 +511,9 @@ export default function Collection() {
                 </div>
               </div>
             </div>
-          )}
+          </div>
         </div>
-      </div>
-    )}
-    </>
-    )}
+      )}
     </div>
   );
 }

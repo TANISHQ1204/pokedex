@@ -204,12 +204,12 @@ export default function RealtimeBattleArena({ match, userId, onUpdateState, play
           <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748b', marginBottom: '0.35rem', textTransform: 'uppercase' }}>
             @{opponentName}'s Bench ({revealedOppIndices.length}/6 Revealed)
           </div>
-          <BenchRow team={formattedOppBench} activeIndex={oppActiveIdx} onSelectPokemon={() => {}} disabled />
+          <BenchRow team={formattedOppBench} activeIndex={oppActiveIdx} onSelectSlot={() => {}} />
 
           <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#38bdf8', margin: '0.85rem 0 0.35rem 0', textTransform: 'uppercase' }}>
             Your Team (Click benched Pokémon to switch)
           </div>
-          <BenchRow team={myTeam} activeIndex={myActiveIdx} onSelectPokemon={handleSelectSwitch} disabled={isMyTurnComplete || Boolean(state.winner)} />
+          <BenchRow team={myTeam} activeIndex={myActiveIdx} isInteractive onSelectSlot={handleSelectSwitch} canSwitch={!isMyTurnComplete && !Boolean(state.winner)} />
         </div>
 
         {/* Action Controls & Moves Panel */}

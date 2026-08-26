@@ -882,16 +882,25 @@ export function selectCpuMove(cpuPokemon, playerPokemon) {
  */
 export function generateRandomTeam(customList = null, count = 6) {
   const baseList = customList && Array.isArray(customList) && customList.length > 0 ? customList : defaultPokemonList;
-  
+
   // Filter candidate pool to only final-evolution Pokemon
   const finalEvoList = baseList.filter((pkmn) => pkmn.isFinalEvolution);
-  const list = finalEvoList.length > 0 ? finalEvoList : baseList;
+  const pool = finalEvoList.length > 0 ? finalEvoList : baseList;
+
+  // Fisher-Yates partial shuffle: pick `count` unique Pokemon uniformly at random
+  const picks = Math.min(count, pool.length);
+  const shuffled = pool.slice();
+  for (let i = 0; i < picks; i++) {
+    const j = i + Math.floor(Math.random() * (shuffled.length - i));
+    const tmp = shuffled[i];
+    shuffled[i] = shuffled[j];
+    shuffled[j] = tmp;
+  }
 
   const team = [];
-  for (let i = 0; i < count; i++) {
-    const randomIndex = Math.floor(Math.random() * list.length);
-    const template = list[randomIndex];
-    
+  for (let i = 0; i < picks; i++) {
+    const template = shuffled[i];
+
     const moves = (template.moves || []).map((m) => ({
       ...m,
       currentPp: m.pp || 10,

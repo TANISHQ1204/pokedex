@@ -28,6 +28,28 @@ import BattleLog from '../components/BattleLog';
 import CardPullReveal from '../components/CardPullReveal';
 import { createMatch } from '../store/matches';
 
+// Map move types to CSS colors for hit-flash overlay
+const MOVE_TYPE_FLASH_COLORS = {
+  normal: 'rgba(168, 168, 120, 0.55)',
+  fire: 'rgba(249, 115, 22, 0.55)',
+  water: 'rgba(56, 189, 248, 0.55)',
+  grass: 'rgba(74, 222, 128, 0.55)',
+  electric: 'rgba(253, 224, 71, 0.55)',
+  ice: 'rgba(125, 211, 252, 0.55)',
+  fighting: 'rgba(239, 68, 68, 0.55)',
+  poison: 'rgba(168, 85, 247, 0.55)',
+  ground: 'rgba(217, 119, 6, 0.55)',
+  flying: 'rgba(148, 163, 184, 0.55)',
+  psychic: 'rgba(236, 72, 153, 0.55)',
+  bug: 'rgba(132, 204, 22, 0.55)',
+  rock: 'rgba(180, 83, 9, 0.55)',
+  ghost: 'rgba(167, 139, 250, 0.55)',
+  dragon: 'rgba(129, 140, 248, 0.55)',
+  dark: 'rgba(71, 85, 105, 0.55)',
+  steel: 'rgba(203, 213, 225, 0.55)',
+  fairy: 'rgba(244, 63, 94, 0.55)',
+};
+
 export default function Battle() {
 
   const { user } = useAuth();
@@ -64,6 +86,7 @@ export default function Battle() {
   const [ohkoFlash, setOhkoFlash] = useState(false);
   const [activeProjectile, setActiveProjectile] = useState(null); // { type, side }
   const [healGlowSide, setHealGlowSide] = useState(null); // 'player' | 'cpu' | null
+  const [hitFlash, setHitFlash] = useState(null); // { side, type } — type-colored hit flash
 
   // Ref for synchronous state tracking across async delays
   const battleStateRef = useRef({
@@ -477,10 +500,12 @@ export default function Battle() {
 
       const ohkoDamage = defender.currentHp;
       setHurtSide(defenderSide);
+      setHitFlash({ side: defenderSide, type: move.type });
       setSuperShake(true);
       setOhkoFlash(true);
       await delay(750);
       setHurtSide(null);
+      setHitFlash(null);
       setSuperShake(false);
       setOhkoFlash(false);
 
@@ -493,6 +518,14 @@ export default function Battle() {
 
     // 5. Handle Standard Status Category Moves
     if (move.category === 'status') {
+      // Fire a type-colored projectile for opponent-targeting status moves (e.g. Thunder Wave, Will-O-Wisp, Toxic, Growl)
+      if (!isSelfTargetStatus) {
+        setActiveProjectile({ type: move.type, side: attackerSide });
+        await delay(450);
+        setActiveProjectile(null);
+        setHitFlash({ side: defenderSide, type: move.type });
+      }
+
       const statusRes = applyStatusMove(attacker, move);
       if (statusRes.type === 'heal') {
         setHealGlowSide(attackerSide);
@@ -546,11 +579,13 @@ export default function Battle() {
     const damageRes = calculateDamage(attacker, defender, move);
 
     setHurtSide(defenderSide);
+    setHitFlash({ side: defenderSide, type: move.type });
     if (damageRes.isSuperEffective) {
       setSuperShake(true);
     }
     await delay(400);
     setHurtSide(null);
+    setHitFlash(null);
     setSuperShake(false);
 
     const newDefenderHp = Math.max(0, defender.currentHp - damageRes.damage);
@@ -745,38 +780,21 @@ export default function Battle() {
           <h1 style={{ margin: 0, fontSize: '1.5rem', color: '#f8fafc' }}>CPU Battle Arena (Solo)</h1>
           <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>Practice vs AI Trainers</span>
         </div>
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
-          <button
-            onClick={() => navigate('/game-modes')}
-            style={{
-              padding: '0.5rem 1rem',
-              backgroundColor: '#0284c7',
-              color: '#ffffff',
-              border: 'none',
-              borderRadius: '0.375rem',
-              cursor: 'pointer',
-              fontSize: '0.875rem',
-              fontWeight: 700,
-            }}
-          >
-            🎮 Multiplayer Game Modes
-          </button>
-          <button
-            onClick={startNewBattle}
-            disabled={isBusy}
-            style={{
-              padding: '0.5rem 1rem',
-              backgroundColor: '#334155',
-              color: '#f8fafc',
-              border: 'none',
-              borderRadius: '0.375rem',
-              cursor: isBusy ? 'not-allowed' : 'pointer',
-              fontSize: '0.875rem',
-            }}
-          >
-            Reset Battle
-          </button>
-        </div>
+        <button
+          onClick={() => navigate('/game-modes')}
+          style={{
+            padding: '0.5rem 1rem',
+            backgroundColor: '#0284c7',
+            color: '#ffffff',
+            border: 'none',
+            borderRadius: '0.375rem',
+            cursor: 'pointer',
+            fontSize: '0.875rem',
+            fontWeight: 700,
+          }}
+        >
+          🎮 Multiplayer Game Modes
+        </button>
       </div>
 
 
@@ -864,6 +882,9 @@ export default function Battle() {
                 </div>
               )}
               {healGlowSide === 'cpu' && <div className="heal-glow" />}
+              {hitFlash && hitFlash.side === 'cpu' && (
+                <div className="hit-type-flash" style={{ backgroundColor: MOVE_TYPE_FLASH_COLORS[hitFlash.type] || 'rgba(255,255,255,0.5)' }} />
+              )}
             </div>
           </div>
 
@@ -895,6 +916,9 @@ export default function Battle() {
                 </div>
               )}
               {healGlowSide === 'player' && <div className="heal-glow" />}
+              {hitFlash && hitFlash.side === 'player' && (
+                <div className="hit-type-flash" style={{ backgroundColor: MOVE_TYPE_FLASH_COLORS[hitFlash.type] || 'rgba(255,255,255,0.5)' }} />
+              )}
             </div>
 
             <div className="pokemon-status-card">
@@ -934,10 +958,10 @@ export default function Battle() {
         </div>
 
         {/* BENCH STATUS ROWS */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.5rem 1.5rem', backgroundColor: '#1e293b', borderTop: '1px solid #334155' }}>
+        <div className="bench-header-row">
           <div>
-            <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginBottom: '0.25rem' }}>
-              Your Team {!canPlayerSwitch && <span style={{ fontSize: '0.7rem', color: '#f87171' }}>(Must attack once before switching!)</span>}
+            <div className="bench-label">
+              Your Team {!canPlayerSwitch && <span className="bench-switch-warning">(Must attack once before switching!)</span>}
             </div>
             <BenchRow
               team={playerTeam}
@@ -950,7 +974,7 @@ export default function Battle() {
             />
           </div>
           <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginBottom: '0.25rem' }}>Opponent Team</div>
+            <div className="bench-label" style={{ textAlign: 'right' }}>Opponent Team</div>
             <BenchRow team={cpuTeam} activeIndex={cpuActiveIdx} align="right" revealedIndices={revealedCpuIndices} />
           </div>
         </div>
