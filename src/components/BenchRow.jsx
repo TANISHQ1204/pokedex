@@ -60,7 +60,8 @@ export default function BenchRow({
               }
             }}
           >
-            <img src={pkmn.sprites?.normal} alt={pkmn.name} />
+            <img src={pkmn.isShiny ? pkmn.sprites?.shiny : pkmn.sprites?.normal} alt={pkmn.name} />
+            {!isFainted && pkmn.isShiny && <span className="bench-shiny-dot" title="Shiny">✨</span>}
             {!isFainted && ((pkmn.status && pkmn.status !== 'none') || pkmn.confusion) && (
               <div className="bench-status-badge">
                 {pkmn.status && pkmn.status !== 'none' && (

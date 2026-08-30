@@ -200,14 +200,16 @@ export default function RealtimeBattleArena({ match, userId, onUpdateState, play
             </div>
 
             <div className="pokemon-sprite-container">
-              <img src={oppActive.sprites?.normal} alt={oppActive.name} />
+              <img src={oppActive.isShiny ? oppActive.sprites?.shiny : oppActive.sprites?.normal} alt={oppActive.name} />
+              {oppActive.isShiny && <div className="shiny-battle-banner">✨ SHINY +12%</div>}
             </div>
           </div>
 
           {/* Player Zone (Bottom) */}
           <div className="player-zone">
             <div className="pokemon-sprite-container">
-              <img src={myActive.sprites?.normal} alt={myActive.name} />
+              <img src={myActive.isShiny ? myActive.sprites?.shiny : myActive.sprites?.normal} alt={myActive.name} />
+              {myActive.isShiny && <div className="shiny-battle-banner">✨ SHINY +12%</div>}
             </div>
 
             <div className="pokemon-status-card">

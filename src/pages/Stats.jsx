@@ -13,7 +13,6 @@ import {
   findFastestWin,
   mergeCollectionPulls,
   summarizeCollection,
-  formatTimeAgo,
   formatDate,
 } from '../store/stats';
 
@@ -26,12 +25,6 @@ function formatTitle(str) {
 }
 
 const pokemonById = new Map(pokemonList.map((p) => [Number(p.id), p]));
-
-const CARD_TYPE_META = {
-  normal: { label: 'Normal', chipClass: 'pull-type-normal' },
-  power: { label: 'Power', chipClass: 'pull-type-power' },
-  ancient: { label: 'Ancient', chipClass: 'pull-type-ancient' },
-};
 
 function PokemonSprite({ id, size = 48 }) {
   const pkmn = pokemonById.get(Number(id));
@@ -132,7 +125,7 @@ export default function Stats() {
           Stats &amp; Activity
         </h1>
         <p className="hero-subtitle" style={{ marginBottom: 0 }}>
-          Your battle record, recent card pulls, and daily training activity.
+          Your battle record, win streaks, and daily training activity.
         </p>
       </div>
 
@@ -304,67 +297,6 @@ export default function Stats() {
             </div>
           </div>
 
-          {/* Recent Pulls Feed */}
-          <div style={{ marginTop: '1.25rem' }} className="card batt-stats-card">
-            <h3 style={{ margin: '0 0 0.75rem 0', color: '#f8fafc', fontSize: '1.1rem' }}>
-              Recently Obtained Cards <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 400 }}>({mergedPulls.length})</span>
-            </h3>
-            {mergedPulls.length === 0 ? (
-              <p style={{ color: '#94a3b8', fontSize: '0.85rem' }}>Win battles to pull cards and track them here.</p>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                {mergedPulls.slice(0, 20).map((pull, i) => {
-                  const meta = CARD_TYPE_META[pull.card_type] || CARD_TYPE_META.normal;
-                  const pkmn = pokemonById.get(Number(pull.pokemon_id));
-                  return (
-                    <div
-                      key={pull.id || `pull-${i}`}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.75rem',
-                        padding: '0.5rem 0.25rem',
-                        borderBottom: i < mergedPulls.slice(0, 20).length - 1 ? '1px solid #1e293b' : 'none',
-                      }}
-                    >
-                      <div style={{ background: '#0f172a', borderRadius: '0.625rem', padding: '0.25rem 0.4rem' }}>
-                        <PokemonSprite id={pull.pokemon_id} size={44} />
-                      </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-                          <span style={{ color: '#f8fafc', fontWeight: 700, fontSize: '0.95rem' }}>
-                            {formatTitle(pkmn?.name || '???')}
-                          </span>
-                          <span className={`dash-pill ${meta.chipClass}`} style={{ background: '#0f172a' }}>
-                            {meta.label}
-                          </span>
-                          {pull.is_shiny && (
-                            <span className="dash-pill gold">
-                              <SparkleStarIcon size={10} /> Shiny
-                            </span>
-                          )}
-                          {pull.was_new && (
-                            <span className="dash-pill silver">New</span>
-                          )}
-                          {pull.fromCollection && (
-                            <span className="dash-pill" style={{ background: 'rgba(56, 189, 248, 0.15)', color: '#7dd3fc' }}>
-                              Collection
-                            </span>
-                          )}
-                          <span style={{ color: '#64748b', fontSize: '0.8rem', fontWeight: 700 }}>
-                            {'★'.repeat(Math.max(1, Number(pull.star_level) || 1))}
-                          </span>
-                        </div>
-                        <div style={{ color: '#64748b', fontSize: '0.72rem', marginTop: '0.15rem' }}>
-                          #{String(pull.pokemon_id).padStart(4, '0')} · {formatTimeAgo(pull.created_at)}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
         </>
       )}
     </div>

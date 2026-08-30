@@ -4,11 +4,13 @@ import { useAuth } from '../context/AuthContext';
 import { getUserCollection } from '../store/collection';
 import { getTrophyTier } from '../game/trophies';
 import { getBadgeStatus } from '../game/badges';
+import { TYPE_CHART } from '../game/battle';
 import collectionsList from '../data/collections.json' with { type: 'json' };
 import badgesList from '../data/badges.json' with { type: 'json' };
 import pokemonList from '../data/pokemon.json' with { type: 'json' };
 import { isNormalRecord } from '../utils/cardTypes';
-import { fetchRecentPulls, fetchBattleHistory, computeBattleRecord, summarizePulls, formatTimeAgo } from '../store/stats';
+import { fetchRecentPulls, fetchBattleHistory, computeBattleRecord, summarizePulls, formatTimeAgo, mergeCollectionPulls } from '../store/stats';
+import PokemonDetailModal from '../components/PokemonDetailModal';
 import {
   SwordsIcon,
   CardsIcon,
@@ -27,11 +29,16 @@ function formatTitle(str) {
     .join(' ');
 }
 
+// Canonical order of all 18 types used to render the full effectiveness matrix.
+const TYPE_ORDER = ['normal', 'fire', 'water', 'grass', 'electric', 'ice', 'fighting', 'poison', 'ground', 'flying', 'psychic', 'bug', 'rock', 'ghost', 'dragon', 'dark', 'steel', 'fairy'];
+
 export default function Home() {
   const { user } = useAuth();
   const [collectionMap, setCollectionMap] = useState(new Map());
   const [isLoading, setIsLoading] = useState(true);
-  const [activity, setActivity] = useState({ history: [], pulls: [] });
+  const [activity, setActivity] = useState({ history: [], pulls: [], collection: [] });
+  const [selectedShowcase, setSelectedShowcase] = useState(null);
+  const [typeChartOpen, setTypeChartOpen] = useState(false);
 
   // User display name
   const trainerName =
@@ -68,17 +75,18 @@ export default function Home() {
     loadCollection();
   }, [user]);
 
-  // Fetch recent activity for the compact stats widget
+  // Fetch recent activity for the compact stats widget + Top Collection Showcase
   useEffect(() => {
     let cancelled = false;
     async function loadActivity() {
       if (!user?.id) return;
-      const [history, pulls] = await Promise.all([
+      const [history, pulls, collection] = await Promise.all([
         fetchBattleHistory(user.id, 100),
-        fetchRecentPulls(user.id, 5),
+        fetchRecentPulls(user.id, 10),
+        getUserCollection(user.id).catch(() => []),
       ]);
       if (!cancelled) {
-        setActivity({ history, pulls });
+        setActivity({ history, pulls, collection });
       }
     }
     loadActivity();
@@ -138,28 +146,36 @@ export default function Home() {
     };
   }, [collectionMap]);
 
-  // Featured Showcase Cards
-  const showcasePokemon = useMemo(() => {
-    if (collectionMap.size > 0) {
-      const ownedList = [];
-      collectionMap.forEach((entry, pokemonId) => {
-        const pkmn = pokemonList.find((p) => p.id === pokemonId);
-        if (pkmn) {
-          ownedList.push({ pkmn, entry });
-        }
-      });
-      ownedList.sort((a, b) => (b.entry.star_level || 0) - (a.entry.star_level || 0) || a.pkmn.id - b.pkmn.id);
-      return ownedList.slice(0, 6).map((item) => ({ ...item.pkmn, isOwned: true, entry: item.entry }));
-    }
+  // Top Collection Showcase — most recently obtained cards (live pulls merged
+  // with pre-tracking collection backfill). Clicking a card opens its detail modal.
+  const mergedPulls = useMemo(
+    () => mergeCollectionPulls(activity.collection, activity.pulls),
+    [activity.collection, activity.pulls]
+  );
 
-    const sampleIds = [6, 9, 3, 25, 150, 384];
-    return sampleIds
-      .map((id) => pokemonList.find((p) => p.id === id))
-      .filter(Boolean)
-      .map((pkmn) => ({ ...pkmn, isOwned: false, entry: null }));
-  }, [collectionMap]);
+  const showcaseCards = useMemo(() => {
+    const seen = new Set();
+    const cards = [];
+    mergedPulls.forEach((pull) => {
+      const id = Number(pull.pokemon_id);
+      if (!id || seen.has(id)) return;
+      const pkmn = pokemonList.find((p) => Number(p.id) === id);
+      if (!pkmn) return;
+      seen.add(id);
+      cards.push({
+        pkmn,
+        pull,
+        cardType: pull.card_type || 'normal',
+        entry: collectionMap.get(id) || null,
+      });
+    });
+    return cards.slice(0, 8);
+  }, [mergedPulls, collectionMap]);
+
+  const hasShowcase = showcaseCards.length > 0;
 
   return (
+    <>
     <div className="page-container">
       {/* HERO WELCOME BANNER */}
       <div className="home-hero-card">
@@ -305,96 +321,144 @@ export default function Home() {
         </div>
       </div>
 
-      {/* FEATURED COLLECTION SHOWCASE */}
-      <div style={{ marginTop: '2rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+      {/* TOP COLLECTION SHOWCASE */}
+      <div style={{ marginTop: '2rem' }} className="showcase-section">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
           <div>
-            <h2 style={{ margin: 0, color: '#f8fafc', fontSize: '1.25rem' }}>
-              {collectionMap.size > 0 ? 'Top Collection Showcase' : 'Featured National Dex Cards'}
-            </h2>
+            <div className="hero-badge" style={{ marginBottom: '0.35rem' }}>TOP COLLECTION SHOWCASE</div>
+            <h2 style={{ margin: 0, color: '#f8fafc', fontSize: '1.25rem' }}>Recently Obtained Cards</h2>
             <p style={{ margin: '0.2rem 0 0 0', color: '#94a3b8', fontSize: '0.8rem' }}>
-              {collectionMap.size > 0 ? 'Your highest star-level cards ready for battle' : 'Win 6v6 battles to add cards to your collection!'}
+              Your latest pulls — click a card for its full details.
             </p>
           </div>
-          <Link to="/collection" style={{ color: '#38bdf8', textDecoration: 'none', fontWeight: 600, fontSize: '0.875rem' }}>
-            View All Cards &rarr;
+          <Link to="/stats" style={{ color: '#38bdf8', textDecoration: 'none', fontWeight: 600, fontSize: '0.875rem' }}>
+            View Full Stats &rarr;
           </Link>
         </div>
 
-        <div className="collection-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))' }}>
-          {showcasePokemon.map((p) => {
-            const isOwned = p.isOwned;
-            const starLevel = p.entry?.star_level || 0;
-            const isShiny = p.entry?.is_shiny || starLevel >= 5;
-            const spriteSrc = isOwned ? (isShiny ? p.sprites.shiny : p.sprites.normal) : p.sprites.normal;
+        {!hasShowcase ? (
+          <div className="card" style={{ background: 'rgba(30, 41, 59, 0.7)', textAlign: 'center', padding: '2rem' }}>
+            <SparkleStarIcon size={28} />
+            <p style={{ color: '#94a3b8', fontSize: '0.9rem', margin: '0.5rem 0 0 0' }}>
+              No cards yet — win battles to pull cards and showcase them here.
+            </p>
+          </div>
+        ) : (
+          <div className="showcase-grid">
+            {showcaseCards.map(({ pkmn, pull, cardType, entry }) => {
+              const starLevel = entry?.star_level || Number(pull.star_level) || 0;
+              const isShiny = Boolean((entry?.is_shiny) || pull.is_shiny) || starLevel >= 5;
+              const spriteSrc = isShiny ? pkmn.sprites.shiny : pkmn.sprites.normal;
+              const isSpecial = cardType === 'power' || cardType === 'ancient';
+              const typeLabel = cardType === 'power' ? '⚡ Power' : cardType === 'ancient' ? '🏛️ Ancient' : 'Normal';
 
-            return (
-              <Link
-                key={p.id}
-                to="/collection"
-                className={`collection-card ${isOwned ? 'owned' : 'unowned'}`}
-                style={{ textDecoration: 'none' }}
-              >
-                <div className="card-top-id">#{String(p.id).padStart(4, '0')}</div>
-
-                <div className="card-image-wrapper">
-                  <img
-                    src={spriteSrc}
-                    alt={isOwned ? p.name : '???'}
-                    className={isOwned ? '' : 'card-silhouette'}
-                  />
-                  {isShiny && isOwned && (
-                    <div className="shiny-sparkle-badge">
-                      <SparkleStarIcon size={12} /> Shiny
+              return (
+                <button
+                  key={pkmn.id}
+                  type="button"
+                  className={`showcase-card ${cardType === 'power' ? 'showcase-power' : cardType === 'ancient' ? 'showcase-ancient' : ''}`}
+                  onClick={() => setSelectedShowcase({ pkmn, cardType, entry })}
+                >
+                  <div className="card-top-id">#{String(pkmn.id).padStart(4, '0')}</div>
+                  <div className="showcase-card-image">
+                    <img src={spriteSrc} alt={formatTitle(pkmn.name)} />
+                    {isShiny && (
+                      <div className="shiny-sparkle-badge">
+                        <SparkleStarIcon size={12} /> Shiny
+                      </div>
+                    )}
+                  </div>
+                  <div className="showcase-card-info">
+                    <div className="card-name">{formatTitle(pkmn.name)}</div>
+                    <div className="showcase-card-type" style={{ background: isSpecial ? 'rgba(236,72,153,0.15)' : 'rgba(56,189,248,0.12)', color: isSpecial ? '#ec4899' : '#38bdf8' }}>
+                      {typeLabel}
                     </div>
-                  )}
-                </div>
-
-                <div className="card-info">
-                  <div className="card-name">{formatTitle(p.name)}</div>
-                  {isOwned ? (
-                    <div className="star-rating">
-                      {'★'.repeat(starLevel)}
-                      {'☆'.repeat(5 - starLevel)}
-                    </div>
-                  ) : (
-                    <div className="unowned-badge">Unowned</div>
-                  )}
-                </div>
-              </Link>
-            );
-          })}
-        </div>
+                    {starLevel > 0 && (
+                      <div className="star-rating">
+                        {'★'.repeat(Math.max(1, Math.min(5, starLevel)))}
+                        {'☆'.repeat(Math.max(0, 5 - Math.min(5, starLevel)))}
+                      </div>
+                    )}
+                    <div className="showcase-obtained">{formatTimeAgo(pull.created_at)}</div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
 
-      {/* QUICK BATTLE CHEAT SHEET WIDGET */}
-      <div className="card" style={{ marginTop: '2rem', background: 'rgba(30, 41, 59, 0.7)' }}>
-        <h3 style={{ margin: '0 0 0.75rem 0', color: '#f8fafc', fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <SwordsIcon size={20} /> Type Matchup Quick Reference
-        </h3>
-        <p style={{ margin: '0 0 1rem 0', color: '#94a3b8', fontSize: '0.85rem' }}>
-          Use type advantages during 6v6 battles to inflict 2.0x super-effective damage!
-        </p>
-
-        <div className="type-cheat-grid">
-          {[
-            { type: 'fire', superVs: 'Grass, Steel', weakVs: 'Water, Fire, Dragon' },
-            { type: 'water', superVs: 'Fire, Ground', weakVs: 'Grass, Water, Dragon' },
-            { type: 'grass', superVs: 'Water, Ground', weakVs: 'Fire, Poison, Flying' },
-            { type: 'electric', superVs: 'Water, Flying', weakVs: 'Electric, Dragon, Ground' },
-            { type: 'poison', superVs: 'Grass, Fairy', weakVs: 'Poison, Ground, Rock' },
-            { type: 'dragon', superVs: 'Dragon', weakVs: 'Steel, Fairy' },
-          ].map((item) => (
-            <div key={item.type} className="type-cheat-card">
-              <span className={`pokemon-type-badge type-${item.type}`}>{item.type}</span>
-              <div style={{ fontSize: '0.75rem', marginTop: '0.35rem' }}>
-                <div style={{ color: '#4ade80' }}><strong>2x vs:</strong> {item.superVs}</div>
-                <div style={{ color: '#f87171', marginTop: '0.15rem' }}><strong>0.5x vs:</strong> {item.weakVs}</div>
-              </div>
-            </div>
-          ))}
-        </div>
+      {/* TYPE EFFECTIVENESS INFO BUTTON */}
+      <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'center' }}>
+        <button type="button" className="hero-btn secondary" onClick={() => setTypeChartOpen(true)} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+          <SwordsIcon size={18} /> Type Effectiveness Chart
+        </button>
       </div>
     </div>
+
+    {/* CARD DETAIL MODAL — clicked from the Top Collection Showcase */}
+    {selectedShowcase && (
+      <PokemonDetailModal
+        pokemon={selectedShowcase.pkmn}
+        entry={selectedShowcase.entry}
+        cardType={selectedShowcase.cardType}
+        onClose={() => setSelectedShowcase(null)}
+      />
+    )}
+
+    {/* FULL 18x18 TYPE EFFECTIVENESS CHART MODAL */}
+    {typeChartOpen && (
+      <div className="modal-overlay" onClick={() => setTypeChartOpen(false)}>
+        <div className="modal-content" style={{ maxWidth: 'min(92vw, 860px)' }} onClick={(e) => e.stopPropagation()}>
+          <div className="modal-header">
+            <div>
+              <span className="modal-dex-id">TYPE CHART</span>
+              <h2 className="modal-title">Type Effectiveness</h2>
+            </div>
+            <button className="modal-close-btn" onClick={() => setTypeChartOpen(false)}>&times;</button>
+          </div>
+          <div className="modal-body" style={{ maxHeight: '70vh', overflow: 'auto' }}>
+            <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginBottom: '0.75rem' }}>
+              Rows = attacking type · Columns = defending type. Tap any type chip in the first column to jump, or scroll to explore.
+            </div>
+            <div className="type-chart-scroll">
+              <table className="type-chart-table">
+                <thead>
+                  <tr>
+                    <th className="type-chart-corner">▲ atk → def</th>
+                    {TYPE_ORDER.map((t) => (
+                      <th key={t}>
+                        <span className={`pokemon-type-badge type-${t}`}>{t.charAt(0).toUpperCase()}</span>
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {TYPE_ORDER.map((atk) => (
+                    <tr key={atk}>
+                      <td className="type-chart-row-label">
+                        <span className={`pokemon-type-badge type-${atk}`}>{atk}</span>
+                      </td>
+                      {TYPE_ORDER.map((def) => {
+                        const mult = TYPE_CHART[atk]?.[def] ?? 1;
+                        const cls = mult === 0 ? 'mult-immune' : mult >= 2 ? 'mult-super' : mult <= 0.5 ? 'mult-weak' : 'mult-neutral';
+                        return <td key={def} className={`type-chart-cell ${cls}`}>{mult === 1 ? '·' : mult}</td>;
+                      })}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginTop: '1rem', fontSize: '0.75rem', color: '#94a3b8' }}>
+              <span style={{ color: '#4ade80' }}>■ 2× Super Effective</span>
+              <span style={{ color: '#f87171' }}>■ ½ Not Very Effective</span>
+              <span style={{ color: '#64748b' }}>■ 0 No Effect</span>
+              <span style={{ color: '#94a3b8' }}>■ ·· Neutral</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    )}
+    </>
   );
 }

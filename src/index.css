@@ -222,6 +222,7 @@ body {
 }
 
 .bench-slot {
+  position: relative;
   width: 36px;
   height: 36px;
   border-radius: 50%;
@@ -1334,6 +1335,42 @@ body {
   font-weight: 800;
   padding: 0.1rem 0.4rem;
   border-radius: 0.25rem;
+}
+
+/* Battle-time shiny indicator (PURE battle roll — unrelated to any collection)
+   Shown on both the player and opponent active sprites when a slot rolls shiny. */
+.shiny-battle-banner {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: linear-gradient(90deg, #f59e0b, #ec4899);
+  color: #ffffff;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  padding: 0.15rem 0.5rem;
+  border-radius: 0.375rem;
+  box-shadow: 0 2px 8px rgba(236, 72, 153, 0.6);
+  z-index: 5;
+  white-space: nowrap;
+}
+
+.shiny-battle-tag {
+  margin-left: 0.3rem;
+  font-size: 0.9rem;
+}
+
+.bench-shiny-dot {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  font-size: 0.7rem;
+  line-height: 1;
+  z-index: 2;
 }
 
 .card-info {
@@ -2585,6 +2622,168 @@ body {
     }
   }
 }
+
+/* ============================================================
+   TOP COLLECTION SHOWCASE (Home) + 18x18 TYPE CHART MODAL
+   ============================================================ */
+
+.showcase-section {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.6), rgba(15, 23, 42, 0.4));
+  border: 1px solid rgba(56, 189, 248, 0.15);
+  border-radius: 1rem;
+  padding: 1.25rem;
+}
+
+.showcase-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 0.9rem;
+}
+
+.showcase-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.85rem 0.6rem 0.6rem;
+  border-radius: 0.75rem;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid #334155;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+  text-align: center;
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.showcase-card:hover {
+  transform: translateY(-3px);
+  border-color: #38bdf8;
+  box-shadow: 0 10px 20px -8px rgba(56, 189, 248, 0.45);
+}
+
+.showcase-card.showcase-power {
+  border-color: rgba(236, 72, 153, 0.5);
+}
+
+.showcase-card.showcase-power:hover {
+  border-color: #ec4899;
+  box-shadow: 0 10px 20px -8px rgba(236, 72, 153, 0.5);
+}
+
+.showcase-card.showcase-ancient {
+  border-color: rgba(184, 154, 108, 0.5);
+}
+
+.showcase-card.showcase-ancient:hover {
+  border-color: #b89a6c;
+  box-shadow: 0 10px 20px -8px rgba(184, 154, 108, 0.5);
+}
+
+.showcase-card-image {
+  position: relative;
+  width: 92px;
+  height: 92px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.showcase-card-image img {
+  width: 84px;
+  height: 84px;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.showcase-card-info {
+  margin-top: 0.4rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.showcase-card-type {
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  padding: 0.1rem 0.45rem;
+  border-radius: 0.3rem;
+}
+
+.showcase-obtained {
+  color: #64748b;
+  font-size: 0.68rem;
+}
+
+/* 18x18 type chart modal */
+.type-chart-scroll {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.type-chart-table {
+  border-collapse: collapse;
+  min-width: 720px;
+  font-size: 0.75rem;
+}
+
+.type-chart-table th,
+.type-chart-table td {
+  border: 1px solid #1e293b;
+  padding: 0.3rem 0.2rem;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.type-chart-table th {
+  background: rgba(15, 23, 42, 0.9);
+  color: #cbd5e1;
+}
+
+.type-chart-corner,
+.type-chart-row-label {
+  position: sticky;
+  left: 0;
+  background: #0f172a !important;
+  color: #cbd5e1;
+  font-weight: 700;
+  white-space: nowrap;
+  z-index: 2;
+}
+
+.type-chart-row-label {
+  text-align: left;
+}
+
+.type-chart-cell {
+  color: #e2e8f0;
+  font-weight: 800;
+}
+
+.type-chart-cell.mult-super {
+  background: rgba(34, 197, 94, 0.18);
+  color: #4ade80;
+}
+
+.type-chart-cell.mult-weak {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+}
+
+.type-chart-cell.mult-immune {
+  background: rgba(100, 116, 139, 0.25);
+  color: #64748b;
+}
+
+.type-chart-cell.mult-neutral {
+  color: #94a3b8;
+  font-weight: 600;
+}
+
 
 
 

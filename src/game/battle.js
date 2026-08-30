@@ -877,15 +877,47 @@ export function selectCpuMove(cpuPokemon, playerPokemon) {
   return { moveIdx, move: chosenMove };
 }
 
+// The chance a single battle-team slot rolls as the SHINY variant of whatever
+// Pokemon was selected. This is a purely battle-time random roll (~2.5%) that is
+// fully independent of any player's collection / shiny ownership — it applies
+// symmetrically to both sides and is discarded once the battle ends.
+export const SHINY_BATTLE_CHANCE = 0.025;
+
+// Stat multiplier applied to a battle Pokemon whose slot rolled shiny, for that
+// battle instance only (no effect on collection or any persisted data).
+export const SHINY_STAT_BOOST = 1.12;
+
 /**
- * Generates a random team of 6 final-evolution Pokémon initialized with currentHp, currentPp, and status condition states.
+ * Applies the battle-time shiny stat boost (12%) to a base stats object,
+ * returning a new rounded-up stats object.
+ */
+export function applyShinyStatBoost(baseStats = {}) {
+  const boost = SHINY_STAT_BOOST;
+  const statKeys = ['hp', 'attack', 'defense', 'specialAttack', 'specialDefense', 'speed'];
+  const stats = { ...baseStats };
+  statKeys.forEach((key) => {
+    if (typeof stats[key] === 'number') {
+      stats[key] = Math.max(1, Math.round(stats[key] * boost));
+    }
+  });
+  return stats;
+}
+
+/**
+ * Generates a random battle team of `count` Pokémon (any evolution stage is
+ * eligible) with currentHp, currentPp, and status condition states initialized.
+ *
+ * Shiny rolling: each slot independently has a ~2.5% chance (SHINY_BATTLE_CHANCE)
+ * of being the SHINY variant of the selected Pokemon. This is a pure random
+ * battle-time roll with NO connection to collection ownership. A shiny slot
+ * receives a 12% stat boost (SHINY_STAT_BOOST) for this battle only and is
+ * flagged with isShiny = true so the UI can show the shiny sprite + indicator.
  */
 export function generateRandomTeam(customList = null, count = 6) {
   const baseList = customList && Array.isArray(customList) && customList.length > 0 ? customList : defaultPokemonList;
 
-  // Filter candidate pool to only final-evolution Pokemon
-  const finalEvoList = baseList.filter((pkmn) => pkmn.isFinalEvolution);
-  const pool = finalEvoList.length > 0 ? finalEvoList : baseList;
+  // ALL Pokemon are eligible regardless of evolution stage (no final-evo filter).
+  const pool = baseList.length > 0 ? baseList : defaultPokemonList;
 
   // Fisher-Yates partial shuffle: pick `count` unique Pokemon uniformly at random
   const picks = Math.min(count, pool.length);
@@ -901,6 +933,14 @@ export function generateRandomTeam(customList = null, count = 6) {
   for (let i = 0; i < picks; i++) {
     const template = shuffled[i];
 
+    // Independent shiny roll per slot (~2.5%). Purely battle-time; no ownership
+    // check anywhere.
+    const isShiny = Math.random() < SHINY_BATTLE_CHANCE;
+
+    // Apply the 12% stat boost for shiny slots for this battle instance only.
+    const stats = isShiny ? applyShinyStatBoost(template.stats) : template.stats;
+    const maxHp = stats.hp;
+
     const moves = (template.moves || []).map((m) => ({
       ...m,
       currentPp: m.pp || 10,
@@ -910,9 +950,12 @@ export function generateRandomTeam(customList = null, count = 6) {
     team.push({
       ...JSON.parse(JSON.stringify(template)),
       moves,
+      isShiny,
+      statBoost: isShiny ? SHINY_STAT_BOOST : 1.0,
+      stats,
       instanceId: `pkmn_${i}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
-      currentHp: template.stats.hp,
-      maxHp: template.stats.hp,
+      currentHp: maxHp,
+      maxHp,
       isFainted: false,
       status: 'none',
       sleepTurns: 0,

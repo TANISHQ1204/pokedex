@@ -28,6 +28,7 @@ import BenchRow from '../components/BenchRow';
 import BattleLog from '../components/BattleLog';
 import CardPullReveal from '../components/CardPullReveal';
 import { createMatch } from '../store/matches';
+import { SparkleStarIcon } from '../components/icons/GameIcons';
 
 const SOLO_BATTLE_STORAGE_KEY = 'pokedex_solo_battle_state';
 
@@ -968,7 +969,10 @@ export default function Battle() {
           <div className="opponent-zone">
             <div className="pokemon-status-card">
               <div className="pokemon-status-header">
-                <span>{cpuActive.name}</span>
+                <span>
+                  {cpuActive.name}
+                  {cpuActive.isShiny && <span className="shiny-battle-tag">✨</span>}
+                </span>
                 <span>
                   {cpuActive.types.map((t) => (
                     <span key={t} className={`pokemon-type-badge type-${t}`}>
@@ -1009,8 +1013,18 @@ export default function Battle() {
                   ${cpuActive.status === 'sleep' ? 'status-overlay-slp' : ''}
                 `}
               >
-                <img src={cpuActive.sprites.normal} alt={cpuActive.name} />
+                <img
+                  src={cpuActive.isShiny ? cpuActive.sprites.shiny : cpuActive.sprites.normal}
+                  alt={cpuActive.name}
+                />
               </div>
+
+              {/* CPU Shiny Indicator */}
+              {cpuActive.isShiny && (
+                <div className="shiny-battle-banner">
+                  <SparkleStarIcon size={12} /> SHINY +12%
+                </div>
+              )}
 
               {/* CPU Status Visual Effect Overlays */}
               {cpuActive.status === 'freeze' && <div className="status-overlay-frz" />}
@@ -1043,8 +1057,18 @@ export default function Battle() {
                   ${playerActive.status === 'sleep' ? 'status-overlay-slp' : ''}
                 `}
               >
-                <img src={playerActive.sprites.normal} alt={playerActive.name} />
+                <img
+                  src={playerActive.isShiny ? playerActive.sprites.shiny : playerActive.sprites.normal}
+                  alt={playerActive.name}
+                />
               </div>
+
+              {/* Player Shiny Indicator */}
+              {playerActive.isShiny && (
+                <div className="shiny-battle-banner">
+                  <SparkleStarIcon size={12} /> SHINY +12%
+                </div>
+              )}
 
               {/* Player Status Visual Effect Overlays */}
               {playerActive.status === 'freeze' && <div className="status-overlay-frz" />}
@@ -1067,7 +1091,10 @@ export default function Battle() {
 
             <div className="pokemon-status-card">
               <div className="pokemon-status-header">
-                <span>{playerActive.name}</span>
+                <span>
+                  {playerActive.name}
+                  {playerActive.isShiny && <span className="shiny-battle-tag">✨</span>}
+                </span>
                 <span>
                   {playerActive.types.map((t) => (
                     <span key={t} className={`pokemon-type-badge type-${t}`}>
