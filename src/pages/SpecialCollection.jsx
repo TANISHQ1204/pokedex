@@ -73,6 +73,7 @@ export default function SpecialCollection() {
   const [isRevealOpen, setIsRevealOpen] = useState(false);
   const [revealType, setRevealType] = useState('power');
   const [searchText, setSearchText] = useState('');
+  const [ownedFilter, setOwnedFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
   const [genFilter, setGenFilter] = useState('all');
   const [page, setPage] = useState(1);
@@ -102,7 +103,13 @@ export default function SpecialCollection() {
   }, [user]);
 
   // Reset page on filter change
-  useEffect(() => { setPage(1); }, [searchText, typeFilter, genFilter]);
+  useEffect(() => { setPage(1); }, [searchText, ownedFilter, typeFilter, genFilter]);
+
+  // Ownership helper for the currently selected category (Power vs Ancient)
+  const isOwned = (pokemonId) => {
+    if (selectedCategory === 'power-cards') return powerCollectionMap.has(pokemonId);
+    return ancientCollectionMap.has(pokemonId);
+  };
 
   // Build gallery entries based on selected category
   const allEntries = useMemo(() => {
@@ -144,8 +151,14 @@ export default function SpecialCollection() {
       entries = entries.filter((e) => e.gen.id === Number(genFilter));
     }
 
+    if (ownedFilter === 'owned') {
+      entries = entries.filter((e) => isOwned(e.pokemon.id));
+    } else if (ownedFilter === 'unowned') {
+      entries = entries.filter((e) => !isOwned(e.pokemon.id));
+    }
+
     return entries;
-  }, [selectedCategory, searchText, typeFilter, genFilter]);
+  }, [selectedCategory, searchText, ownedFilter, typeFilter, genFilter, powerCollectionMap, ancientCollectionMap]);
 
   const totalPages = Math.max(1, Math.ceil(allEntries.length / PER_PAGE));
   const validPage = Math.min(page, totalPages);
@@ -166,6 +179,7 @@ export default function SpecialCollection() {
   const handleBackToCategories = () => {
     setSelectedCategory(null);
     setSearchText('');
+    setOwnedFilter('all');
     setTypeFilter('all');
     setGenFilter('all');
     setPage(1);
@@ -173,14 +187,10 @@ export default function SpecialCollection() {
 
   const resetFilters = () => {
     setSearchText('');
+    setOwnedFilter('all');
     setTypeFilter('all');
     setGenFilter('all');
     setPage(1);
-  };
-
-  const isOwned = (pokemonId) => {
-    if (selectedCategory === 'power-cards') return powerCollectionMap.has(pokemonId);
-    return ancientCollectionMap.has(pokemonId);
   };
 
   // CATEGORY LIST VIEW
@@ -308,6 +318,11 @@ export default function SpecialCollection() {
             <option key={t} value={t}>{t.charAt(0).toUpperCase() + t.slice(1)}</option>
           ))}
         </select>
+        <select className="filter-select" value={ownedFilter} onChange={(e) => setOwnedFilter(e.target.value)}>
+          <option value="all">All Ownership Status</option>
+          <option value="owned">Owned Cards</option>
+          <option value="unowned">Unowned Only</option>
+        </select>
         {selectedCategory === 'ancient-cards' && (
           <select className="filter-select" value={genFilter} onChange={(e) => setGenFilter(e.target.value)}>
             <option value="all">All Generations</option>
@@ -321,7 +336,7 @@ export default function SpecialCollection() {
       {/* Results count */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', color: '#94a3b8', fontSize: '0.85rem' }}>
         <span>
-          Showing {allEntries.length} cards {searchText || typeFilter !== 'all' || genFilter !== 'all' ? '(Filtered)' : ''}
+          Showing {allEntries.length} cards {searchText || ownedFilter !== 'all' || typeFilter !== 'all' || genFilter !== 'all' ? '(Filtered)' : ''}
           {' · '}<span style={{ color: selectedCategory === 'power-cards' ? '#ec4899' : '#b89a6c' }}>
             {allEntries.filter((e) => isOwned(e.pokemon.id)).length} owned
           </span>
