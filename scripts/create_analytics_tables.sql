@@ -5,6 +5,8 @@
 -- Stats are computed client-side from these rows (no server functions).
 -- NOTE: These tables only capture activity AFTER initial deployment;
 -- past battles/card pulls were not logged and cannot be rebuilt retroactively.
+-- Also includes owner-scoped ROW LEVEL SECURITY policies (required for the app's
+-- anon key to insert/read via the browser).
 -- ============================================================
 
 -- ---------------------------------------------------------------------------
@@ -29,6 +31,36 @@ create index if not exists battle_history_user_created_idx
   on public.battle_history (user_id, created_at desc);
 
 -- ---------------------------------------------------------------------------
+-- 1a. ROW LEVEL SECURITY for battle_history (CRITICAL)
+-- ---------------------------------------------------------------------------
+-- Supabase enables RLS on newly created tables by default. Without the
+-- policies below, the anon key (used by the app) can neither insert nor read
+-- any row, so every battle silently fails to record AND the Stats page reads
+-- back nothing — which looks exactly like "battle stats are empty".
+-- These policies restrict each user to only their own rows.
+alter table public.battle_history enable row level security;
+
+drop policy if exists "Users can insert their own battles" on public.battle_history;
+create policy "Users can insert their own battles"
+  on public.battle_history for insert
+  with check (auth.uid() = user_id);
+
+drop policy if exists "Users can view their own battles" on public.battle_history;
+create policy "Users can view their own battles"
+  on public.battle_history for select
+  using (auth.uid() = user_id);
+
+drop policy if exists "Users can update their own battles" on public.battle_history;
+create policy "Users can update their own battles"
+  on public.battle_history for update
+  using (auth.uid() = user_id);
+
+drop policy if exists "Users can delete their own battles" on public.battle_history;
+create policy "Users can delete their own battles"
+  on public.battle_history for delete
+  using (auth.uid() = user_id);
+
+-- ---------------------------------------------------------------------------
 -- 2. card_pulls — one row per card obtained (normal, power, or ancient)
 --    Powers the recent-pulls feed.
 -- ---------------------------------------------------------------------------
@@ -45,6 +77,35 @@ create table if not exists public.card_pulls (
 
 create index if not exists card_pulls_user_created_idx
   on public.card_pulls (user_id, created_at desc);
+
+-- ---------------------------------------------------------------------------
+-- 2a. ROW LEVEL SECURITY for card_pulls
+-- ---------------------------------------------------------------------------
+-- Same reasoning as battle_history: without these policies the anon key cannot
+-- record card pulls, so the Home "Top Collection Showcase" and Stats "Cards
+-- Pulled" count rely solely on backfilled collection records and never see new
+-- live pulls.
+alter table public.card_pulls enable row level security;
+
+drop policy if exists "Users can insert their own card pulls" on public.card_pulls;
+create policy "Users can insert their own card pulls"
+  on public.card_pulls for insert
+  with check (auth.uid() = user_id);
+
+drop policy if exists "Users can view their own card pulls" on public.card_pulls;
+create policy "Users can view their own card pulls"
+  on public.card_pulls for select
+  using (auth.uid() = user_id);
+
+drop policy if exists "Users can update their own card pulls" on public.card_pulls;
+create policy "Users can update their own card pulls"
+  on public.card_pulls for update
+  using (auth.uid() = user_id);
+
+drop policy if exists "Users can delete their own card pulls" on public.card_pulls;
+create policy "Users can delete their own card pulls"
+  on public.card_pulls for delete
+  using (auth.uid() = user_id);
 
 -- ---------------------------------------------------------------------------
 -- RECOMMENDED (but OPTIONAL): enforce card-type independence at the DB level.
