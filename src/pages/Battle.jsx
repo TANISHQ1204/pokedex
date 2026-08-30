@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   generateRandomTeam,
@@ -20,6 +20,7 @@ import {
 } from '../game/battle';
 import { rollBattleDrop, rollPreviewDrop } from '../game/drops';
 import { getUserCollection, awardCard, awardPowerCard, awardAncientCard } from '../store/collection';
+import { recordBattleResult, recordCardPull } from '../store/stats';
 import { useAuth } from '../context/AuthContext';
 import pokemonList from '../data/pokemon.json' with { type: 'json' };
 import HpBar from '../components/HpBar';
@@ -27,6 +28,27 @@ import BenchRow from '../components/BenchRow';
 import BattleLog from '../components/BattleLog';
 import CardPullReveal from '../components/CardPullReveal';
 import { createMatch } from '../store/matches';
+
+const SOLO_BATTLE_STORAGE_KEY = 'pokedex_solo_battle_state';
+
+function saveSoloBattleState(data) {
+  try {
+    localStorage.setItem(SOLO_BATTLE_STORAGE_KEY, JSON.stringify(data));
+  } catch (_) { /* quota exceeded or private mode — ignore */ }
+}
+
+function loadSoloBattleState() {
+  try {
+    const raw = localStorage.getItem(SOLO_BATTLE_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch (_) {
+    return null;
+  }
+}
+
+function clearSoloBattleState() {
+  try { localStorage.removeItem(SOLO_BATTLE_STORAGE_KEY); } catch (_) { /* ignore */ }
+}
 
 // Map move types to CSS colors for hit-flash overlay
 const MOVE_TYPE_FLASH_COLORS = {
@@ -98,7 +120,31 @@ export default function Battle() {
     cpuActiveState: { enteredViaFaint: true, hasAttacked: false, activeBuffs: [] },
   });
 
-  const startNewBattle = () => {
+  const revealedCpuIndicesRef = useRef(new Set([0]));
+  const logsRef = useRef([]);
+  const winnerRef = useRef(null);
+  const awardedDropRef = useRef(null);
+  const turnsRef = useRef(0);
+  const battleRecordedRef = useRef(false);
+
+  const persistState = useCallback(() => {
+    const ref = battleStateRef.current;
+    saveSoloBattleState({
+      playerTeam: ref.playerTeam,
+      cpuTeam: ref.cpuTeam,
+      playerActiveIdx: ref.playerIdx,
+      cpuActiveIdx: ref.cpuIdx,
+      playerActiveState: ref.playerActiveState,
+      cpuActiveState: ref.cpuActiveState,
+      revealedCpuIndices: Array.from(revealedCpuIndicesRef.current),
+      logs: logsRef.current,
+      winner: winnerRef.current,
+      awardedDrop: awardedDropRef.current,
+      turns: turnsRef.current,
+    });
+  }, []);
+
+  const startNewBattle = useCallback(() => {
     const pTeam = generateRandomTeam(null, 6);
     const cTeam = generateRandomTeam(null, 6);
 
@@ -126,15 +172,86 @@ export default function Battle() {
       playerActiveState: initPState,
       cpuActiveState: initCState,
     };
-  };
+    revealedCpuIndicesRef.current = new Set([0]);
+    logsRef.current = [{ text: 'A wild 6v6 Trainer Battle has begun! Select a move or click a benched Pokémon to switch.' }];
+    winnerRef.current = null;
+    awardedDropRef.current = null;
+    turnsRef.current = 0;
+    battleRecordedRef.current = false;
 
-  useEffect(() => {
-    startNewBattle();
+    clearSoloBattleState();
   }, []);
 
+  useEffect(() => {
+    const saved = loadSoloBattleState();
+    if (saved && saved.playerTeam?.length && saved.cpuTeam?.length && !saved.winner) {
+      const pIdx = saved.playerActiveIdx ?? 0;
+      const cIdx = saved.cpuActiveIdx ?? 0;
+      const pState = saved.playerActiveState || { enteredViaFaint: true, hasAttacked: false, activeBuffs: [] };
+      const cState = saved.cpuActiveState || { enteredViaFaint: true, hasAttacked: false, activeBuffs: [] };
+      const revSet = new Set(saved.revealedCpuIndices || [0]);
+
+      setPlayerTeam(saved.playerTeam);
+      setCpuTeam(saved.cpuTeam);
+      setPlayerActiveIdx(pIdx);
+      setCpuActiveIdx(cIdx);
+      setRevealedCpuIndices(revSet);
+      setPlayerActiveState(pState);
+      setCpuActiveState(cState);
+      setLogs(saved.logs || []);
+      setWinner(null);
+      setAwardedDrop(saved.awardedDrop || null);
+      setIsBusy(false);
+
+      battleStateRef.current = {
+        playerTeam: saved.playerTeam,
+        cpuTeam: saved.cpuTeam,
+        playerIdx: pIdx,
+        cpuIdx: cIdx,
+        playerActiveState: pState,
+        cpuActiveState: cState,
+      };
+      revealedCpuIndicesRef.current = revSet;
+      logsRef.current = saved.logs || [];
+      winnerRef.current = null;
+      awardedDropRef.current = saved.awardedDrop || null;
+      turnsRef.current = saved.turns || 0;
+      battleRecordedRef.current = false;
+    } else {
+      startNewBattle();
+    }
+  }, [startNewBattle]);
+
   const addLog = (text, options = {}) => {
-    setLogs((prev) => [...prev, { text, ...options }]);
+    setLogs((prev) => {
+      const next = [...prev, { text, ...options }];
+      logsRef.current = next;
+      return next;
+    });
   };
+
+  // Persist battle state to localStorage whenever key state changes
+  useEffect(() => {
+    if (battleStateRef.current.playerTeam.length === 0) return;
+    persistState();
+  }, [playerTeam, cpuTeam, playerActiveIdx, cpuActiveIdx, logs, winner, awardedDrop, revealedCpuIndices, playerActiveState, cpuActiveState, persistState]);
+
+  // Record the battle result into analytics (once per battle) when it concludes.
+  // Competes independently of card drops: this logs the fight itself.
+  useEffect(() => {
+    if (!winner || battleRecordedRef.current || !user?.id) return;
+    battleRecordedRef.current = true;
+    const ref = battleStateRef.current;
+    recordBattleResult({
+      userId: user.id,
+      result: winner === 'player' ? 'won' : 'lost',
+      mode: 'solo',
+      opponentType: 'cpu',
+      opponentTeam: (ref.cpuTeam || []).map((p) => p?.id).filter(Boolean),
+      playerTeam: (ref.playerTeam || []).map((p) => p?.id).filter(Boolean),
+      turns: turnsRef.current,
+    });
+  }, [winner, user]);
 
   const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -308,6 +425,8 @@ export default function Battle() {
 
     setIsBusy(true);
     try {
+      turnsRef.current += 1;
+
       let playerPkmn = getActivePokemon('player');
       let cpuPkmn = getActivePokemon('cpu');
 
@@ -704,6 +823,14 @@ export default function Battle() {
               entry: { star_level: 1, dupes_collected: 0, is_shiny: false },
             };
           }
+          recordCardPull({
+            userId: user.id,
+            pokemonId: dropState.pokemon.id,
+            cardType: dropState.dropType,
+            starLevel: dropState.entry?.star_level || 1,
+            isShiny: Boolean(dropState.entry?.is_shiny),
+            wasNew: Boolean(dropState.isNew),
+          });
           setAwardedDrop(dropState);
           setWinner('player');
         })();

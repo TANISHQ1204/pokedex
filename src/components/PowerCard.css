@@ -376,3 +376,109 @@
   color: var(--accent, #64748b);
   letter-spacing: 1px;
 }
+
+/* ==========================================
+   ENERGY PULSE — type-tinted border current
+   Layered enhancement on top of existing card
+   content. Uses the same device detection as
+   the normal-card glow:
+   - Desktop: orbiting "current" arcs + a surge
+     sector pinned to the cursor angle.
+   - Mobile (hover:none): the arcs orbit + pulse
+     on their own idle loop, no cursor needed.
+   Tint comes from --pc-energy (the Pokemon's
+   type accent, set inline).
+   ========================================== */
+
+.power-card {
+  --pc-energy: #a855f7;
+}
+
+/* Orbiting "current" arcs traveling along the border */
+.power-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 60;
+  border-radius: 20px;
+  padding: 2px;
+  pointer-events: none;
+  background: conic-gradient(
+    from var(--angle, 0deg) at 50% 50%,
+    transparent 0deg,
+    var(--pc-energy, #a855f7) 30deg,
+    transparent 85deg,
+    transparent 150deg,
+    var(--pc-energy, #a855f7) 180deg,
+    transparent 235deg,
+    transparent 300deg,
+    var(--pc-energy, #a855f7) 330deg,
+    transparent 360deg
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  opacity: 0.55;
+  animation:
+    pcEnergyRun 1.8s linear infinite,
+    pcEnergyPulse 1.8s ease-in-out infinite;
+}
+
+@keyframes pcEnergyRun {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pcEnergyPulse {
+  0%, 100% { opacity: 0.4; filter: none; }
+  50%      { opacity: 1; filter: brightness(1.7) drop-shadow(0 0 10px var(--pc-energy, #a855f7)); }
+}
+
+/* Cursor-pinned surge sector (desktop hover only) */
+.pc-energy-focus {
+  display: none;
+  position: absolute;
+  inset: 0;
+  z-index: 61;
+  border-radius: 20px;
+  padding: 3px;
+  pointer-events: none;
+  background: conic-gradient(
+    from var(--angle, 0deg) at 50% 50%,
+    var(--pc-energy, #a855f7) 0deg,
+    transparent 80deg
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .pc-energy-focus {
+    display: block;
+  }
+
+  .power-card[data-glow]:hover::after {
+    opacity: 0.95;
+    filter: brightness(1.6);
+  }
+
+  .power-card[data-glow]:hover .pc-energy-focus {
+    opacity: 0.95;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .power-card::after {
+    animation: none;
+    opacity: 0.28;
+    filter: none;
+  }
+
+  .pc-energy-focus {
+    display: none;
+  }
+}

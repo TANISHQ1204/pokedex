@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { submitPlayerAction } from '../game/mpBattleEngine';
 import { updateMatchState } from '../store/matches';
+import { recordBattleResult } from '../store/stats';
 import HpBar from './HpBar';
 import BenchRow from './BenchRow';
 import BattleLog from './BattleLog';
@@ -12,6 +13,7 @@ export default function RealtimeBattleArena({ match, userId, onUpdateState, play
   const navigate = useNavigate();
   const { onlineUserIds } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const battleLoggedRef = useRef(false);
 
   const isPlayer1 = match?.player_1_id === userId;
   const opponentId = isPlayer1 ? match?.player_2_id : match?.player_1_id;
@@ -29,6 +31,33 @@ export default function RealtimeBattleArena({ match, userId, onUpdateState, play
 
   const myPending = isPlayer1 ? state.pendingAction1 : state.pendingAction2;
   const oppPending = isPlayer1 ? state.pendingAction2 : state.pendingAction1;
+
+  // Log the completed friend battle into analytics (once per conclusion).
+  useEffect(() => {
+    const w = state?.winner;
+    if (!w || battleLoggedRef.current || !userId) return;
+    battleLoggedRef.current = true;
+
+    const me = match?.player_1_id === userId;
+    const myTeamArr = me ? state.team1 || [] : state.team2 || [];
+    const oppTeamArr = me ? state.team2 || [] : state.team1 || [];
+    const oppId = me ? match?.player_2_id : match?.player_1_id;
+    const oppName = me ? player2Name : player1Name;
+    const won = w === (me ? 'player1' : 'player2');
+    const result = won ? 'won' : w === 'draw' ? 'draw' : 'lost';
+
+    recordBattleResult({
+      userId,
+      result,
+      mode: 'friend',
+      opponentType: 'friend',
+      opponentId: oppId,
+      opponentName: oppName,
+      opponentTeam: oppTeamArr.map((p) => p?.id).filter(Boolean),
+      playerTeam: myTeamArr.map((p) => p?.id).filter(Boolean),
+      turns: Math.max(1, (state.turn || 1) - 1),
+    });
+  }, [state, userId, match, player1Name, player2Name]);
 
   const revealedOppIndices = isPlayer1 ? (state.revealed2 || [0]) : (state.revealed1 || [0]);
 

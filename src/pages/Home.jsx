@@ -7,6 +7,8 @@ import { getBadgeStatus } from '../game/badges';
 import collectionsList from '../data/collections.json' with { type: 'json' };
 import badgesList from '../data/badges.json' with { type: 'json' };
 import pokemonList from '../data/pokemon.json' with { type: 'json' };
+import { isNormalRecord } from '../utils/cardTypes';
+import { fetchRecentPulls, fetchBattleHistory, computeBattleRecord, summarizePulls, formatTimeAgo } from '../store/stats';
 import {
   SwordsIcon,
   CardsIcon,
@@ -14,6 +16,7 @@ import {
   GymBadgeIcon,
   PokedexBookIcon,
   SparkleStarIcon,
+  ChartBarIcon,
 } from '../components/icons/GameIcons';
 
 function formatTitle(str) {
@@ -28,6 +31,7 @@ export default function Home() {
   const { user } = useAuth();
   const [collectionMap, setCollectionMap] = useState(new Map());
   const [isLoading, setIsLoading] = useState(true);
+  const [activity, setActivity] = useState({ history: [], pulls: [] });
 
   // User display name
   const trainerName =
@@ -48,7 +52,11 @@ export default function Home() {
         const data = await getUserCollection(user.id);
         const map = new Map();
         data.forEach((entry) => {
-          map.set(Number(entry.pokemon_id), entry);
+          // Pokedex Completion reflects ONLY normal card ownership. Power Cards and
+          // Ancient Cards are independent trophy records and never count toward it.
+          if (isNormalRecord(entry)) {
+            map.set(Number(entry.pokemon_id), entry);
+          }
         });
         setCollectionMap(map);
       } catch (err) {
@@ -59,6 +67,32 @@ export default function Home() {
     }
     loadCollection();
   }, [user]);
+
+  // Fetch recent activity for the compact stats widget
+  useEffect(() => {
+    let cancelled = false;
+    async function loadActivity() {
+      if (!user?.id) return;
+      const [history, pulls] = await Promise.all([
+        fetchBattleHistory(user.id, 100),
+        fetchRecentPulls(user.id, 5),
+      ]);
+      if (!cancelled) {
+        setActivity({ history, pulls });
+      }
+    }
+    loadActivity();
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
+
+  const battleRecord = useMemo(() => computeBattleRecord(activity.history), [activity.history]);
+  const pullSummary = useMemo(() => summarizePulls(activity.pulls), [activity.pulls]);
+  const lastPullPkmn = useMemo(() => {
+    if (!pullSummary.recent) return null;
+    return pokemonList.find((p) => Number(p.id) === Number(pullSummary.recent.pokemon_id)) || null;
+  }, [pullSummary]);
 
   // Compute Dashboard Stats
   const stats = useMemo(() => {
@@ -229,6 +263,45 @@ export default function Home() {
           <div className="dash-stat-subtext" style={{ marginTop: '0.75rem' }}>
             5-Star Maxed & Shiny Cards Owned
           </div>
+        </div>
+
+        {/* Card 5: Battle Stats / Recent Pull */}
+        <div className="dash-stat-card">
+          <div className="dash-stat-header">
+            <ChartBarIcon size={22} />
+            <span className="dash-stat-label">Battle Stats</span>
+          </div>
+          <div className="dash-stat-val">
+            {battleRecord.total} <span style={{ fontSize: '1rem', color: '#94a3b8' }}>Battles</span>
+          </div>
+          <div className="dash-pill-row">
+            <span className="dash-pill gold"><SwordsIcon size={12} /> {battleRecord.wins} Wins</span>
+            <span className="dash-pill silver">Streak: {battleRecord.currentStreak}</span>
+          </div>
+          {lastPullPkmn ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.6rem' }}>
+              <img
+                src={lastPullPkmn.sprites.normal}
+                alt={formatTitle(lastPullPkmn.name)}
+                width={36}
+                height={36}
+                style={{ objectFit: 'contain', imageRendering: 'pixelated', background: '#0f172a', borderRadius: '0.4rem', padding: '0.1rem 0.2rem' }}
+              />
+              <div style={{ minWidth: 0 }}>
+                <div style={{ color: '#f8fafc', fontSize: '0.8rem', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  Pull: {formatTitle(lastPullPkmn.name)}
+                </div>
+                <div style={{ color: '#94a3b8', fontSize: '0.7rem' }}>{formatTimeAgo(pullSummary.recent.created_at)}</div>
+              </div>
+            </div>
+          ) : (
+            <div className="dash-stat-subtext" style={{ marginTop: '0.6rem' }}>
+              No activity yet — win battles to build your record.
+            </div>
+          )}
+          <Link to="/stats" style={{ color: '#38bdf8', textDecoration: 'none', fontWeight: 700, fontSize: '0.78rem', marginTop: '0.5rem' }}>
+            View Full Stats &rarr;
+          </Link>
         </div>
       </div>
 

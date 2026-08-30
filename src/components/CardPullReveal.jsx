@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import PowerCard from './PowerCard';
 import AncientCard from './AncientCard';
+import { glowBaseFor } from '../utils/glow';
 
 export default function CardPullReveal({ awardedDrop, onContinue, onPlayAgain }) {
   const [stage, setStage] = useState('anticipating');
@@ -178,9 +179,14 @@ export default function CardPullReveal({ awardedDrop, onContinue, onPlayAgain })
               </div>
             </div>
 
-            <div className={`card-face card-front ${isShinyUnlocked ? 'is-shiny-card' : ''} ${
-              isStarBursting ? 'card-star-glow' : ''
-            }`}>
+            <div
+              className={`card-face card-front ${isShinyUnlocked ? 'is-shiny-card' : ''} ${
+                isStarBursting ? 'card-star-glow' : ''
+              }`}
+              data-glow
+              style={{ '--base': glowBaseFor(pokemon.types) }}
+            >
+              <span className="card-glow-overlay" data-glow aria-hidden="true" />
               {isShinyUnlocked && <div className="shiny-sparkle-overlay" />}
 
               <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center', marginBottom: '0.5rem' }}>

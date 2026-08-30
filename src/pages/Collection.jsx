@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { getUserCollection } from '../store/collection';
 import pokemonList from '../data/pokemon.json' with { type: 'json' };
+import { glowBaseFor } from '../utils/glow';
 
 const ITEMS_PER_PAGE = 48;
 
@@ -292,7 +293,10 @@ export default function Collection() {
                 key={p.id}
                 className={`collection-card tcg-card ${isOwned ? rarityClass + ' owned' : 'unowned'}`}
                 onClick={() => handleCardClick(p)}
+                data-glow
+                style={{ '--base': glowBaseFor(p.types) }}
               >
+                <span className="card-glow-overlay" data-glow aria-hidden="true" />
                 <div className="card-top-id stat-number-condensed">#{String(p.id).padStart(4, '0')}</div>
 
                 <div className="card-image-wrapper">

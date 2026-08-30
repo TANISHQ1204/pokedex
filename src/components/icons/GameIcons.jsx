@@ -218,6 +218,27 @@ export function LockPadlockIcon({ size = 24, className = '' }) {
   );
 }
 
+export function ChartBarIcon({ size = 24, className = '' }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={`game-icon ${className}`}
+    >
+      <path d="M4 20V10" stroke="#38bdf8" />
+      <path d="M10 20V4" stroke="#38bdf8" />
+      <path d="M16 20v-6" stroke="#38bdf8" />
+      <path d="M3 20h18" stroke="#f59e0b" />
+    </svg>
+  );
+}
+
 export function UsersFriendsIcon({ size = 24, className = '' }) {
   return (
     <svg

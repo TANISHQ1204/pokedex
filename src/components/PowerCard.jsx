@@ -71,7 +71,8 @@ export default function PowerCard({
       <div
         ref={cardRef}
         className="power-card"
-        style={tiltStyle}
+        data-glow
+        style={{ ...tiltStyle, '--pc-energy': accentColor }}
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
       >
@@ -158,6 +159,7 @@ export default function PowerCard({
             </div>
           </div>
         </div>
+        <div className="pc-energy-focus" aria-hidden="true" />
       </div>
     </div>
   );

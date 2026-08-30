@@ -15,8 +15,10 @@ import SpecialCollection from './pages/SpecialCollection';
 import MatchLobby from './pages/MatchLobby';
 import JoinMatch from './pages/JoinMatch';
 import GameModes from './pages/GameModes';
+import Stats from './pages/Stats';
 
 import MatchInviteBanner from './components/MatchInviteBanner';
+import usePointerGlow from './hooks/usePointerGlow';
 
 function ProtectedRoute({ children }) {
   const { session, profile, loading, loadingProfile, isConfigured } = useAuth();
@@ -92,6 +94,7 @@ function PublicRoute({ children }) {
 }
 
 export default function App() {
+  usePointerGlow();
   return (
     <AuthProvider>
       <MatchInviteBanner />
@@ -174,6 +177,14 @@ export default function App() {
           element={
             <ProtectedRoute>
               <Badges />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/stats"
+          element={
+            <ProtectedRoute>
+              <Stats />
             </ProtectedRoute>
           }
         />

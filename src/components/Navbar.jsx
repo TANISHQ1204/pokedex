@@ -9,6 +9,7 @@ import {
   GymBadgeIcon,
   SparkleStarIcon,
   UsersFriendsIcon,
+  ChartBarIcon,
 } from './icons/GameIcons';
 
 export default function Navbar() {
@@ -50,6 +51,9 @@ export default function Navbar() {
         </NavLink>
         <NavLink to="/badges" className={({ isActive }) => (isActive ? 'active' : '')}>
           <GymBadgeIcon size={18} color="#f59e0b" /> Badges
+        </NavLink>
+        <NavLink to="/stats" className={({ isActive }) => (isActive ? 'active' : '')}>
+          <ChartBarIcon size={18} /> Stats
         </NavLink>
 
         <NavLink

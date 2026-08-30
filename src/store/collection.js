@@ -1,4 +1,5 @@
 import { supabase } from './supabaseClient';
+import { findNormalRecord, findPowerRecord, findAncientRecord } from '../utils/cardTypes';
 
 /**
  * Fetch the user's full card collection from Supabase.
@@ -87,20 +88,22 @@ export async function awardCard(userId, pokemonId) {
     throw new Error('userId and pokemonId are required to award a card');
   }
 
-  // 1. Fetch existing standard card row for this user & pokemon_id (excluding power cards)
+  // 1. Fetch existing rows for this user & pokemon_id, then select ONLY the standard
+  // (normal) card row. Power Cards and Ancient Cards are FULLY INDEPENDENT records:
+  // owning one of those must never be treated as ownership of the normal card, and
+  // never receive this normal-card dupe/star update.
   const { data: existingRows, error: fetchErr } = await supabase
     .from('collections')
     .select('*')
     .eq('user_id', userId)
-    .eq('pokemon_id', pokemonId)
-    .or('is_power_card.eq.false,is_power_card.is.null');
+    .eq('pokemon_id', pokemonId);
 
   if (fetchErr) {
     console.error('Error checking existing card row:', fetchErr.message);
     throw fetchErr;
   }
 
-  const existing = existingRows && existingRows.length > 0 ? existingRows[0] : null;
+  const existing = findNormalRecord(existingRows);
 
   // Case A: User does not own this card yet
   if (!existing) {
@@ -167,18 +170,18 @@ export async function awardPowerCard(userId, pokemonId) {
     throw new Error('userId and pokemonId are required to award a power card');
   }
 
-  // Fetch existing power card row
+  // Fetch existing Power Card row — scoped to is_power_card records ONLY.
   const { data: existingRows, error: fetchErr } = await supabase
     .from('collections')
     .select('*')
     .eq('user_id', userId)
-    .eq('pokemon_id', pokemonId)
-    .eq('is_power_card', true);
+    .eq('pokemon_id', pokemonId);
 
-  if (!fetchErr && existingRows && existingRows.length > 0) {
+  const existing = findPowerRecord(existingRows);
+  if (!fetchErr && existing) {
     return {
       isNew: false,
-      entry: existingRows[0],
+      entry: existing,
       isPowerCard: true,
       alreadyOwned: true,
     };
@@ -213,17 +216,18 @@ export async function awardAncientCard(userId, pokemonId) {
     throw new Error('userId and pokemonId are required to award an ancient card');
   }
 
+  // Fetch existing Ancient Card row — scoped to is_ancient_card records ONLY.
   const { data: existingRows, error: fetchErr } = await supabase
     .from('collections')
     .select('*')
     .eq('user_id', userId)
-    .eq('pokemon_id', pokemonId)
-    .eq('is_ancient_card', true);
+    .eq('pokemon_id', pokemonId);
 
-  if (!fetchErr && existingRows && existingRows.length > 0) {
+  const existing = findAncientRecord(existingRows);
+  if (!fetchErr && existing) {
     return {
       isNew: false,
-      entry: existingRows[0],
+      entry: existing,
       isAncientCard: true,
       alreadyOwned: true,
     };

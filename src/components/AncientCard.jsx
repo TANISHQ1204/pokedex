@@ -87,7 +87,8 @@ export default function AncientCard({
       <div
         ref={cardRef}
         className={`ancient-card ancient-gen-${gen}`}
-        style={tiltStyle}
+        data-glow
+        style={{ ...tiltStyle, '--ancient-mote-color': TYPE_COLORS[primaryType] || '#a8896c' }}
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
       >
@@ -96,6 +97,7 @@ export default function AncientCard({
           <div className="ancient-texture" />
           <div className="ancient-vignette" />
           <div className="ancient-dust" />
+          <div className="ancient-motes" />
 
           {/* Inner worn border */}
           <div className="ancient-inner-border" />

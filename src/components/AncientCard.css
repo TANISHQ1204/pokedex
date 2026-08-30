@@ -631,3 +631,114 @@
   0%   { transform: translateY(0) translateX(0); }
   100% { transform: translateY(-8px) translateX(4px); }
 }
+
+/* ==========================================
+   WEATHERED SHIMMER — type-tinted drifting motes
+   Layered enhancement on top of the existing
+   ancient-card content (generation template kept
+   intact). Uses the same device detection as the
+   normal-card glow:
+   - Desktop: faint type-colored specks drift on
+     a slow loop; near the cursor they catch a
+     soft "light pool" radial, like a light source.
+   - Mobile (hover:none): the same specks drift
+     in an idle loop, no cursor needed.
+   Tint comes from --ancient-mote-color (the
+   Pokemon's actual type color, set inline).
+   ========================================== */
+
+.ancient-card {
+  --ancient-mote-color: #a8896c;
+}
+
+.ancient-motes {
+  position: absolute;
+  inset: 0;
+  z-index: 12;
+  pointer-events: none;
+  overflow: hidden;
+  opacity: 0.5;
+}
+
+.ancient-motes::before,
+.ancient-motes::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  background: var(--ancient-mote-color, #a8896c);
+}
+
+/* Cluster A — small, slow, long diagonal drift */
+.ancient-motes::before {
+  width: 3px;
+  height: 3px;
+  top: 26%;
+  left: 6%;
+  opacity: 0;
+  box-shadow:
+    30px 60px 0 0 var(--ancient-mote-color, #a8896c),
+    110px 130px 0 1px var(--ancient-mote-color, #a8896c),
+    200px 90px 0 0 var(--ancient-mote-color, #a8896c),
+    260px 210px 0 1px var(--ancient-mote-color, #a8896c),
+    140px 250px 0 0 var(--ancient-mote-color, #a8896c),
+    40px 300px 0 0 var(--ancient-mote-color, #a8896c);
+  animation: ancientMoteDriftA 17s linear infinite;
+}
+
+/* Cluster B — tiny specks, counter drift on a longer loop */
+.ancient-motes::after {
+  width: 2px;
+  height: 2px;
+  top: 58%;
+  left: 40%;
+  opacity: 0;
+  box-shadow:
+    -20px -50px 0 0 var(--ancient-mote-color, #a8896c),
+    40px -120px 0 1px var(--ancient-mote-color, #a8896c),
+    110px 30px 0 0 var(--ancient-mote-color, #a8896c),
+    180px -40px 0 1px var(--ancient-mote-color, #a8896c),
+    260px 90px 0 0 var(--ancient-mote-color, #a8896c),
+    90px 180px 0 1px var(--ancient-mote-color, #a8896c),
+    -30px 160px 0 0 var(--ancient-mote-color, #a8896c),
+    300px 240px 0 0 var(--ancient-mote-color, #a8896c);
+  animation: ancientMoteDriftB 23s linear infinite;
+}
+
+@keyframes ancientMoteDriftA {
+  0%   { transform: translate3d(-18px, -10px, 0); opacity: 0; }
+  6%   { opacity: 0.75; }
+  45%  { transform: translate3d(130px, 55px, 0); opacity: 0.45; }
+  70%  { opacity: 0.8; }
+  93%  { opacity: 0.25; }
+  100% { transform: translate3d(330px, 150px, 0); opacity: 0; }
+}
+
+@keyframes ancientMoteDriftB {
+  0%   { transform: translate3d(15px, 12px, 0); opacity: 0; }
+  8%   { opacity: 0.6; }
+  50%  { transform: translate3d(-150px, 70px, 0); opacity: 0.35; }
+  75%  { opacity: 0.7; }
+  95%  { opacity: 0.2; }
+  100% { transform: translate3d(-330px, -120px, 0); opacity: 0; }
+}
+
+/* Desktop — the cursor acts as a soft light source:
+   a localized type-tinted glow sweeps the motes. */
+@media (hover: hover) and (pointer: fine) {
+  .ancient-card[data-glow]:hover .ancient-motes {
+    background-image: radial-gradient(
+      150px 150px at var(--gx, 50%) var(--gy, 50%),
+      color-mix(in srgb, var(--ancient-mote-color, #a8896c) 32%, transparent),
+      transparent 72%
+    );
+    opacity: 0.85;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ancient-motes::before,
+  .ancient-motes::after {
+    animation: none;
+    opacity: 0.8;
+  }
+}

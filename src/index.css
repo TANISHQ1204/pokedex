@@ -2056,6 +2056,15 @@ body {
 .dash-pill.gold { color: #fef08a; border: 1px solid #f59e0b; }
 .dash-pill.silver { color: #f1f5f9; border: 1px solid #94a3b8; }
 .dash-pill.bronze { color: #fed7aa; border: 1px solid #b45309; }
+.dash-pill.pull-type-normal { color: #94a3b8; border: 1px solid #64748b; }
+.dash-pill.pull-type-power { color: #f0abfc; border: 1px solid #c026d3; }
+.dash-pill.pull-type-ancient { color: #fcd34d; border: 1px solid #b45309; }
+
+.hp-orange { background: linear-gradient(90deg, #f97316, #fbbf24); }
+
+.daily-bar { transition: height 0.3s ease; }
+
+.batt-stats-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(8px); }
 
 /* Type Cheat Sheet */
 .type-cheat-grid {
@@ -2350,6 +2359,183 @@ body {
   .card-front img {
     width: 95px !important;
     height: 95px !important;
+  }
+}
+
+/* ==========================================================================
+   CARD MOUSE-TRACKING SPOTLIGHT / GLOW
+   --------------------------------------------------------------------------
+   Layered visual enhancement on top of the existing card content:
+   - Only active on hover-capable fine pointers (@media (hover:hover) and
+     (pointer:fine)). Touch / coarse-pointer devices keep the original card
+     look, so mobile scrolling & performance are completely unaffected.
+   - The usePointerGlow hook writes element-local --gx/--gy and normalized
+     --xp/--yp ONLY on the hovered [data-glow] card, so just one card repaints
+     per pointermove no matter how many cards are in the grid.
+   - No touch-action is set anywhere; scroll/touch gestures are never blocked.
+   ========================================================================== */
+
+@media (hover: hover) and (pointer: fine) {
+  [data-glow] {
+    --spotlight-size: 380px;
+    --spread: 90;
+    --hue: calc(var(--base, 210) + (var(--xp, 0) * var(--spread, 90)));
+    position: relative;
+  }
+
+  /* Fill spotlight wash — the nested <span data-glow /> layer */
+  .card-glow-overlay[data-glow] {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    border-radius: inherit;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    mix-blend-mode: screen;
+    background-image: radial-gradient(
+      var(--spotlight-size) var(--spotlight-size) at var(--gx, 50%) var(--gy, 50%),
+      hsl(var(--hue, 210) 100% 75% / 0.16),
+      transparent 70%
+    );
+  }
+
+  /* Hover activation for the fill layer */
+  [data-glow]:hover .card-glow-overlay {
+    opacity: 1;
+  }
+}
+
+/* Border spotlight ring — colored edge glow that follows the cursor.
+   Kept behind a @supports guard: if the mask technique isn't supported the
+   ring is skipped entirely (graceful degradation) instead of painting a raw
+   rectangle over the card. */
+@media (hover: hover) and (pointer: fine) {
+  @supports ((mask-composite: exclude) or (-webkit-mask-composite: xor)) {
+    .collection-card[data-glow]::before,
+    .card-face[data-glow]::before {
+      content: '';
+      position: absolute;
+      inset: calc(var(--ring-width, 3px) * -1);
+      z-index: 3;
+      pointer-events: none;
+      border-radius: inherit;
+      border: var(--ring-width, 3px) solid transparent;
+      background-image: radial-gradient(
+        calc(var(--spotlight-size, 380px) * 0.85) calc(var(--spotlight-size, 380px) * 0.85)
+        at var(--gx, 50%) var(--gy, 50%),
+        hsl(var(--hue, 210) 100% 70% / 0.85),
+        transparent 70%
+      );
+      filter: brightness(1.6);
+      -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+      mask-composite: exclude;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .collection-card[data-glow]:hover::before,
+    .card-face[data-glow]:hover::before {
+      opacity: 1;
+    }
+  }
+}
+
+/* ==========================================================================
+   CARD GLOW — MOBILE / TOUCH FALLBACK (idle auto sweep)
+   --------------------------------------------------------------------------
+   Touch-first devices ((hover: none) — the inverse of the desktop
+   (hover:hover)/(pointer:fine) gate) get a fully automatic, looping sweep of
+   the same spotlight + border glow layers instead of pointer tracking.
+   No touch/scroll interaction is ever captured:
+   - The overlay is pointer-events: none, so taps/clicks pass straight through
+     to the card underneath.
+   - The sweep animates only `transform` + `opacity` on the decorative layer
+     (compositor-friendly: zero per-frame style recalc), so Collection grid
+     scrolling stays smooth even with many cards rendered.
+   - Every card mounts the same infinite keyframes at once, so the whole grid
+     sweeps in unison (reveal screen is a single card). Desktop mouse-track is
+     completely untouched.
+   ========================================================================== */
+
+@media (hover: none) {
+  [data-glow] {
+    --spotlight-size: 420px;
+    --spread: 90;
+    --hue: calc(var(--base, 210) + (var(--xp, 0) * var(--spread, 90)));
+    position: relative;
+  }
+
+  .card-glow-overlay[data-glow] {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    border-radius: inherit;
+    opacity: 0.7;
+    background-image: radial-gradient(
+      var(--spotlight-size) var(--spotlight-size) at 50% 50%,
+      hsl(var(--hue, 210) 100% 78% / 0.2),
+      transparent 70%
+    );
+    animation:
+      glowMobileSweep 6s cubic-bezier(0.45, 0, 0.55, 1) infinite,
+      glowMobileFade 6s ease-in-out infinite;
+  }
+
+  @supports ((mask-composite: exclude) or (-webkit-mask-composite: xor)) {
+    .collection-card[data-glow]::before,
+    .card-face[data-glow]::before {
+      content: '';
+      position: absolute;
+      inset: calc(var(--ring-width, 3px) * -1);
+      z-index: 3;
+      pointer-events: none;
+      border-radius: inherit;
+      border: var(--ring-width, 3px) solid transparent;
+      background-image: radial-gradient(
+        calc(var(--spotlight-size, 420px) * 0.7) calc(var(--spotlight-size, 420px) * 0.7)
+        at 50% 50%,
+        hsl(var(--hue, 210) 100% 70% / 0.8),
+        transparent 65%
+      );
+      filter: brightness(1.4);
+      -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+      mask-composite: exclude;
+      opacity: 0.45;
+      animation: glowMobilePulse 6s ease-in-out infinite;
+    }
+  }
+
+  @keyframes glowMobileSweep {
+    0%, 100% { transform: translate3d(-62%, -62%, 0); }
+    50%      { transform: translate3d(62%, 62%, 0); }
+  }
+
+  @keyframes glowMobileFade {
+    0%, 100% { opacity: 0.45; }
+    50%      { opacity: 0.95; }
+  }
+
+  @keyframes glowMobilePulse {
+    0%, 100% { opacity: 0.3; }
+    50%      { opacity: 0.7; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .card-glow-overlay[data-glow] {
+      opacity: 0.3;
+      animation: none;
+    }
+    .collection-card[data-glow]::before,
+    .card-face[data-glow]::before {
+      opacity: 0.25;
+      animation: none;
+    }
   }
 }
 
