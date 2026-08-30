@@ -5,6 +5,8 @@ import {
   computeMostFoughtOpponents,
   findFastestWin,
   summarizePulls,
+  mergeCollectionPulls,
+  summarizeCollection,
   formatTimeAgo,
   formatDate,
 } from '../utils/stats';
@@ -15,6 +17,8 @@ export {
   computeMostFoughtOpponents,
   findFastestWin,
   summarizePulls,
+  mergeCollectionPulls,
+  summarizeCollection,
   formatTimeAgo,
   formatDate,
 };

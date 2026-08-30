@@ -962,11 +962,19 @@ body {
   background: radial-gradient(circle at center, #1e1b4b 0%, #0f172a 70%, #020617 100%);
   backdrop-filter: blur(12px);
   display: flex;
+  z-index: 200;
+  overflow-y: auto;
+  padding: 1.25rem 1rem;
+}
+
+.card-reveal-inner {
+  margin: auto;
+  display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  z-index: 200;
-  overflow: hidden;
+  width: 100%;
+  max-width: 520px;
 }
 
 .card-3d-wrapper {
@@ -1038,12 +1046,12 @@ body {
   background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
   border: 4px solid #38bdf8;
   padding: 1rem;
+}
 
-  &.is-shiny-card {
-    border-color: #f59e0b;
-    background: linear-gradient(135deg, #312e81 0%, #4c1d95 50%, #1e1b4b 100%);
-    box-shadow: 0 0 30px rgba(245, 158, 11, 0.8), 0 0 60px rgba(168, 85, 247, 0.5);
-  }
+.card-front.is-shiny-card {
+  border-color: #f59e0b;
+  background: linear-gradient(135deg, #312e81 0%, #4c1d95 50%, #1e1b4b 100%);
+  box-shadow: 0 0 30px rgba(245, 158, 11, 0.8), 0 0 60px rgba(168, 85, 247, 0.5);
 }
 
 /* Light Flash Bursts */
@@ -2231,6 +2239,15 @@ body {
     padding: 0 1rem;
   }
 
+  /* Special cards (Power/Ancient) scale down to fit small screens */
+  .card-reveal-overlay .power-card-stage,
+  .card-reveal-overlay .ancient-card-stage,
+  .power-reveal-stage .power-card-stage,
+  .power-reveal-stage .ancient-card-stage {
+    transform: scale(0.86);
+    transform-origin: center;
+  }
+
   /* Hero Banner Mobile */
   .home-hero-card {
     padding: 1.25rem;
@@ -2359,6 +2376,36 @@ body {
   .card-front img {
     width: 95px !important;
     height: 95px !important;
+  }
+
+  .card-reveal-overlay .power-card-stage,
+  .card-reveal-overlay .ancient-card-stage,
+  .power-reveal-stage .power-card-stage,
+  .power-reveal-stage .ancient-card-stage {
+    transform: scale(0.8);
+    transform-origin: center;
+  }
+}
+
+/* Short screens (small laptops / landscape phones) — keep the special card
+   reveal visible without clipping */
+@media (max-height: 720px) {
+  .card-reveal-overlay .power-card-stage,
+  .card-reveal-overlay .ancient-card-stage,
+  .power-reveal-stage .power-card-stage,
+  .power-reveal-stage .ancient-card-stage {
+    transform: scale(0.82);
+    transform-origin: center;
+  }
+}
+
+/* Special Collection gallery: keep 320x480 cards from overflowing narrow
+   phones by scaling the card down inside the cell */
+@media (max-width: 480px) {
+  .special-collection-cell .power-card-stage,
+  .special-collection-cell .ancient-card-stage {
+    transform: scale(0.82);
+    transform-origin: top center;
   }
 }
 

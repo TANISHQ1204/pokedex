@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import PowerCard from './PowerCard';
 import AncientCard from './AncientCard';
+import PokemonDetailModal from './PokemonDetailModal';
 import { glowBaseFor } from '../utils/glow';
 
 export default function CardPullReveal({ awardedDrop, onContinue, onPlayAgain }) {
   const [stage, setStage] = useState('anticipating');
   const [showFlash, setShowFlash] = useState(false);
+  const [showInfo, setShowInfo] = useState(false);
 
   const dropType = awardedDrop?.dropType || 'normal';
   const pokemon = awardedDrop?.pokemon;
@@ -136,6 +138,7 @@ export default function CardPullReveal({ awardedDrop, onContinue, onPlayAgain })
 
   return (
     <div className="card-reveal-overlay" onClick={handleOverlayClick}>
+      <div className="card-reveal-inner">
       {showFlash && <div className={`flash-burst ${flashClass}`} />}
       {isShinyTransforming && <div className="shiny-transform-flash" />}
 
@@ -161,14 +164,14 @@ export default function CardPullReveal({ awardedDrop, onContinue, onPlayAgain })
       {isSpecial ? (
         <div style={{ margin: '10px 0 20px 0', transform: stage === 'anticipating' ? 'scale(0.85)' : 'scale(1)', transition: 'transform 0.4s' }}>
           {isPowerCard ? (
-            <PowerCard pokemon={pokemon} enableTilt={stage === 'revealed'} />
+            <PowerCard pokemon={pokemon} enableTilt={stage === 'revealed'} onClick={() => { if (stage === 'revealed') setShowInfo(true); }} />
           ) : (
-            <AncientCard pokemon={pokemon} enableTilt={stage === 'revealed'} />
+            <AncientCard pokemon={pokemon} enableTilt={stage === 'revealed'} onClick={() => { if (stage === 'revealed') setShowInfo(true); }} />
           )}
         </div>
       ) : (
         /* STANDARD 3D CARD CONTAINER (Normal cards) */
-        <div className="card-3d-wrapper">
+        <div className="card-3d-wrapper" onClick={stage === 'revealed' ? () => setShowInfo(true) : undefined} style={stage === 'revealed' ? { cursor: 'pointer' } : undefined}>
           <div className={`card-3d-body ${stage === 'anticipating' ? 'anticipating' : ''} ${
             stage === 'revealed' || stage === 'flipping' ? 'flipped' : ''
           }`}>
@@ -243,6 +246,8 @@ export default function CardPullReveal({ awardedDrop, onContinue, onPlayAgain })
               </div>
             )}
 
+            <div style={{ fontSize: '0.75rem', color: '#64748b' }}>💡 Click the card to view full details</div>
+
             <div style={{ color: '#cbd5e1', fontSize: '1rem', textAlign: 'center' }}>
               <strong style={{ color: '#f8fafc', textTransform: 'capitalize' }}>{pokemon.name}</strong>
               {!isSpecial && <> • {'⭐'.repeat(starLevel)}</>}
@@ -284,6 +289,17 @@ export default function CardPullReveal({ awardedDrop, onContinue, onPlayAgain })
             </div>
           </>
         )}
+      </div>
+
+      {/* CARD DETAIL MODAL (click the revealed card to open) */}
+      {showInfo && (
+        <PokemonDetailModal
+          pokemon={pokemon}
+          entry={awardedDrop?.entry || null}
+          cardType={dropType}
+          onClose={() => setShowInfo(false)}
+        />
+      )}
       </div>
     </div>
   );

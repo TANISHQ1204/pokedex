@@ -21,7 +21,10 @@
  *     star_level, is_shiny, was_new, created_at }
  */
 
+import { cardTypeOf } from './cardTypes';
+
 const DAY_MS = 86400000;
+const WEEK_MS = 7 * DAY_MS;
 
 /** Parse a row's created_at to a Date safely. */
 function rowDate(createdAt) {
@@ -196,4 +199,82 @@ export function summarizePulls(pulls = []) {
     total: sorted.length,
     recent: sorted[0] || null,
   };
+}
+
+/**
+ * Backfill the pulls feed with rows derived from the user's card collection for
+ * cards that were obtained BEFORE analytics tracking existed (there was never a
+ * live card_pulls row for them).
+ *
+ * - Each owned collection record becomes one pull (using its update timestamp).
+ * - Accumulated duplicates become additional, slightly older pulls, so the total
+ *   count reflects how many cards the user actually obtained pre-tracking.
+ * - Records already covered by a live pull (same pokemon + card type) are skipped.
+ *
+ * Returns the merged, newest-first list. Synthesized rows carry `fromCollection: true`.
+ */
+export function mergeCollectionPulls(collection = [], pulls = []) {
+  const seen = new Set();
+  (pulls || []).forEach((p) => {
+    if (p && p.pokemon_id != null) {
+      seen.add(`${Number(p.pokemon_id)}-${p.card_type || 'normal'}`);
+    }
+  });
+
+  const synthesized = [];
+  (collection || []).forEach((entry) => {
+    if (!entry || entry.pokemon_id == null) return;
+    const type = cardTypeOf(entry);
+    const key = `${Number(entry.pokemon_id)}-${type}`;
+    if (seen.has(key)) return;
+
+    const baseMs = rowDate(entry.updated_at || entry.created_at)?.getTime() || Date.now();
+    const star = Math.max(1, Number(entry.star_level) || 1);
+    const dupes = Math.max(0, Number(entry.dupes_collected) || 0);
+    const total = Math.max(1, dupes + 1);
+
+    for (let i = 0; i < total; i++) {
+      const pullIndex = total - 1 - i; // 0 = the oldest pull of this card
+      synthesized.push({
+        id: `backfill-${type}-${Number(entry.pokemon_id)}-${i}`,
+        user_id: entry.user_id,
+        pokemon_id: Number(entry.pokemon_id),
+        card_type: type,
+        star_level: Math.max(1, Math.min(5, 1 + pullIndex)),
+        is_shiny: i === total - 1 ? Boolean(entry.is_shiny) : false,
+        was_new: i === 0,
+        created_at: new Date(baseMs - pullIndex * WEEK_MS).toISOString(),
+        fromCollection: true,
+      });
+    }
+  });
+
+  return [...(pulls || []), ...synthesized].sort(
+    (a, b) => (rowDate(b?.created_at)?.getTime() || 0) - (rowDate(a?.created_at)?.getTime() || 0)
+  );
+}
+
+/**
+ * Aggregate the user's collection records into quick counts used to show that
+ * "before tracking" data exists even when no battles have been logged yet.
+ */
+export function summarizeCollection(collection = []) {
+  const summary = {
+    normal: 0,
+    power: 0,
+    ancient: 0,
+    shiny: 0,
+    dupes: 0,
+  };
+  (collection || []).forEach((entry) => {
+    if (!entry || entry.pokemon_id == null) return;
+    const type = cardTypeOf(entry);
+    if (type === 'power') summary.power += 1;
+    else if (type === 'ancient') summary.ancient += 1;
+    else summary.normal += 1;
+    if (entry.is_shiny) summary.shiny += 1;
+    summary.dupes += Math.max(0, Number(entry.dupes_collected) || 0);
+  });
+  summary.total = summary.normal + summary.power + summary.ancient;
+  return summary;
 }

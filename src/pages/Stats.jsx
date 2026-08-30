@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import pokemonList from '../data/pokemon.json' with { type: 'json' };
+import { getUserCollection } from '../store/collection';
 import { SwordsIcon, ChartBarIcon, SparkleStarIcon, TrophyIcon } from '../components/icons/GameIcons';
 import {
   fetchBattleHistory,
@@ -10,6 +11,8 @@ import {
   computeBattlesPerDay,
   computeMostFoughtOpponents,
   findFastestWin,
+  mergeCollectionPulls,
+  summarizeCollection,
   formatTimeAgo,
   formatDate,
 } from '../store/stats';
@@ -66,6 +69,7 @@ export default function Stats() {
   const { user } = useAuth();
   const [history, setHistory] = useState([]);
   const [pulls, setPulls] = useState([]);
+  const [collection, setCollection] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -76,13 +80,15 @@ export default function Stats() {
         return;
       }
       setIsLoading(true);
-      const [battles, cards] = await Promise.all([
+      const [battles, cards, owned] = await Promise.all([
         fetchBattleHistory(user.id, 400),
         fetchRecentPulls(user.id, 40),
+        getUserCollection(user.id).catch(() => []),
       ]);
       if (!cancelled) {
         setHistory(battles);
         setPulls(cards);
+        setCollection(owned);
         setIsLoading(false);
       }
     }
@@ -97,6 +103,11 @@ export default function Stats() {
   const mostFought = useMemo(() => computeMostFoughtOpponents(history, 5), [history]);
   const fastestWin = useMemo(() => findFastestWin(history), [history]);
 
+  // Pulls are the live card_pulls feed PLUS cards the user owned before
+  // analytics tracking existed (backfilled from their collection records).
+  const mergedPulls = useMemo(() => mergeCollectionPulls(collection, pulls), [collection, pulls]);
+  const collectionSummary = useMemo(() => summarizeCollection(collection), [collection]);
+
   const maxDaily = Math.max(1, ...battlesPerDay.map((d) => d.count));
   const winRate = record.total > 0 ? record.winRate : 0;
 
@@ -108,7 +119,8 @@ export default function Stats() {
     );
   }
 
-  const hasData = record.total > 0 || pulls.length > 0;
+  const hasData = record.total > 0 || mergedPulls.length > 0;
+  const hasBackfilledCards = pulls.length === 0 && mergedPulls.length > 0;
 
   return (
     <div className="page-container">
@@ -175,10 +187,27 @@ export default function Stats() {
                 <SparkleStarIcon size={22} />
                 <span className="dash-stat-label">Cards Pulled</span>
               </div>
-              <div className="dash-stat-val">{pulls.length}</div>
-              <div className="dash-stat-subtext">Recently obtained cards tracked</div>
+              <div className="dash-stat-val">{mergedPulls.length}</div>
+              <div className="dash-stat-subtext">
+                {hasBackfilledCards
+                  ? 'Includes backfilled cards from your pre-tracking collection'
+                  : 'Recently obtained cards tracked'}
+              </div>
             </div>
           </div>
+
+          {/* Pre-tracking collection history explanation */}
+          {hasBackfilledCards && (
+            <div className="card" style={{ marginTop: '1rem', padding: '0.75rem 1rem', background: 'rgba(56, 189, 248, 0.06)', border: '1px solid rgba(56, 189, 248, 0.2)' }}>
+              <div style={{ color: '#7dd3fc', fontSize: '0.85rem', lineHeight: 1.5 }}>
+                <strong>Showing card history from before tracking existed:</strong>{' '}
+                {collectionSummary.total} cards owned ({collectionSummary.normal} normal · {collectionSummary.power} power · {collectionSummary.ancient} ancient)
+                {collectionSummary.shiny > 0 ? `, ${collectionSummary.shiny} shiny` : ''}
+                {collectionSummary.dupes > 0 ? `, ${collectionSummary.dupes} duplicates` : ''}. These were backfilled from your collection.
+                Battle records only exist for fights after analytics were introduced.
+              </div>
+            </div>
+          )}
 
           {/* Battles per day trend + most-fought */}
           <div style={{ marginTop: '1.25rem' }} className="card batt-stats-card">
@@ -278,13 +307,13 @@ export default function Stats() {
           {/* Recent Pulls Feed */}
           <div style={{ marginTop: '1.25rem' }} className="card batt-stats-card">
             <h3 style={{ margin: '0 0 0.75rem 0', color: '#f8fafc', fontSize: '1.1rem' }}>
-              Recently Obtained Cards <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 400 }}>({pulls.length})</span>
+              Recently Obtained Cards <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 400 }}>({mergedPulls.length})</span>
             </h3>
-            {pulls.length === 0 ? (
+            {mergedPulls.length === 0 ? (
               <p style={{ color: '#94a3b8', fontSize: '0.85rem' }}>Win battles to pull cards and track them here.</p>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column' }}>
-                {pulls.slice(0, 20).map((pull, i) => {
+                {mergedPulls.slice(0, 20).map((pull, i) => {
                   const meta = CARD_TYPE_META[pull.card_type] || CARD_TYPE_META.normal;
                   const pkmn = pokemonById.get(Number(pull.pokemon_id));
                   return (
@@ -295,7 +324,7 @@ export default function Stats() {
                         alignItems: 'center',
                         gap: '0.75rem',
                         padding: '0.5rem 0.25rem',
-                        borderBottom: i < pulls.slice(0, 20).length - 1 ? '1px solid #1e293b' : 'none',
+                        borderBottom: i < mergedPulls.slice(0, 20).length - 1 ? '1px solid #1e293b' : 'none',
                       }}
                     >
                       <div style={{ background: '#0f172a', borderRadius: '0.625rem', padding: '0.25rem 0.4rem' }}>
@@ -316,6 +345,11 @@ export default function Stats() {
                           )}
                           {pull.was_new && (
                             <span className="dash-pill silver">New</span>
+                          )}
+                          {pull.fromCollection && (
+                            <span className="dash-pill" style={{ background: 'rgba(56, 189, 248, 0.15)', color: '#7dd3fc' }}>
+                              Collection
+                            </span>
                           )}
                           <span style={{ color: '#64748b', fontSize: '0.8rem', fontWeight: 700 }}>
                             {'★'.repeat(Math.max(1, Number(pull.star_level) || 1))}

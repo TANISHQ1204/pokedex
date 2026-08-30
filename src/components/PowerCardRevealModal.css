@@ -12,6 +12,7 @@
   align-items: center;
   justify-content: center;
   padding: 20px;
+  overflow-y: auto;
   animation: fadeInOverlay 0.3s ease;
 }
 
@@ -40,6 +41,7 @@
   position: relative;
   width: 100%;
   max-width: 500px;
+  margin: auto;
   background: linear-gradient(180deg, #1e1b4b 0%, #0f172a 100%);
   border: 2px solid #818cf8;
   box-shadow: 0 0 50px rgba(99, 102, 241, 0.5), inset 0 0 15px rgba(255, 255, 255, 0.1);
@@ -101,12 +103,20 @@
 }
 
 .power-reveal-stage {
-  min-height: 490px;
+  min-height: min(490px, 62vh);
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
   width: 100%;
+}
+
+@media (max-height: 720px) {
+  .power-reveal-stage .power-card-stage,
+  .power-reveal-stage .ancient-card-stage {
+    transform: scale(0.82);
+    transform-origin: center;
+  }
 }
 
 /* Pack Shake Stage */

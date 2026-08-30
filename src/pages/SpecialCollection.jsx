@@ -6,6 +6,7 @@ import PowerCard from '../components/PowerCard';
 import PowerCardRevealModal from '../components/PowerCardRevealModal';
 import AncientCard from '../components/AncientCard';
 import AncientCardRevealModal from '../components/AncientCardRevealModal';
+import PokemonDetailModal from '../components/PokemonDetailModal';
 
 const POKEMON_TYPES = [
   'normal', 'fire', 'water', 'grass', 'electric', 'ice',
@@ -72,6 +73,10 @@ export default function SpecialCollection() {
   const [revealPokemon, setRevealPokemon] = useState(null);
   const [isRevealOpen, setIsRevealOpen] = useState(false);
   const [revealType, setRevealType] = useState('power');
+
+  // Card detail modal state (clickable cards)
+  const [infoPokemon, setInfoPokemon] = useState(null);
+  const [infoType, setInfoType] = useState('normal');
   const [searchText, setSearchText] = useState('');
   const [ownedFilter, setOwnedFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
@@ -357,7 +362,7 @@ export default function SpecialCollection() {
         <>
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
             gap: '36px 24px',
             justifyItems: 'center',
           }}>
@@ -371,6 +376,7 @@ export default function SpecialCollection() {
               return (
                 <div
                   key={entry.key}
+                  className="special-collection-cell"
                   style={{
                     display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px',
                     background: owned ? 'rgba(15, 23, 42, 0.5)' : 'rgba(15, 23, 42, 0.3)',
@@ -404,13 +410,22 @@ export default function SpecialCollection() {
 
                   {owned ? (
                     selectedCategory === 'power-cards' ? (
-                      <PowerCard pokemon={pokemon} enableTilt={true} themeTypeOverride={entry.themeType} />
+                      <PowerCard
+                        pokemon={pokemon}
+                        enableTilt={true}
+                        themeTypeOverride={entry.themeType}
+                        onClick={() => { setInfoPokemon(pokemon); setInfoType('power'); }}
+                      />
                     ) : (
-                      <AncientCard pokemon={pokemon} enableTilt={true} />
+                      <AncientCard
+                        pokemon={pokemon}
+                        enableTilt={true}
+                        onClick={() => { setInfoPokemon(pokemon); setInfoType('ancient'); }}
+                      />
                     )
                   ) : (
                     <div style={{
-                      width: '280px', height: '420px', borderRadius: '18px',
+                      width: '320px', height: '480px', borderRadius: '18px',
                       background: 'linear-gradient(180deg, rgba(30,41,59,0.9) 0%, rgba(15,23,42,0.95) 100%)',
                       border: '2px dashed rgba(100, 116, 139, 0.3)',
                       display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
@@ -446,6 +461,10 @@ export default function SpecialCollection() {
                       ▶ Play Reveal
                     </button>
                   )}
+
+                  {owned && (
+                    <span style={{ fontSize: '0.68rem', color: '#475569' }}>Click the card to view details</span>
+                  )}
                 </div>
               );
             })}
@@ -467,6 +486,16 @@ export default function SpecialCollection() {
       )}
       {revealType === 'ancient-cards' && (
         <AncientCardRevealModal pokemon={revealPokemon} isOpen={isRevealOpen} onClose={() => setIsRevealOpen(false)} />
+      )}
+
+      {/* Card Detail Modal (click a card to open) */}
+      {infoPokemon && (
+        <PokemonDetailModal
+          pokemon={infoPokemon}
+          entry={infoType === 'power' ? (powerCollectionMap.get(infoPokemon.id) || null) : (ancientCollectionMap.get(infoPokemon.id) || null)}
+          cardType={infoType}
+          onClose={() => setInfoPokemon(null)}
+        />
       )}
     </div>
   );

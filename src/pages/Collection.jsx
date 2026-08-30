@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { getUserCollection } from '../store/collection';
 import pokemonList from '../data/pokemon.json' with { type: 'json' };
 import { glowBaseFor } from '../utils/glow';
+import PokemonDetailModal from '../components/PokemonDetailModal';
 
 const ITEMS_PER_PAGE = 48;
 
@@ -63,7 +64,6 @@ export default function Collection() {
 
   // Detail Modal state
   const [selectedPokemon, setSelectedPokemon] = useState(null);
-  const [previewShiny, setPreviewShiny] = useState(false);
 
   // Fetch collection from Supabase
   useEffect(() => {
@@ -159,8 +159,6 @@ export default function Collection() {
 
   const handleCardClick = (p) => {
     setSelectedPokemon(p);
-    const entry = collectionMap.get(p.id);
-    setPreviewShiny(entry?.is_shiny || (entry?.star_level >= 5));
   };
 
   return (
@@ -362,161 +360,12 @@ export default function Collection() {
 
       {/* DETAIL MODAL */}
       {selectedPokemon && (
-        <div className="modal-overlay" onClick={() => setSelectedPokemon(null)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            {/* Modal Header */}
-            <div className="modal-header">
-              <div>
-                <span className="modal-dex-id">#{String(selectedPokemon.id).padStart(4, '0')}</span>
-                <h2 className="modal-title">
-                  {collectionMap.has(selectedPokemon.id)
-                    ? formatTitle(selectedPokemon.name)
-                    : '???'}
-                </h2>
-              </div>
-              <button className="modal-close-btn" onClick={() => setSelectedPokemon(null)}>
-                &times;
-              </button>
-            </div>
-
-            {/* Modal Body */}
-            <div className="modal-body">
-              {/* Left Column: Image & Ownership status */}
-              <div className="modal-left">
-                <div className="modal-image-card">
-                  <img
-                    src={
-                      previewShiny && collectionMap.has(selectedPokemon.id)
-                        ? selectedPokemon.sprites.shiny
-                        : selectedPokemon.sprites.normal
-                    }
-                    alt={selectedPokemon.name}
-                    className={collectionMap.has(selectedPokemon.id) ? '' : 'modal-silhouette'}
-                  />
-                </div>
-
-                {collectionMap.has(selectedPokemon.id) && (
-                  <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', marginTop: '0.5rem' }}>
-                    <button
-                      className={`preview-toggle-btn ${!previewShiny ? 'active' : ''}`}
-                      onClick={() => setPreviewShiny(false)}
-                    >
-                      Normal
-                    </button>
-                    <button
-                      className={`preview-toggle-btn ${previewShiny ? 'active' : ''}`}
-                      onClick={() => setPreviewShiny(true)}
-                    >
-                      ✨ Shiny
-                    </button>
-                  </div>
-                )}
-
-                <div className="modal-status-box">
-                  {collectionMap.has(selectedPokemon.id) ? (
-                    <>
-                      <div className="modal-star-row">
-                        {'★'.repeat(collectionMap.get(selectedPokemon.id).star_level)}
-                        {'☆'.repeat(5 - collectionMap.get(selectedPokemon.id).star_level)}
-                      </div>
-                      <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '0.25rem' }}>
-                        Duplicates Collected: {collectionMap.get(selectedPokemon.id).dupes_collected || 0}
-                      </div>
-                    </>
-                  ) : (
-                    <div style={{ color: '#f87171', fontWeight: 600, fontSize: '0.875rem' }}>
-                      Not in Collection Yet (Win battles to unlock!)
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Right Column: Types, Stats & Moveset */}
-              <div className="modal-right">
-                {/* Types */}
-                <div style={{ marginBottom: '1rem' }}>
-                  <span style={{ fontSize: '0.75rem', color: '#94a3b8', display: 'block', marginBottom: '0.25rem' }}>
-                    TYPES & EVOLUTION
-                  </span>
-                  <div>
-                    {selectedPokemon.types.map((t) => (
-                      <span key={t} className={`pokemon-type-badge type-${t}`} style={{ fontSize: '0.8rem', padding: '0.2rem 0.6rem' }}>
-                        {t}
-                      </span>
-                    ))}
-                    <span
-                      style={{
-                        marginLeft: '0.5rem',
-                        fontSize: '0.75rem',
-                        padding: '0.2rem 0.5rem',
-                        borderRadius: '0.25rem',
-                        backgroundColor: selectedPokemon.isFinalEvolution ? '#065f46' : '#334155',
-                        color: selectedPokemon.isFinalEvolution ? '#a7f3d0' : '#cbd5e1',
-                        fontWeight: 600,
-                      }}
-                    >
-                      {selectedPokemon.isFinalEvolution ? 'Final Evolution' : 'Can Evolve'}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Base Stats */}
-                <div style={{ marginBottom: '1.25rem' }}>
-                  <span style={{ fontSize: '0.75rem', color: '#94a3b8', display: 'block', marginBottom: '0.5rem' }}>
-                    BASE STATS
-                  </span>
-                  <div className="stat-bars-container">
-                    {[
-                      { label: 'HP', val: selectedPokemon.stats.hp, max: 250, color: '#22c55e' },
-                      { label: 'ATK', val: selectedPokemon.stats.attack, max: 190, color: '#ef4444' },
-                      { label: 'DEF', val: selectedPokemon.stats.defense, max: 230, color: '#3b82f6' },
-                      { label: 'SP.ATK', val: selectedPokemon.stats.specialAttack, max: 194, color: '#a855f7' },
-                      { label: 'SP.DEF', val: selectedPokemon.stats.specialDefense, max: 230, color: '#06b6d4' },
-                      { label: 'SPD', val: selectedPokemon.stats.speed, max: 200, color: '#eab308' },
-                    ].map((stat) => (
-                      <div key={stat.label} className="stat-row">
-                        <span className="stat-label">{stat.label}</span>
-                        <span className="stat-val stat-number-condensed">{stat.val}</span>
-                        <div className="stat-bar-outer">
-                          <div
-                            className="stat-bar-inner"
-                            style={{
-                              width: `${Math.min(100, (stat.val / stat.max) * 100)}%`,
-                              backgroundColor: stat.color,
-                            }}
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* 4-Move Moveset */}
-                <div>
-                  <span style={{ fontSize: '0.75rem', color: '#94a3b8', display: 'block', marginBottom: '0.5rem' }}>
-                    BATTLE MOVESET
-                  </span>
-                  <div className="modal-moves-grid">
-                    {selectedPokemon.moves?.map((m, mIdx) => (
-                      <div key={mIdx} className="modal-move-card">
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <span style={{ fontWeight: 700, fontSize: '0.85rem', color: '#f8fafc' }}>{m.name}</span>
-                          <span className={`pokemon-type-badge type-${m.type}`}>{m.type}</span>
-                        </div>
-                        <div style={{ fontSize: '0.75rem', color: '#cbd5e1', marginTop: '0.2rem' }}>
-                          <span>Cat: {m.category}</span> | <span>Pwr: {m.power || '--'}</span> | <span>PP: {m.pp}/{m.maxPp}</span>
-                        </div>
-                        <div style={{ fontSize: '0.7rem', color: '#94a3b8', marginTop: '0.25rem', fontStyle: 'italic' }}>
-                          {m.effect}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <PokemonDetailModal
+          pokemon={selectedPokemon}
+          entry={collectionMap.get(selectedPokemon.id) || null}
+          cardType="normal"
+          onClose={() => setSelectedPokemon(null)}
+        />
       )}
     </div>
   );

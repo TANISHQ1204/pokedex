@@ -183,6 +183,20 @@ export default function Battle() {
   }, []);
 
   useEffect(() => {
+    // A full browser refresh (F5 / Ctrl+R) always starts a fresh battle.
+    // Only SPA navigation (changing tabs/routes) should restore an in-progress
+    // battle — an active fight is intentionally preserved across tab switches.
+    let pageWasReloaded = false;
+    try {
+      const nav = window.performance?.getEntriesByType?.('navigation')?.[0];
+      pageWasReloaded = Boolean(nav && nav.type === 'reload');
+    } catch (_) {
+      /* navigation timing unavailable — ignore */
+    }
+    if (pageWasReloaded) {
+      clearSoloBattleState();
+    }
+
     const saved = loadSoloBattleState();
     if (saved && saved.playerTeam?.length && saved.cpuTeam?.length && !saved.winner) {
       const pIdx = saved.playerActiveIdx ?? 0;
@@ -233,6 +247,13 @@ export default function Battle() {
   // Persist battle state to localStorage whenever key state changes
   useEffect(() => {
     if (battleStateRef.current.playerTeam.length === 0) return;
+    if (winner) {
+      // Battle concluded (winner set). Drop the persisted state so the next
+      // visit — via tab switch, page refresh, or revisit — starts a fresh
+      // battle after the card has been collected.
+      clearSoloBattleState();
+      return;
+    }
     persistState();
   }, [playerTeam, cpuTeam, playerActiveIdx, cpuActiveIdx, logs, winner, awardedDrop, revealedCpuIndices, playerActiveState, cpuActiveState, persistState]);
 
@@ -753,6 +774,7 @@ export default function Battle() {
 
       const nextPlayerIdx = playerTeam.findIndex((p) => p.currentHp > 0);
       if (nextPlayerIdx === -1) {
+        winnerRef.current = 'cpu';
         setWinner('cpu');
         addLog('DEFEAT! All your Pokémon have fainted.', { isFaint: true });
         return true;
@@ -832,6 +854,8 @@ export default function Battle() {
             wasNew: Boolean(dropState.isNew),
           });
           setAwardedDrop(dropState);
+          winnerRef.current = 'player';
+          awardedDropRef.current = dropState;
           setWinner('player');
         })();
 
