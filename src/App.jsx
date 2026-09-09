@@ -15,6 +15,7 @@ import SpecialCollection from './pages/SpecialCollection';
 import MatchLobby from './pages/MatchLobby';
 import JoinMatch from './pages/JoinMatch';
 import GameModes from './pages/GameModes';
+import MysteryDraft from './pages/MysteryDraft';
 import Stats from './pages/Stats';
 
 import MatchInviteBanner from './components/MatchInviteBanner';
@@ -137,6 +138,14 @@ export default function App() {
           element={
             <ProtectedRoute>
               <GameModes />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/mystery-draft"
+          element={
+            <ProtectedRoute>
+              <MysteryDraft />
             </ProtectedRoute>
           }
         />

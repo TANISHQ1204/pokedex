@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { createMatch } from '../store/matches';
-import { SwordsIcon, UsersFriendsIcon, PokeballIcon } from '../components/icons/GameIcons';
+import { SwordsIcon, UsersFriendsIcon, PokeballIcon, PokedexBookIcon } from '../components/icons/GameIcons';
 
 export default function GameModes() {
   const { user } = useAuth();
@@ -190,6 +190,75 @@ export default function GameModes() {
             }}
           >
             🔒 Phase 5 - Under Construction
+          </button>
+        </div>
+
+        {/* Mode: Mystery Draft */}
+        <div
+          className="card"
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            padding: '2rem 1.5rem',
+            border: '2px solid #7e22ce',
+            background: 'linear-gradient(180deg, #312e81 0%, #0f172a 100%)',
+            boxShadow: '0 12px 24px rgba(0, 0, 0, 0.6), 0 0 15px rgba(168, 85, 247, 0.3)',
+          }}
+        >
+          <div>
+            <div
+              style={{
+                display: 'inline-flex',
+                padding: '0.75rem',
+                borderRadius: '50%',
+                backgroundColor: '#7e22ce',
+                color: '#f3e8ff',
+                marginBottom: '1rem',
+              }}
+            >
+              <PokedexBookIcon size={32} />
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+              <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#f8fafc', margin: 0 }}>
+                Mystery Draft
+              </h2>
+              <span
+                style={{
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  padding: '0.2rem 0.5rem',
+                  borderRadius: '0.25rem',
+                  backgroundColor: '#16a34a',
+                  color: '#a7f3d0',
+                }}
+              >
+                NEW
+              </span>
+            </div>
+
+            <p style={{ color: '#cbd5e1', fontSize: '0.925rem', lineHeight: 1.5, marginBottom: '1.5rem' }}>
+              A local party auction game. Queue 12 mystery Pokemon, take turns revealing one attribute clue,
+              then verbally bid your shared budget to draft a 6-Pokemon team — $0 bids welcome. No database, no network — just one screen.
+            </p>
+          </div>
+
+          <button
+            onClick={() => navigate('/mystery-draft')}
+            style={{
+              width: '100%',
+              padding: '0.75rem',
+              borderRadius: '0.375rem',
+              border: 'none',
+              backgroundColor: '#7e22ce',
+              color: '#ffffff',
+              fontWeight: 800,
+              fontSize: '0.95rem',
+              cursor: 'pointer',
+            }}
+          >
+            🃏 Start Mystery Draft
           </button>
         </div>
 
