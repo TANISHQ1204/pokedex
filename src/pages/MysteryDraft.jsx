@@ -282,7 +282,7 @@ function SetupScreen({ initial, onStart }) {
         </div>
         <h2 style={{ margin: 0, fontSize: '1.5rem', color: '#f8fafc' }}>Mystery Draft Setup</h2>
         <p style={{ margin: '0.4rem 0 0 0', color: '#94a3b8', fontSize: '0.9rem' }}>
-          The arbitrator runs this screen. Randomly queue 12 mystery Pokemon; players alternate revealing ONE attribute clue each, then verbally bid their budget — each team caps at 6 Pokemon and $0 (free) bids are allowed.
+          The arbitrator runs this screen. Randomly queue 12 mystery Pokemon — legendaries &amp; mythicals are included with equal weight, and ~15% of drafts are shiny. Players alternate revealing ONE attribute clue each, then verbally bid their budget — each team caps at 6 Pokemon and $0 (free) bids are allowed.
         </p>
       </div>
 
@@ -330,7 +330,7 @@ function SetupScreen({ initial, onStart }) {
 
       <div style={{ marginBottom: '1.25rem' }}>
         <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#94a3b8', marginBottom: '0.5rem' }}>
-          Maximum Generation <span style={{ color: '#475569' }}>(only Pokemon from Gen 1 through this are eligible — shiny variants &amp; legendaries included)</span>
+          Maximum Generation <span style={{ color: '#475569' }}>(only Pokemon from Gen 1 through this are eligible — legendaries included normally, ~15% shiny)</span>
         </div>
         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
           {MAX_GENS.map((g) => (

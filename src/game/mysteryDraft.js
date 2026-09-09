@@ -12,7 +12,7 @@ export const ATTRIBUTES = [
 
 export const ATTRIBUTE_IDS = ATTRIBUTES.map((a) => a.id);
 
-export const SHINY_CHANCE = 0.25;
+export const SHINY_CHANCE = 0.15;
 
 export const MAX_TEAM_SIZE = 6;
 
