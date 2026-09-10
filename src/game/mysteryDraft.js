@@ -163,7 +163,13 @@ export function weakestPick(player) {
     .sort((a, b) => a.bst - b.bst)[0];
 }
 
-export function draftQueue(pokemonList, speciesMeta, maxGen, count = 12, random = Math.random) {
+function secureRandom() {
+  const buf = new Uint32Array(1);
+  crypto.getRandomValues(buf);
+  return buf[0] / (0xffffffff + 1);
+}
+
+export function draftQueue(pokemonList, speciesMeta, maxGen, count = 12, random = secureRandom) {
   const pool = getEligiblePool(pokemonList, speciesMeta, maxGen);
   const shuffled = [...pool];
   for (let i = shuffled.length - 1; i > 0; i--) {
