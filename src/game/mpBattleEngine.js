@@ -8,6 +8,8 @@ import {
   applyStatusCondition,
   getMoveStatusEffect,
   getMoveStatChanges,
+  getMoveFlinchChance,
+  getMoveSecondaryStatChange,
   getEffectiveSpeed,
   getTypeEffectiveness,
   getMoveAccuracy,
@@ -155,7 +157,9 @@ export function resolveMultiplayerTurn(state) {
   }
 
   // Execute each move in order
-  for (const attackerInfo of movesToExecute) {
+  for (let moveOrderIdx = 0; moveOrderIdx < movesToExecute.length; moveOrderIdx++) {
+    const attackerInfo = movesToExecute[moveOrderIdx];
+    const attackerMovedFirst = moveOrderIdx === 0;
     const attackerIsP1 = attackerInfo.isP1;
     const defenderIsP1 = !attackerIsP1;
 
@@ -170,7 +174,7 @@ export function resolveMultiplayerTurn(state) {
     const defenderName = `${defenderIsP1 ? 'Player 1' : 'Player 2'}'s ${defender.name.toUpperCase()}`;
     const move = attackerInfo.move;
 
-    // Check Turn-Start Status
+    // Check Turn-Start Status (incl. flinch)
     const turnStatusRes = checkTurnStartStatus(attacker, move);
     if (turnStatusRes.logs && turnStatusRes.logs.length > 0) {
       turnStatusRes.logs.forEach((log) => addLog(log.text, log.options || {}));
@@ -245,6 +249,7 @@ export function resolveMultiplayerTurn(state) {
 
       const statusSpec = getMoveStatusEffect(move);
       if (statusSpec && statusSpec.condition) {
+        // Accuracy was already rolled above via getMoveAccuracy(), so pass 1.0.
         const inflictRes = applyStatusCondition(defender, statusSpec.condition, 1.0, statusSpec.chance ?? 1.0);
         if (inflictRes.message) {
           addLog(inflictRes.message, { isSuperEffective: inflictRes.success });
@@ -262,11 +267,14 @@ export function resolveMultiplayerTurn(state) {
       addLog(`It's super effective! (Dealt ${damageRes.damage} damage)`, { isSuperEffective: true });
     } else if (damageRes.isNotVeryEffective) {
       addLog(`It's not very effective... (Dealt ${damageRes.damage} damage)`);
+    } else if (damageRes.isFixedDamage) {
+      addLog(`${move.name} dealt ${damageRes.damage} damage to ${defenderName}.`);
     } else {
       addLog(`Dealt ${damageRes.damage} damage to ${defenderName}.`);
     }
 
     if (newHp > 0) {
+      // Secondary status effects on damaging moves
       const statusSpec = getMoveStatusEffect(move);
       if (statusSpec && statusSpec.condition) {
         const inflictRes = applyStatusCondition(defender, statusSpec.condition, 1.0, statusSpec.chance ?? 1.0);
@@ -274,12 +282,34 @@ export function resolveMultiplayerTurn(state) {
           addLog(inflictRes.message, { isSuperEffective: true });
         }
       }
+
+      // Secondary stat-drop / boost effects on damaging moves
+      const secondaryStatChanges = getMoveSecondaryStatChange(move);
+      if (secondaryStatChanges) {
+        for (const change of secondaryStatChanges) {
+          const targetObj = change.target === 'self' ? attacker : defender;
+          const targetIsP1 = change.target === 'self' ? attackerIsP1 : defenderIsP1;
+          if (Math.random() <= (change.chance ?? 1.0)) {
+            const result = applyStatChange(targetObj, change.stat, change.stages);
+            if (result.message) {
+              addLog(result.message, { isSuperEffective: !!result.success });
+            }
+          }
+        }
+      }
+
+      // Flinch (only consumes the target's turn when the attacker moved first)
+      const flinchChance = getMoveFlinchChance(move);
+      if (flinchChance > 0 && attackerMovedFirst && Math.random() < flinchChance && defender.currentHp > 0) {
+        defender.flinch = true;
+        addLog(`${defenderName} flinched!`);
+      }
     }
 
     if (damageRes.recoil > 0) {
       const newAttackerHp = Math.max(0, attacker.currentHp - damageRes.recoil);
       updateHp(attackerIsP1, attackerIsP1 ? nextState.activeIdx1 : nextState.activeIdx2, newAttackerHp);
-      addLog(`${attackerName} took ${damageRes.recoil} recoil damage from Struggle!`, { isFaint: true });
+      addLog(`${attackerName} took ${damageRes.recoil} recoil damage from ${move.name}!`, { isFaint: true });
     }
   }
 

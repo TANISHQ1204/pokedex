@@ -416,31 +416,150 @@ export const MOVE_STATUS_MAP = {
   stun_spore: { condition: 'paralysis', chance: 1.0, accuracy: 0.75 },
   glare: { condition: 'paralysis', chance: 1.0, accuracy: 1.00 },
 
-  // Damaging Moves with Secondary Effects
+  // Damaging Moves with Secondary Status Effects (burn/paralyze/poison/freeze/confusion)
   thunderbolt: { condition: 'paralysis', chance: 0.10, accuracy: 1.0 },
   thunder: { condition: 'paralysis', chance: 0.30, accuracy: 0.70 },
   discharge: { condition: 'paralysis', chance: 0.30, accuracy: 1.0 },
   spark: { condition: 'paralysis', chance: 0.30, accuracy: 1.0 },
   body_slam: { condition: 'paralysis', chance: 0.30, accuracy: 1.0 },
+  lick: { condition: 'paralysis', chance: 0.30, accuracy: 1.0 },
+  thunder_shock: { condition: 'paralysis', chance: 0.10, accuracy: 1.0 },
+  wildbolt_storm: { condition: 'paralysis', chance: 0.30, accuracy: 0.80 },
+  zap_cannon: { condition: 'paralysis', chance: 1.0, accuracy: 0.50 },
 
   flamethrower: { condition: 'burn', chance: 0.10, accuracy: 1.0 },
   fire_blast: { condition: 'burn', chance: 0.10, accuracy: 0.85 },
   scald: { condition: 'burn', chance: 0.30, accuracy: 1.0 },
   heat_wave: { condition: 'burn', chance: 0.10, accuracy: 0.90 },
   lava_plume: { condition: 'burn', chance: 0.30, accuracy: 1.0 },
+  flare_blitz: { condition: 'burn', chance: 0.10, accuracy: 1.0 },
+  inferno: { condition: 'burn', chance: 1.0, accuracy: 1.0 },
+  fire_punch: { condition: 'burn', chance: 0.10, accuracy: 1.0 },
+  ember: { condition: 'burn', chance: 0.10, accuracy: 1.0 },
+  fire_lash: { condition: 'burn', chance: 0.10, accuracy: 1.0 },
 
   ice_beam: { condition: 'freeze', chance: 0.10, accuracy: 1.0 },
   blizzard: { condition: 'freeze', chance: 0.10, accuracy: 0.70 },
   ice_punch: { condition: 'freeze', chance: 0.10, accuracy: 1.0 },
+  powder_snow: { condition: 'freeze', chance: 0.10, accuracy: 1.0 },
+  ice_hammer: { condition: 'freeze', chance: 0.10, accuracy: 1.0 },
 
   sludge_bomb: { condition: 'poison', chance: 0.30, accuracy: 1.0 },
   poison_jab: { condition: 'poison', chance: 0.30, accuracy: 1.0 },
   sludge_wave: { condition: 'poison', chance: 0.10, accuracy: 1.0 },
+  gunk_shot: { condition: 'poison', chance: 0.30, accuracy: 0.80 },
+  poison_sting: { condition: 'poison', chance: 0.30, accuracy: 1.0 },
+  poison_fang: { condition: 'poison', chance: 0.50, accuracy: 1.0 },
+  smog: { condition: 'poison', chance: 0.40, accuracy: 0.70 },
+  cross_poison: { condition: 'poison', chance: 0.10, accuracy: 1.0 },
+  belch: { condition: 'poison', chance: 0.30, accuracy: 1.0 },
 
   water_pulse: { condition: 'confusion', chance: 0.20, accuracy: 1.0 },
   confusion: { condition: 'confusion', chance: 0.10, accuracy: 1.0 },
   psybeam: { condition: 'confusion', chance: 0.10, accuracy: 1.0 },
   hurricane: { condition: 'confusion', chance: 0.30, accuracy: 0.70 },
+  dark_pulse: { condition: 'confusion', chance: 0.20, accuracy: 1.0 },
+  rock_climb: { condition: 'confusion', chance: 0.20, accuracy: 0.85 },
+  signal_beam: { condition: 'confusion', chance: 0.10, accuracy: 1.0 },
+};
+
+/**
+ * Damaging moves with a chance to make the target FLINCH (lose its move).
+ * Key: move id -> flinch chance (0..1).
+ */
+export const MOVE_FLINCH_MAP = {
+  air_slash: 0.30,
+  headbutt: 0.30,
+  rock_slide: 0.30,
+  iron_head: 0.30,
+  zen_headbutt: 0.20,
+  bite: 0.30,
+  dark_pulse: 0.20,
+  dragon_rush: 0.20,
+  extrasensory: 0.20,
+  stomp: 0.30,
+  hyper_fang: 0.10,
+  needle_arm: 0.30,
+  iron_tail: 0.30,
+  icicle_crash: 0.30,
+  zing_zap: 0.30,
+  bolt_strike: 0.20,
+  fake_out: 1.0,
+  rock_climb: 0.20,
+  ice_hammer: 0.10,
+};
+
+/**
+ * Damaging moves with a chance to lower the target's stats (no status condition).
+ * Key: move id -> { target: 'opponent'|'self', stat, stages, chance }
+ */
+export const MOVE_STAT_DROP_MAP = {
+  // 10% chance to lower target Sp. Def
+  bug_buzz: { target: 'opponent', stat: 'specialDefense', stages: -1, chance: 0.10 },
+  earth_power: { target: 'opponent', stat: 'specialDefense', stages: -1, chance: 0.10 },
+  acid: { target: 'opponent', stat: 'specialDefense', stages: -1, chance: 0.10 },
+  shadow_ball: { target: 'opponent', stat: 'specialDefense', stages: -1, chance: 0.20 },
+  flash_cannon: { target: 'opponent', stat: 'specialDefense', stages: -1, chance: 0.10 },
+  energy_ball: { target: 'opponent', stat: 'specialDefense', stages: -1, chance: 0.10 },
+  seed_flare: { target: 'opponent', stat: 'specialDefense', stages: -2, chance: 0.40 },
+
+  // 20% chance to lower target Sp. Def
+  crunch: { target: 'opponent', stat: 'specialDefense', stages: -1, chance: 0.20 },
+  psychic: { target: 'opponent', stat: 'specialDefense', stages: -1, chance: 0.10 },
+
+  // 30% chance to lower target Def
+  iron_tail: { target: 'opponent', stat: 'defense', stages: -1, chance: 0.30 },
+  razor_shell: { target: 'opponent', stat: 'defense', stages: -1, chance: 0.50 },
+  liquidation: { target: 'opponent', stat: 'defense', stages: -1, chance: 0.20 },
+  muddy_water: { target: 'opponent', stat: 'accuracy', stages: -1, chance: 0.30 },
+  leaf_tornado: { target: 'opponent', stat: 'accuracy', stages: -1, chance: 0.30 },
+
+  // 10% chance to lower target Attack
+  play_rough: { target: 'opponent', stat: 'attack', stages: -1, chance: 0.10 },
+  lunge: { target: 'opponent', stat: 'attack', stages: -1, chance: 1.0 },
+
+  // 100% guaranteed stat drops on hit
+  electroweb: { target: 'opponent', stat: 'speed', stages: -1, chance: 1.0 },
+  struggle_bug: { target: 'opponent', stat: 'specialAttack', stages: -1, chance: 1.0 },
+  flame_charge: { target: 'self', stat: 'speed', stages: 1, chance: 1.0 },
+  mystical_fire: { target: 'opponent', stat: 'specialAttack', stages: -1, chance: 1.0 },
+  spirit_break: { target: 'opponent', stat: 'specialAttack', stages: -1, chance: 1.0 },
+  low_sweep: { target: 'opponent', stat: 'speed', stages: -1, chance: 1.0 },
+
+  // 10% chance to lower target Sp. Atk
+  moonblast: { target: 'opponent', stat: 'specialAttack', stages: -1, chance: 0.30 },
+
+  // 100% chance to raise user's stats
+  silver_wind: { target: 'self', stat: 'specialAttack', stages: 1, chance: 0.10 },
+  ancient_power: { target: 'self', stat: 'specialAttack', stages: 1, chance: 0.10 },
+};
+
+/**
+ * Damaging moves that deal fixed damage regardless of stats.
+ * Key: move id -> function(defender, attacker) returning damage amount.
+ */
+export const FIXED_DAMAGE_MOVES = {
+  dragon_rage: () => 40,
+  seismic_toss: (defender, attacker) => 50, // level 50 -> 50 damage (level-scaled)
+  night_shade: (defender, attacker) => 50, // level 50 -> 50 damage (level-scaled)
+  super_fang: (defender) => Math.max(1, Math.floor((defender.currentHp || defender.stats.hp) / 2)),
+};
+
+/**
+ * Recoil fraction for moves that damage the user (fraction of damage dealt).
+ * Key: move id -> recoil fraction (e.g. 0.33 = 1/3, 0.25 = 1/4, 0.5 = 1/2).
+ */
+export const MOVE_RECOIL_MAP = {
+  double_edge: 0.33,
+  flare_blitz: 0.33,
+  brave_bird: 0.33,
+  wood_hammer: 0.33,
+  head_smash: 0.50,
+  wild_charge: 0.25,
+  take_down: 0.25,
+  submission: 0.25,
+  wave_crash: 0.33,
+  jump_kick: 0.0,
 };
 
 /**
@@ -545,6 +664,57 @@ export function getMoveStatusEffect(move) {
 }
 
 /**
+ * Resolves the flinch chance for a move (0 if the move cannot flinch).
+ */
+export function getMoveFlinchChance(move) {
+  if (!move) return 0;
+  if (typeof move.flinchChance === 'number') return move.flinchChance;
+  const mapped = MOVE_FLINCH_MAP[move.id?.toLowerCase()];
+  return typeof mapped === 'number' ? mapped : 0;
+}
+
+/**
+ * Resolves the stat drop/boost secondary effect config for a move.
+ * Returns null if the move has no secondary stat effect.
+ */
+export function getMoveSecondaryStatChange(move) {
+  if (!move) return null;
+  if (move.secondaryStatChange) {
+    return Array.isArray(move.secondaryStatChange) ? move.secondaryStatChange : [move.secondaryStatChange];
+  }
+  const mapped = MOVE_STAT_DROP_MAP[move.id?.toLowerCase()];
+  if (mapped) return Array.isArray(mapped) ? mapped : [mapped];
+  return null;
+}
+
+/**
+ * Returns true when the move deals fixed damage (e.g. Dragon Rage, Super Fang).
+ */
+export function isFixedDamageMove(move) {
+  if (!move) return false;
+  return Boolean(FIXED_DAMAGE_MOVES[move.id?.toLowerCase()]);
+}
+
+/**
+ * Resolves the fixed damage amount for a move (0 for regular moves).
+ */
+export function getFixedDamage(move, defender, attacker) {
+  if (!move) return 0;
+  const fn = FIXED_DAMAGE_MOVES[move.id?.toLowerCase()];
+  return fn ? fn(defender, attacker) : 0;
+}
+
+/**
+ * Resolves the recoil fraction for a move (0 if none).
+ */
+export function getMoveRecoilFraction(move) {
+  if (!move) return 0;
+  if (typeof move.recoilFraction === 'number') return move.recoilFraction;
+  const mapped = MOVE_RECOIL_MAP[move.id?.toLowerCase()];
+  return typeof mapped === 'number' ? mapped : 0;
+}
+
+/**
  * Attempts to apply a status condition to a target Pokémon.
  * Enforces type immunities, accuracy checks, infliction chance, and status mutual exclusivity.
  */
@@ -623,6 +793,13 @@ export function checkTurnStartStatus(pokemon, move = null) {
 
   const logs = [];
   const name = pokemon.name.toUpperCase();
+
+  // 0. Flinch Check (volatile flag set by an opponent's faster flinch move)
+  if (pokemon.flinch) {
+    pokemon.flinch = false;
+    logs.push({ text: `${name} flinched and couldn't move!` });
+    return { cantMove: true, flinched: true, logs };
+  }
 
   // 1. Sleep Check
   if (pokemon.status === 'sleep') {
@@ -737,7 +914,32 @@ export function getEffectiveSpeed(pokemon) {
  * Applies stat stage multipliers and Burn physical attack halving.
  */
 export function calculateDamage(attacker, defender, move) {
-  if (!move || move.category === 'status' || move.power <= 0) {
+  if (!move || move.category === 'status') {
+    return {
+      damage: 0,
+      recoil: 0,
+      effectiveness: 1.0,
+      stab: false,
+      isSuperEffective: false,
+      isNotVeryEffective: false,
+    };
+  }
+
+  // Fixed-damage moves ignore stats entirely (Dragon Rage, Super Fang, Seismic Toss, Night Shade)
+  const fixedDmg = getFixedDamage(move, defender, attacker);
+  if (fixedDmg > 0) {
+    return {
+      damage: fixedDmg,
+      recoil: 0,
+      effectiveness: 1.0,
+      stab: false,
+      isSuperEffective: false,
+      isNotVeryEffective: false,
+      isFixedDamage: true,
+    };
+  }
+
+  if (move.power <= 0) {
     return {
       damage: 0,
       recoil: 0,
@@ -780,6 +982,18 @@ export function calculateDamage(attacker, defender, move) {
   const stabMultiplier = isStab ? 1.5 : 1.0;
   const effectiveness = getTypeEffectiveness(move.type, defender.types);
 
+  // No damage against 0-effectiveness (immune) targets
+  if (effectiveness === 0) {
+    return {
+      damage: 0,
+      recoil: 0,
+      effectiveness: 0,
+      stab: isStab,
+      isSuperEffective: false,
+      isNotVeryEffective: false,
+    };
+  }
+
   const level = 50;
   const baseDamage = Math.floor(
     (((2 * level / 5 + 2) * move.power * (atkStat / defStat)) / 50 + 2) * stabMultiplier * effectiveness
@@ -790,6 +1004,12 @@ export function calculateDamage(attacker, defender, move) {
   let recoil = 0;
   if (move.isStruggle) {
     recoil = Math.max(1, Math.floor(finalDamage * 0.25));
+  } else {
+    // Recoil from flavored recoil moves (Flare Blitz, Double-Edge, Wild Charge, etc.)
+    const recoilFraction = getMoveRecoilFraction(move);
+    if (recoilFraction > 0) {
+      recoil = Math.max(1, Math.round(finalDamage * recoilFraction));
+    }
   }
 
   return {
@@ -961,6 +1181,7 @@ export function generateRandomTeam(customList = null, count = 6) {
       sleepTurns: 0,
       confusion: false,
       confusionTurns: 0,
+      flinch: false,
       statStages: {
         attack: 0,
         defense: 0,

@@ -12,10 +12,13 @@ import {
   applyStatusCondition,
   getMoveStatusEffect,
   getMoveStatChanges,
+  getMoveFlinchChance,
+  getMoveSecondaryStatChange,
   getEffectiveSpeed,
   getTypeEffectiveness,
   getMoveAccuracy,
   isOhkoMove,
+  isFixedDamageMove,
   applyStatChange,
 } from '../game/battle';
 import { rollBattleDrop, rollPreviewDrop } from '../game/drops';
@@ -501,7 +504,7 @@ export default function Battle() {
         ? { side: 'cpu', pkmn: cpuPkmn, move: cpuMove, moveIdx: cpuMoveIdx }
         : { side: 'player', pkmn: playerPkmn, move: playerMove, moveIdx: selectedMoveIdx };
 
-      const fainted1 = await executeTurn(firstAttacker, secondAttacker);
+      const fainted1 = await executeTurn(firstAttacker, secondAttacker, true);
       if (fainted1) {
         await handleFaintCheck();
         return;
@@ -511,7 +514,7 @@ export default function Battle() {
 
       const currentSecondAttacker = getActivePokemon(secondAttacker.side);
       if (currentSecondAttacker && currentSecondAttacker.currentHp > 0) {
-        const fainted2 = await executeTurn(secondAttacker, firstAttacker);
+        const fainted2 = await executeTurn(secondAttacker, firstAttacker, false);
         if (fainted2) {
           await handleFaintCheck();
           return;
@@ -555,7 +558,7 @@ export default function Battle() {
     }
   };
 
-  const executeTurn = async (attackerInfo, defenderInfo) => {
+  const executeTurn = async (attackerInfo, defenderInfo, attackerMovedFirst = false) => {
     const attackerSide = attackerInfo.side;
     const defenderSide = defenderInfo.side;
     const move = attackerInfo.move;
@@ -568,7 +571,7 @@ export default function Battle() {
       return false;
     }
 
-    // 1. Check Turn-Start Status (Sleep, Freeze, Paralysis, Confusion)
+    // 1. Check Turn-Start Status (Sleep, Freeze, Paralysis, Confusion, Flinch)
     const turnStatusRes = checkTurnStartStatus(attacker, move);
     if (turnStatusRes.logs && turnStatusRes.logs.length > 0) {
       turnStatusRes.logs.forEach((log) => addLog(log.text, log.options || {}));
@@ -732,31 +735,64 @@ export default function Battle() {
     const newDefenderHp = Math.max(0, defender.currentHp - damageRes.damage);
     updatePokemonHp(defenderSide, getActiveIndex(defenderSide), newDefenderHp);
 
+    // Re-fetch fresh objects AFTER the HP update — updatePokemonHp replaces the
+    // pokemon object in state with a NEW one, so the old `defender`/`attacker`
+    // references are stale. Without this, secondary effects (status, stat drops)
+    // would be applied to orphaned objects and silently lost.
+    const freshDefender = getActivePokemon(defenderSide);
+    const freshAttacker = getActivePokemon(attackerSide);
+
     if (damageRes.isSuperEffective) {
       addLog(`It's super effective! (Dealt ${damageRes.damage} damage)`, { isSuperEffective: true });
     } else if (damageRes.isNotVeryEffective) {
       addLog(`It's not very effective... (Dealt ${damageRes.damage} damage)`);
+    } else if (damageRes.isFixedDamage) {
+      addLog(`${move.name} dealt ${damageRes.damage} damage to ${defenderName}.`);
     } else {
       addLog(`Dealt ${damageRes.damage} damage to ${defenderName}.`);
     }
 
     // Secondary Status Effect Check for damaging moves (e.g. Thunderbolt 10% par, Flamethrower 10% brn, Sludge Bomb 30% psn)
-    if (newDefenderHp > 0) {
+    if (newDefenderHp > 0 && freshDefender) {
       const statusSpec = getMoveStatusEffect(move);
       if (statusSpec && statusSpec.condition) {
-        const inflictRes = applyStatusCondition(defender, statusSpec.condition, 1.0, statusSpec.chance ?? 1.0);
+        const inflictRes = applyStatusCondition(freshDefender, statusSpec.condition, 1.0, statusSpec.chance ?? 1.0);
         if (inflictRes.success && inflictRes.message) {
           addLog(inflictRes.message, { isSuperEffective: true });
           syncTeamState(defenderSide);
         }
       }
+
+      // Secondary stat-drop / boost effects on damaging moves (e.g. Bug Buzz -1 Sp.Def, Crunch -1 Sp.Def, Liquidation -1 Def)
+      const secondaryStatChanges = getMoveSecondaryStatChange(move);
+      if (secondaryStatChanges) {
+        for (const change of secondaryStatChanges) {
+          const targetObj = change.target === 'self' ? freshAttacker : freshDefender;
+          const targetSide = change.target === 'self' ? attackerSide : defenderSide;
+          if (Math.random() <= (change.chance ?? 1.0)) {
+            const result = applyStatChange(targetObj, change.stat, change.stages);
+            if (result.message) {
+              addLog(result.message, { isSuperEffective: !!result.success });
+            }
+            syncTeamState(targetSide);
+          }
+        }
+      }
+
+      // Flinch chance (only consumes the target's turn if the attacker moved first)
+      const flinchChance = getMoveFlinchChance(move);
+      if (flinchChance > 0 && attackerMovedFirst && Math.random() < flinchChance && !freshDefender.isFainted) {
+        freshDefender.flinch = true;
+        addLog(`${defenderName} flinched!`);
+        syncTeamState(defenderSide);
+      }
     }
 
-    if (damageRes.recoil > 0) {
-      const currentAttackerHp = attacker.currentHp;
+    if (damageRes.recoil > 0 && freshAttacker) {
+      const currentAttackerHp = freshAttacker.currentHp;
       const newAttackerHp = Math.max(0, currentAttackerHp - damageRes.recoil);
       updatePokemonHp(attackerSide, getActiveIndex(attackerSide), newAttackerHp);
-      addLog(`${attackerName} took ${damageRes.recoil} recoil damage from Struggle!`, { isFaint: true });
+      addLog(`${attackerName} took ${damageRes.recoil} recoil damage from ${move.name}!`, { isFaint: true });
     }
 
     await delay(400);
