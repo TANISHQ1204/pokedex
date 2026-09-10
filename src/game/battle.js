@@ -464,32 +464,6 @@ export const MOVE_STATUS_MAP = {
 };
 
 /**
- * Damaging moves with a chance to make the target FLINCH (lose its move).
- * Key: move id -> flinch chance (0..1).
- */
-export const MOVE_FLINCH_MAP = {
-  air_slash: 0.30,
-  headbutt: 0.30,
-  rock_slide: 0.30,
-  iron_head: 0.30,
-  zen_headbutt: 0.20,
-  bite: 0.30,
-  dark_pulse: 0.20,
-  dragon_rush: 0.20,
-  extrasensory: 0.20,
-  stomp: 0.30,
-  hyper_fang: 0.10,
-  needle_arm: 0.30,
-  iron_tail: 0.30,
-  icicle_crash: 0.30,
-  zing_zap: 0.30,
-  bolt_strike: 0.20,
-  fake_out: 1.0,
-  rock_climb: 0.20,
-  ice_hammer: 0.10,
-};
-
-/**
  * Damaging moves with a chance to lower the target's stats (no status condition).
  * Key: move id -> { target: 'opponent'|'self', stat, stages, chance }
  */
@@ -664,16 +638,6 @@ export function getMoveStatusEffect(move) {
 }
 
 /**
- * Resolves the flinch chance for a move (0 if the move cannot flinch).
- */
-export function getMoveFlinchChance(move) {
-  if (!move) return 0;
-  if (typeof move.flinchChance === 'number') return move.flinchChance;
-  const mapped = MOVE_FLINCH_MAP[move.id?.toLowerCase()];
-  return typeof mapped === 'number' ? mapped : 0;
-}
-
-/**
  * Resolves the stat drop/boost secondary effect config for a move.
  * Returns null if the move has no secondary stat effect.
  */
@@ -793,13 +757,6 @@ export function checkTurnStartStatus(pokemon, move = null) {
 
   const logs = [];
   const name = pokemon.name.toUpperCase();
-
-  // 0. Flinch Check (volatile flag set by an opponent's faster flinch move)
-  if (pokemon.flinch) {
-    pokemon.flinch = false;
-    logs.push({ text: `${name} flinched and couldn't move!` });
-    return { cantMove: true, flinched: true, logs };
-  }
 
   // 1. Sleep Check
   if (pokemon.status === 'sleep') {
@@ -1181,7 +1138,6 @@ export function generateRandomTeam(customList = null, count = 6) {
       sleepTurns: 0,
       confusion: false,
       confusionTurns: 0,
-      flinch: false,
       statStages: {
         attack: 0,
         defense: 0,

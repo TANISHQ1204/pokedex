@@ -8,7 +8,6 @@ import {
   applyStatusCondition,
   getMoveStatusEffect,
   getMoveStatChanges,
-  getMoveFlinchChance,
   getMoveSecondaryStatChange,
   getEffectiveSpeed,
   getTypeEffectiveness,
@@ -159,7 +158,6 @@ export function resolveMultiplayerTurn(state) {
   // Execute each move in order
   for (let moveOrderIdx = 0; moveOrderIdx < movesToExecute.length; moveOrderIdx++) {
     const attackerInfo = movesToExecute[moveOrderIdx];
-    const attackerMovedFirst = moveOrderIdx === 0;
     const attackerIsP1 = attackerInfo.isP1;
     const defenderIsP1 = !attackerIsP1;
 
@@ -174,7 +172,7 @@ export function resolveMultiplayerTurn(state) {
     const defenderName = `${defenderIsP1 ? 'Player 1' : 'Player 2'}'s ${defender.name.toUpperCase()}`;
     const move = attackerInfo.move;
 
-    // Check Turn-Start Status (incl. flinch)
+    // Check Turn-Start Status
     const turnStatusRes = checkTurnStartStatus(attacker, move);
     if (turnStatusRes.logs && turnStatusRes.logs.length > 0) {
       turnStatusRes.logs.forEach((log) => addLog(log.text, log.options || {}));
@@ -296,13 +294,6 @@ export function resolveMultiplayerTurn(state) {
             }
           }
         }
-      }
-
-      // Flinch (only consumes the target's turn when the attacker moved first)
-      const flinchChance = getMoveFlinchChance(move);
-      if (flinchChance > 0 && attackerMovedFirst && Math.random() < flinchChance && defender.currentHp > 0) {
-        defender.flinch = true;
-        addLog(`${defenderName} flinched!`);
       }
     }
 

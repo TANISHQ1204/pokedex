@@ -12,7 +12,6 @@ import {
   applyStatusCondition,
   getMoveStatusEffect,
   getMoveStatChanges,
-  getMoveFlinchChance,
   getMoveSecondaryStatChange,
   getEffectiveSpeed,
   getTypeEffectiveness,
@@ -504,7 +503,7 @@ export default function Battle() {
         ? { side: 'cpu', pkmn: cpuPkmn, move: cpuMove, moveIdx: cpuMoveIdx }
         : { side: 'player', pkmn: playerPkmn, move: playerMove, moveIdx: selectedMoveIdx };
 
-      const fainted1 = await executeTurn(firstAttacker, secondAttacker, true);
+      const fainted1 = await executeTurn(firstAttacker, secondAttacker);
       if (fainted1) {
         await handleFaintCheck();
         return;
@@ -514,7 +513,7 @@ export default function Battle() {
 
       const currentSecondAttacker = getActivePokemon(secondAttacker.side);
       if (currentSecondAttacker && currentSecondAttacker.currentHp > 0) {
-        const fainted2 = await executeTurn(secondAttacker, firstAttacker, false);
+        const fainted2 = await executeTurn(secondAttacker, firstAttacker);
         if (fainted2) {
           await handleFaintCheck();
           return;
@@ -558,7 +557,7 @@ export default function Battle() {
     }
   };
 
-  const executeTurn = async (attackerInfo, defenderInfo, attackerMovedFirst = false) => {
+  const executeTurn = async (attackerInfo, defenderInfo) => {
     const attackerSide = attackerInfo.side;
     const defenderSide = defenderInfo.side;
     const move = attackerInfo.move;
@@ -779,13 +778,6 @@ export default function Battle() {
         }
       }
 
-      // Flinch chance (only consumes the target's turn if the attacker moved first)
-      const flinchChance = getMoveFlinchChance(move);
-      if (flinchChance > 0 && attackerMovedFirst && Math.random() < flinchChance && !freshDefender.isFainted) {
-        freshDefender.flinch = true;
-        addLog(`${defenderName} flinched!`);
-        syncTeamState(defenderSide);
-      }
     }
 
     if (damageRes.recoil > 0 && freshAttacker) {

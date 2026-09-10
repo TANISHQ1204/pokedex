@@ -1,18 +1,14 @@
 import {
   MOVE_STATUS_MAP,
-  MOVE_FLINCH_MAP,
   MOVE_STAT_DROP_MAP,
   getMoveStatusEffect,
-  getMoveFlinchChance,
   getMoveSecondaryStatChange,
   getMoveRecoilFraction,
   getFixedDamage,
   isFixedDamageMove,
   calculateDamage,
-  checkTurnStartStatus,
   applyStatusCondition,
   applyStatChange,
-  generateRandomTeam,
 } from '../src/game/battle.js';
 
 let passed = 0;
@@ -73,25 +69,7 @@ knownStatusMoves.forEach(([id, condition, chance]) => {
   assert(!!lookup, `getMoveStatusEffect(${id}) should resolve via MOVE_STATUS_MAP`);
 });
 
-// 2. Verify flinch moves data
-console.log('--- Flinch move data ---');
-const flinchMoves = [
-  ['air_slash', 0.30],
-  ['headbutt', 0.30],
-  ['rock_slide', 0.30],
-  ['iron_head', 0.30],
-  ['zen_headbutt', 0.20],
-  ['bite', 0.30],
-  ['dark_pulse', 0.20],
-  ['stomp', 0.30],
-  ['fake_out', 1.0],
-];
-flinchMoves.forEach(([id, chance]) => {
-  const got = getMoveFlinchChance({ id, name: id });
-  assert(Math.abs(got - chance) < 0.001, `getMoveFlinchChance(${id}) = ${got} (expected ${chance})`);
-});
-
-// 3. Verify stat-drop secondary effects data
+// 2. Verify stat-drop secondary effects data
 console.log('--- Stat-drop secondary effects ---');
 const statDropMoves = [
   ['bug_buzz', 'opponent', 'specialDefense', -1, 0.10],
@@ -120,7 +98,7 @@ statDropMoves.forEach(([id, target, stat, stages, chance]) => {
   }
 });
 
-// 4. Verify recoil moves
+// 3. Verify recoil moves
 console.log('--- Recoil data ---');
 const recoilMoves = [
   ['double_edge', 0.33],
@@ -137,7 +115,7 @@ recoilMoves.forEach(([id, frac]) => {
   assert(Math.abs(got - frac) < 0.01, `getMoveRecoilFraction(${id}) = ${got} (expected ${frac})`);
 });
 
-// 5. Fixed-damage moves
+// 4. Fixed-damage moves
 console.log('--- Fixed damage moves ---');
 const dragonRage = { id: 'dragon_rage', name: 'Dragon Rage', type: 'dragon', power: 0, category: 'special' };
 const superFang = { id: 'super_fang', name: 'Super Fang', type: 'normal', power: 0, category: 'physical' };
@@ -164,7 +142,7 @@ assert(dr.damage === 40, `Dragon Rage damage calc = 40 (got ${dr.damage})`);
 const sf = calculateDamage(attacker, defender, superFang);
 assert(sf.damage === 75, `Super Fang halves current HP 150 -> 75 (got ${sf.damage})`);
 
-// 6. Secondary-effect trigger rate simulation
+// 5. Secondary-effect trigger rate simulation
 console.log('--- Secondary effect trigger rate simulation (10,000 samples each) ---');
 const TRIALS = 10000;
 
@@ -195,17 +173,6 @@ simulateStatus('scald', 'burn', 0.30);
 simulateStatus('inferno', 'burn', 1.0);
 simulateStatus('thunder', 'paralysis', 0.30);
 
-function simulateFlinch(moveId, chance) {
-  let hits = 0;
-  for (let i = 0; i < TRIALS; i++) {
-    if (Math.random() < chance) hits++;
-  }
-  const rate = hits / TRIALS;
-  assert(Math.abs(rate - chance) < 0.05, `${moveId}: ~${chance * 100}% flinch rate measured ${(rate * 100).toFixed(2)}%`);
-}
-simulateFlinch('air_slash', 0.30);
-simulateFlinch('rock_slide', 0.30);
-
 function simulateStatDrop(moveId, chance) {
   let hits = 0;
   for (let i = 0; i < TRIALS; i++) {
@@ -217,39 +184,7 @@ function simulateStatDrop(moveId, chance) {
 simulateStatDrop('crunch', 0.20);
 simulateStatDrop('bug_buzz', 0.10);
 
-// 7. Verify checkTurnStartStatus consumes flinch flag
-console.log('--- Flinch flag consumption ---');
-const stubborn = {
-  name: 'Pikachu',
-  types: ['electric'],
-  stats: { hp: 100, attack: 55, defense: 40, specialAttack: 50, specialDefense: 50, speed: 90 },
-  currentHp: 100,
-  maxHp: 100,
-  status: 'none',
-  flinch: true,
-};
-const flinchRes = checkTurnStartStatus(stubborn);
-assert(flinchRes.cantMove === true && flinchRes.flinched === true, 'checkTurnStartStatus blocks move when flinch=true');
-assert(stubborn.flinch === false, 'flinch flag is consumed (reset to false) after check');
-
-const noFlinch = {
-  name: 'Pikachu',
-  types: ['electric'],
-  stats: { hp: 100, attack: 55, defense: 40, specialAttack: 50, specialDefense: 50, speed: 90 },
-  currentHp: 100,
-  maxHp: 100,
-  status: 'none',
-  flinch: false,
-};
-const normalRes = checkTurnStartStatus(noFlinch);
-assert(normalRes.cantMove === false, 'checkTurnStartStatus allows move when flinch=false');
-
-// 8. Teams initialize with flinch flag false
-console.log('--- Team initialization ---');
-const team = generateRandomTeam(null, 3);
-assert(team.every((p) => p.flinch === false), 'All generated team members initialize flinch=false');
-
-// 9. Verify MOVE_STATUS_MAP status-category moves keep full accuracy for roll
+// 7. Verify MOVE_STATUS_MAP status-category moves keep full accuracy for roll
 console.log('--- Static status move accuracy in spec ---');
 assert(MOVE_STATUS_MAP.thunder_wave.accuracy === 0.90, 'Thunder Wave spec keeps 90% accuracy');
 assert(MOVE_STATUS_MAP.will_o_wisp.accuracy === 0.85, 'Will-O-Wisp spec keeps 85% accuracy');
