@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { Component, useEffect, useState } from 'react';
 import pokemonList from '../data/pokemon.json' with { type: 'json' };
 import speciesMeta from '../data/speciesMeta.json' with { type: 'json' };
 import {
@@ -19,6 +19,60 @@ import {
   RARE_BONUS,
   SHINY_BONUS,
 } from '../game/mysteryDraft';
+
+class DraftErrorBoundary extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div
+          style={{
+            padding: '2rem',
+            borderRadius: '0.75rem',
+            background: '#1e293b',
+            border: '1px solid #ef4444',
+            textAlign: 'center',
+            maxWidth: 600,
+            margin: '2rem auto',
+          }}
+        >
+          <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>⚠️</div>
+          <h2 style={{ color: '#f8fafc', margin: '0 0 0.5rem 0', fontSize: '1.2rem' }}>
+            Something went wrong
+          </h2>
+          <p style={{ color: '#94a3b8', fontSize: '0.9rem', margin: '0 0 1rem 0' }}>
+            The draft encountered an unexpected error. Your session data may be lost.
+          </p>
+          <button
+            onClick={() => {
+              try { localStorage.removeItem(DRAFT_STORAGE_KEY); } catch (_) {}
+              window.location.reload();
+            }}
+            style={{
+              padding: '0.7rem 1.5rem',
+              borderRadius: '0.5rem',
+              border: 'none',
+              background: 'linear-gradient(90deg, #0284c7, #0369a1)',
+              color: '#ffffff',
+              fontWeight: 900,
+              fontSize: '0.95rem',
+              cursor: 'pointer',
+            }}
+          >
+            Reload Page
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 const MAX_GENS = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
@@ -681,6 +735,14 @@ export default function MysteryDraft() {
     saveDraftState({ phase, session, lastSetup });
   }, [phase, session, lastSetup]);
 
+  const showSummary = phase === 'playing' && session && session.status === 'summary';
+  const showPlaying = phase === 'playing' && session && session.status !== 'summary';
+
+  if (phase === 'playing' && !session) {
+    setPhase('setup');
+    return null;
+  }
+
   return (
     <div className="page-container" style={{ maxWidth: 1000, margin: '0 auto' }}>
       <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
@@ -692,17 +754,19 @@ export default function MysteryDraft() {
         </p>
       </div>
 
-      {phase === 'setup' && (
-        <SetupScreen initial={lastSetup} onStart={handleStart} />
-      )}
+      <DraftErrorBoundary key={showSummary ? 'summary' : 'playing'}>
+        {phase === 'setup' && (
+          <SetupScreen initial={lastSetup} onStart={handleStart} />
+        )}
 
-      {phase === 'playing' && session && session.status !== 'summary' && (
-        <PlayingView session={session} setSession={setSession} onExit={handlePlayAgain} />
-      )}
+        {showPlaying && (
+          <PlayingView session={session} setSession={setSession} onExit={handlePlayAgain} />
+        )}
 
-      {phase === 'playing' && session && session.status === 'summary' && (
-        <SummaryView session={session} onPlayAgain={handlePlayAgain} />
-      )}
+        {showSummary && (
+          <SummaryView session={session} onPlayAgain={handlePlayAgain} />
+        )}
+      </DraftErrorBoundary>
 
       {session && session.error && (
         <div
@@ -726,6 +790,13 @@ export default function MysteryDraft() {
 
 /* Helper views are defined lazily below (function hoisting keeps this file tidy). */
 function PlayingView({ session, setSession, onExit }) {
+  if (session.status === 'summary' || session.queueIndex >= session.queue.length) {
+    return (
+      <div className="card" style={{ marginTop: 0, textAlign: 'center' }}>
+        <p style={{ color: '#94a3b8', fontWeight: 700 }}>All auctions are complete — loading summary...</p>
+      </div>
+    );
+  }
   const current = session.queue[session.queueIndex];
   const actor = session.status === 'reveal' ? nextActor(session) : null;
   const playerMap = { [session.players[0].id]: session.players[0].name, [session.players[1].id]: session.players[1].name };
@@ -1083,7 +1154,7 @@ function SummaryView({ session, onPlayAgain }) {
                 SCORE BREAKDOWN
               </div>
               <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', marginBottom: '0.6rem' }}>
-                <ScoreChip label="BST" value={`${score.bst}`} color="#38bdf8" detail={`avg ${score.won.length > 0 ? Math.round(score.bst / score.won.length) : 0}/mon`} />
+                <ScoreChip label="BST" value={`${score.bst}`} color="#38bdf8" detail={`avg ${player.won.length > 0 ? Math.round(score.bst / player.won.length) : 0}/mon`} />
                 <ScoreChip label="Types" value={score.typeBonus} color="#4ade80" detail={`${score.typeCoverage} × ${TYPE_COVERAGE_BONUS}`} />
                 <ScoreChip label="Rare" value={score.rareBonus} color="#f472b6" detail={`${score.rare} × ${RARE_BONUS}`} />
                 <ScoreChip label="Shiny" value={score.shinyBonus} color="#fbbf24" detail={`${score.shiny} × ${SHINY_BONUS}`} />
