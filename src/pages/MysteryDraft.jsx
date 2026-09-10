@@ -10,9 +10,38 @@ import {
   nextActor,
   revealAttribute,
   settleAuction,
+  baseStatTotal,
+  teamScoreBreakdown,
+  pickWinner,
+  strongestPick,
+  weakestPick,
+  TYPE_COVERAGE_BONUS,
+  RARE_BONUS,
+  SHINY_BONUS,
 } from '../game/mysteryDraft';
 
 const MAX_GENS = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+
+const DRAFT_STORAGE_KEY = 'pokedex_mystery_draft_state';
+
+function saveDraftState(data) {
+  try {
+    localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(data));
+  } catch (_) { /* quota exceeded or private mode — ignore */ }
+}
+
+function loadDraftState() {
+  try {
+    const raw = localStorage.getItem(DRAFT_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch (_) {
+    return null;
+  }
+}
+
+function clearDraftState() {
+  try { localStorage.removeItem(DRAFT_STORAGE_KEY); } catch (_) { /* ignore */ }
+}
 
 const ATTR_COLORS = {
   name: '#38bdf8',
@@ -56,7 +85,7 @@ function AttributeChip({ attrId, used, active, onClick, size = 'md' }) {
   return chip;
 }
 
-function PlayerPanel({ player, highlight, subtitle }) {
+function PlayerPanel({ player, highlight, subtitle, blind }) {
   return (
     <div
       className="card"
@@ -116,20 +145,21 @@ function PlayerPanel({ player, highlight, subtitle }) {
           {player.won.map((entry, i) => (
             <span
               key={`${entry.id}-${i}`}
-              title={`#${entry.id} ${entry.name}${entry.variant === 'shiny' ? ' (shiny)' : ''}`}
+              title={blind ? 'Mystery Pokemon — revealed at the end' : `#${entry.id} ${entry.name} · BST ${entry.bst ?? baseStatTotal(entry)}${entry.variant === 'shiny' ? ' (shiny)' : ''}`}
               style={{
                 width: 34,
                 height: 34,
                 borderRadius: '50%',
                 background: '#0f172a',
-                border: entry.variant === 'shiny' ? '2px solid #fbbf24' : '1px solid #334155',
+                border: blind ? '2px dashed #f59e0b' : entry.variant === 'shiny' ? '2px solid #fbbf24' : '1px solid #334155',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 overflow: 'hidden',
+                fontSize: '0.95rem',
               }}
             >
-              <img src={entry.sprite} alt={entry.name} style={{ width: 28, height: 28, objectFit: 'contain' }} />
+              {blind ? '❓' : <img src={entry.sprite} alt={entry.name} style={{ width: 28, height: 28, objectFit: 'contain' }} />}
             </span>
           ))}
           {player.won.length === 0 && (
@@ -252,6 +282,7 @@ function SetupScreen({ initial, onStart }) {
   const [nameB, setNameB] = useState(initial?.nameB || '');
   const [budget, setBudget] = useState(initial ? String(initial.budget) : '1000');
   const [maxGen, setMaxGen] = useState(initial?.maxGen ?? 9);
+  const [blind, setBlind] = useState(initial?.blind ?? false);
   const [error, setError] = useState('');
 
   const handleStart = () => {
@@ -271,7 +302,7 @@ function SetupScreen({ initial, onStart }) {
       return;
     }
     setError('');
-    onStart({ nameA: a, nameB: b, budget: bud, maxGen });
+    onStart({ nameA: a, nameB: b, budget: bud, maxGen, blind });
   };
 
   return (
@@ -282,7 +313,7 @@ function SetupScreen({ initial, onStart }) {
         </div>
         <h2 style={{ margin: 0, fontSize: '1.5rem', color: '#f8fafc' }}>Mystery Draft Setup</h2>
         <p style={{ margin: '0.4rem 0 0 0', color: '#94a3b8', fontSize: '0.9rem' }}>
-          The arbitrator runs this screen. Randomly queue 12 mystery Pokemon — legendaries &amp; mythicals are included with equal weight, and ~15% of drafts are shiny. Players alternate revealing ONE attribute clue each, then verbally bid their budget — each team caps at 6 Pokemon and $0 (free) bids are allowed.
+          The arbitrator runs this screen. Randomly queue 12 mystery Pokemon — legendaries &amp; mythicals are included with equal weight, and ~15% of drafts are shiny. Players alternate revealing ONE attribute clue each, then verbally bid their budget — each team cap at 6 Pokemon and $0 (free) bids are allowed. Enable 🔒 Blind Mode to keep every identity hidden until the final reveal.
         </p>
       </div>
 
@@ -351,6 +382,69 @@ function SetupScreen({ initial, onStart }) {
               Gen {g}
             </button>
           ))}
+        </div>
+      </div>
+
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.9rem',
+          marginBottom: '1.25rem',
+          padding: '0.9rem 1rem',
+          borderRadius: '0.6rem',
+          background: blind ? 'rgba(217, 119, 6, 0.12)' : '#1e293b',
+          border: blind ? '1px solid #f59e0b' : '1px solid #334155',
+          cursor: 'pointer',
+          userSelect: 'none',
+        }}
+        role="button"
+        tabIndex={0}
+        onClick={() => setBlind((b) => !b)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            setBlind((b) => !b);
+          }
+        }}
+      >
+        <div
+          style={{
+            width: 44,
+            height: 44,
+            borderRadius: '0.6rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '1.35rem',
+            flexShrink: 0,
+            background: blind ? 'rgba(245, 158, 11, 0.2)' : '#0f172a',
+          }}
+        >
+          {blind ? '🙈' : '👁️'}
+        </div>
+        <div style={{ flex: 1 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <span style={{ fontWeight: 900, color: '#f8fafc', fontSize: '1rem' }}>Blind Mode</span>
+            <span
+              style={{
+                fontSize: '0.7rem',
+                fontWeight: 800,
+                color: blind ? '#0f172a' : '#94a3b8',
+                textTransform: 'uppercase',
+                letterSpacing: '0.06em',
+                padding: '0.15rem 0.55rem',
+                borderRadius: '1rem',
+                background: blind ? '#f59e0b' : '#334155',
+              }}
+            >
+              {blind ? 'On' : 'Off'}
+            </span>
+          </div>
+          <div style={{ fontSize: '0.82rem', color: blind ? '#fcd34d' : '#94a3b8', marginTop: '0.2rem', lineHeight: '1.35' }}>
+            Nobody sees the Pokemon — including the arbitrator — until the final summary.
+            Reveals, auctions, and budgets play exactly the same; only the identity is hidden.
+          </div>
         </div>
       </div>
 
@@ -508,11 +602,13 @@ function BidPanel({ state, onSettle }) {
   );
 }
 
-function ResultBanner({ result, playerMap }) {
+function ResultBanner({ result, playerMap, blind }) {
   if (!result || !result.entry) return null;
   const label = result.noSale
     ? 'No sale — nobody claimed it.'
-    : `${playerMap[result.winnerId]} won #${String(result.entry.id).padStart(3, '0')} ${result.entry.name} for $${result.amount}`;
+    : blind
+      ? `${playerMap[result.winnerId]} won a mystery Pokemon for $${result.amount}`
+      : `${playerMap[result.winnerId]} won #${String(result.entry.id).padStart(3, '0')} ${result.entry.name} for $${result.amount}`;
   return (
     <div
       style={{
@@ -537,17 +633,53 @@ export default function MysteryDraft() {
   const [lastSetup, setLastSetup] = useState(null);
   const [session, setSession] = useState(null);
 
-  const handleStart = ({ nameA, nameB, budget, maxGen }) => {
-    setLastSetup({ nameA, nameB, budget, maxGen });
+  const handleStart = ({ nameA, nameB, budget, maxGen, blind }) => {
+    setLastSetup({ nameA, nameB, budget, maxGen, blind });
     const queue = draftQueue(pokemonList, speciesMeta, maxGen, 12);
-    setSession(createSession({ playerNames: [nameA, nameB], budget, queue }));
+    setSession(createSession({ playerNames: [nameA, nameB], budget, queue, blind }));
     setPhase('playing');
   };
 
   const handlePlayAgain = () => {
+    clearDraftState();
     setSession(null);
     setPhase('setup');
   };
+
+  useEffect(() => {
+    // Mirror the CPU battle's refresh-safe persistence: a full browser refresh
+    // (F5 / Ctrl+R) always starts a fresh draft; only SPA navigation (tab/route
+    // switches) restores the in-progress session.
+    let pageWasReloaded = false;
+    try {
+      const nav = window.performance?.getEntriesByType?.('navigation')?.[0];
+      pageWasReloaded = Boolean(nav && nav.type === 'reload');
+    } catch (_) {
+      /* navigation timing unavailable — ignore */
+    }
+    if (pageWasReloaded) {
+      clearDraftState();
+    }
+
+    const saved = loadDraftState();
+    if (saved && saved.session && saved.session.status && saved.session.status !== 'summary') {
+      setPhase(saved.phase || 'playing');
+      setLastSetup(saved.lastSetup || null);
+      setSession(saved.session);
+    } else {
+      clearDraftState();
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!session) return;
+    if (phase === 'setup') return;
+    if (session.status === 'summary') {
+      clearDraftState();
+      return;
+    }
+    saveDraftState({ phase, session, lastSetup });
+  }, [phase, session, lastSetup]);
 
   return (
     <div className="page-container" style={{ maxWidth: 1000, margin: '0 auto' }}>
@@ -597,6 +729,7 @@ function PlayingView({ session, setSession, onExit }) {
   const current = session.queue[session.queueIndex];
   const actor = session.status === 'reveal' ? nextActor(session) : null;
   const playerMap = { [session.players[0].id]: session.players[0].name, [session.players[1].id]: session.players[1].name };
+  const blind = session.blind;
 
   const handleReveal = (attrId) => {
     if (actor) setSession(revealAttribute(session, actor.playerId, attrId));
@@ -628,10 +761,12 @@ function PlayingView({ session, setSession, onExit }) {
               const winnerId = session.players.find((p) => p.won.includes(entry));
               if (winnerId) {
                 bg = '#166534';
-                title = `${winnerId.name} won #${entry.id} ${entry.name}`;
+                title = blind
+                  ? `${winnerId.name} won a mystery Pokemon`
+                  : `${winnerId.name} won #${entry.id} ${entry.name}`;
               } else {
                 bg = '#7f1d1d';
-                title = `No sale — #${entry.id} ${entry.name}`;
+                title = blind ? 'No sale — mystery Pokemon' : `No sale — #${entry.id} ${entry.name}`;
               }
             }
             return (
@@ -667,7 +802,7 @@ function PlayingView({ session, setSession, onExit }) {
         </button>
       </div>
 
-      <ResultBanner result={session.lastResult} playerMap={playerMap} />
+      <ResultBanner result={session.lastResult} playerMap={playerMap} blind={session.blind} />
 
       {/* Player panels */}
       <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
@@ -677,6 +812,7 @@ function PlayingView({ session, setSession, onExit }) {
             player={p}
             highlight={actor && actor.playerId === p.id}
             subtitle={actor && actor.playerId === p.id ? '🎯 Your turn to reveal' : ''}
+            blind={session.blind}
           />
         ))}
       </div>
@@ -755,9 +891,34 @@ function PlayingView({ session, setSession, onExit }) {
         </>
       )}
 
-      {/* Arbitrator-only memo */}
+      {/* Arbitrator-only memo — swapped for a lock notice in blind mode */}
       <div style={{ marginTop: '1rem' }}>
-        <ReferencePanel entry={current} />
+        {blind ? (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.75rem',
+              padding: '0.9rem 1rem',
+              borderRadius: '0.6rem',
+              background: 'rgba(245, 158, 11, 0.08)',
+              border: '1px dashed #f59e0b',
+              color: '#fcd34d',
+            }}
+          >
+            <span style={{ fontSize: '1.4rem' }}>🙈</span>
+            <div>
+              <div style={{ fontWeight: 900, fontSize: '0.92rem' }}>
+                Blind mode active — even the arbitrator is in the dark
+              </div>
+              <div style={{ fontSize: '0.82rem', color: '#b45309', marginTop: '0.15rem' }}>
+                Every Pokemon stays hidden until the final summary. Bid on the clues alone!
+              </div>
+            </div>
+          </div>
+        ) : (
+          <ReferencePanel entry={current} />
+        )}
       </div>
     </>
   );
@@ -809,19 +970,41 @@ function RevealedList({ state }) {
 }
 
 function SummaryView({ session, onPlayAgain }) {
-  const champion = [...session.players].sort((a, b) => {
-    if (b.budget !== a.budget) return b.budget - a.budget;
-    return b.won.length - a.won.length;
-  })[0];
+  const champion = pickWinner(session.players);
+  const championScore = champion ? teamScoreBreakdown(champion) : null;
+  const strongestAll = strongestPick(
+    session.players.length > 0
+      ? { won: session.players.flatMap((p) => p.won) }
+      : null
+  );
+  const playerScores = session.players.map((p) => ({ player: p, score: teamScoreBreakdown(p) }));
 
   return (
     <div>
       <div className="card" style={{ marginTop: 0, border: '2px solid #f59e0b', textAlign: 'center' }}>
         <h2 style={{ margin: '0 0 0.25rem 0', color: '#f8fafc', fontSize: '1.6rem' }}>🏁 Auction Complete</h2>
+        {session.blind && (
+          <div
+            style={{
+              display: 'inline-block',
+              marginBottom: '0.6rem',
+              padding: '0.3rem 0.9rem',
+              borderRadius: '2rem',
+              background: 'rgba(245, 158, 11, 0.18)',
+              border: '1px dashed #f59e0b',
+              color: '#fcd34d',
+              fontWeight: 800,
+              fontSize: '0.85rem',
+            }}
+          >
+            🔓 Blind mode — every mystery Pokemon revealed at last!
+          </div>
+        )}
         <p style={{ margin: 0, color: '#94a3b8', fontSize: '0.95rem' }}>
-          {session.queue.length} mystery Pokemon were on the block.
+          {session.queue.length} mystery Pokemon were on the block. The winner is decided by total team
+          strength — combined base stats (BST), type coverage, and rarity. Budget is informational only.
         </p>
-        {session.players.length > 0 && champion && (
+        {session.players.length > 0 && champion && championScore && (
           <div
             style={{
               display: 'inline-block',
@@ -835,52 +1018,162 @@ function SummaryView({ session, onPlayAgain }) {
               fontSize: '0.9rem',
             }}
           >
-            🏆 {champion.name} finishes with the most unspent budget (${champion.budget})
+            🏆 {champion.name} wins — best team score of {championScore.total} points
           </div>
         )}
+
+        <div style={{ marginTop: '0.9rem', textAlign: 'left' }}>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.75rem',
+              padding: '0.75rem 1rem',
+              borderRadius: '0.6rem',
+              background: 'rgba(30, 41, 59, 0.7)',
+              border: '1px solid #334155',
+            }}
+          >
+            <span style={{ fontSize: '1.1rem' }}>💎</span>
+            <span style={{ color: '#cbd5e1', fontWeight: 700, fontSize: '0.9rem' }}>
+              Strongest single Pokemon of the session:
+            </span>
+            {strongestAll && strongestAll.entry ? (
+              <span style={{ color: '#f8fafc', fontWeight: 900, fontSize: '0.95rem' }}>
+                #{String(strongestAll.entry.id).padStart(3, '0')} {strongestAll.entry.name}
+                {strongestAll.entry.variant === 'shiny' ? ' ★' : ''} · BST {strongestAll.bst}
+              </span>
+            ) : (
+              <span style={{ color: '#64748b', fontSize: '0.9rem' }}>No Pokemon drafted</span>
+            )}
+          </div>
+        </div>
       </div>
 
       <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginTop: '1rem' }}>
-        {session.players.map((p) => {
+        {playerScores.map(({ player, score }) => {
+          const mvp = strongestPick(player);
+          const weak = weakestPick(player);
           return (
-            <div className="card" key={p.id} style={{ marginTop: 0, flex: 1, minWidth: 280 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-                <div style={{ fontWeight: 900, fontSize: '1.1rem', color: '#f8fafc' }}>{p.name}</div>
-                <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: '0.65rem', color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase' }}>Final Budget</div>
-                  <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '1.3rem', fontWeight: 800, color: '#4ade80' }}>${p.budget}</div>
+            <div
+              className="card"
+              key={player.id}
+              style={{
+                marginTop: 0,
+                flex: 1,
+                minWidth: 300,
+                border: champion && champion.id === player.id ? '2px solid #f59e0b' : '1px solid #334155',
+                boxShadow: champion && champion.id === player.id ? '0 0 18px rgba(245, 158, 11, 0.25)' : 'none',
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                <div style={{ fontWeight: 900, fontSize: '1.1rem', color: '#f8fafc' }}>
+                  {player.name}
+                  {champion && champion.id === player.id && (
+                    <span style={{ marginLeft: '0.5rem', fontSize: '0.8rem', color: '#fbbf24' }}>🏆 WINNER</span>
+                  )}
+                </div>
+                <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '1.4rem', fontWeight: 800, color: '#fbbf24', background: 'rgba(245, 158, 11, 0.12)', border: '1px solid #f59e0b', borderRadius: '0.5rem', padding: '0.1rem 0.7rem' }}>
+                  {score.total} pts
                 </div>
               </div>
 
+              {/* Score breakdown */}
               <div style={{ fontSize: '0.7rem', color: '#94a3b8', fontWeight: 700, marginBottom: '0.4rem' }}>
-                POKEMON WON ({p.won.length})
+                SCORE BREAKDOWN
               </div>
-              {p.won.length === 0 ? (
+              <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', marginBottom: '0.6rem' }}>
+                <ScoreChip label="BST" value={`${score.bst}`} color="#38bdf8" detail={`avg ${score.won.length > 0 ? Math.round(score.bst / score.won.length) : 0}/mon`} />
+                <ScoreChip label="Types" value={score.typeBonus} color="#4ade80" detail={`${score.typeCoverage} × ${TYPE_COVERAGE_BONUS}`} />
+                <ScoreChip label="Rare" value={score.rareBonus} color="#f472b6" detail={`${score.rare} × ${RARE_BONUS}`} />
+                <ScoreChip label="Shiny" value={score.shinyBonus} color="#fbbf24" detail={`${score.shiny} × ${SHINY_BONUS}`} />
+              </div>
+
+              <div style={{ fontSize: '0.7rem', color: '#94a3b8', fontWeight: 700, marginBottom: '0.3rem' }}>
+                POKEMON WON ({player.won.length}/{MAX_TEAM_SIZE})
+              </div>
+              {player.won.length === 0 ? (
                 <div style={{ color: '#64748b', fontStyle: 'italic', fontSize: '0.85rem' }}>Won nothing this session.</div>
               ) : (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: '0.5rem' }}>
-                  {p.won.map((entry, i) => (
-                    <div
-                      key={`${entry.id}-${i}`}
-                      style={{
-                        background: '#0f172a',
-                        border: entry.variant === 'shiny' ? '2px solid #fbbf24' : '1px solid #334155',
-                        borderRadius: '0.6rem',
-                        padding: '0.5rem',
-                        textAlign: 'center',
-                      }}
-                    >
-                      <img src={entry.sprite} alt={entry.name} style={{ width: 52, height: 52, objectFit: 'contain' }} />
-                      <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#f8fafc' }}>
-                        #{String(entry.id).padStart(3, '0')} {entry.name}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '0.5rem' }}>
+                  {player.won.map((entry, i) => {
+                    const isMvp = mvp && mvp.entry.id === entry.id;
+                    const isWeak = weak && weak.entry.id === entry.id && player.won.length > 1;
+                    return (
+                      <div
+                        key={`${entry.id}-${i}`}
+                        title={`#${entry.id} ${entry.name} · BST ${entry.bst ?? baseStatTotal(entry)}`}
+                        style={{
+                          background: '#0f172a',
+                          border: entry.variant === 'shiny' ? '2px solid #fbbf24' : '1px solid #334155',
+                          borderRadius: '0.6rem',
+                          padding: '0.5rem',
+                          textAlign: 'center',
+                          position: 'relative',
+                        }}
+                      >
+                        <img src={entry.sprite} alt={entry.name} style={{ width: 52, height: 52, objectFit: 'contain' }} />
+                        <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#f8fafc' }}>
+                          #{String(entry.id).padStart(3, '0')} {entry.name}
+                        </div>
+                        <div style={{ fontSize: '0.72rem', fontWeight: 700, color: '#38bdf8' }}>BST {entry.bst ?? baseStatTotal(entry)}</div>
+                        {entry.variant === 'shiny' && (
+                          <div style={{ fontSize: '0.65rem', fontWeight: 900, color: '#fbbf24' }}>★ SHINY</div>
+                        )}
+                        {isMvp && (
+                          <div style={{ position: 'absolute', top: -8, right: -8, background: '#b45309', color: '#fef3c7', fontSize: '0.6rem', fontWeight: 900, padding: '0.15rem 0.45rem', borderRadius: '1rem', border: '1px solid #fbbf24' }}>
+                            ⭐ MVP
+                          </div>
+                        )}
+                        {isWeak && (
+                          <div style={{ position: 'absolute', top: -8, left: -8, background: '#7f1d1d', color: '#fecaca', fontSize: '0.6rem', fontWeight: 900, padding: '0.15rem 0.45rem', borderRadius: '1rem', border: '1px solid #ef4444' }}>
+                            weakest
+                          </div>
+                        )}
                       </div>
-                      {entry.variant === 'shiny' && (
-                        <div style={{ fontSize: '0.65rem', fontWeight: 900, color: '#fbbf24' }}>★ SHINY</div>
-                      )}
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
+
+              {/* Type coverage + budget (info only) */}
+              <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginTop: '0.75rem' }}>
+                <div>
+                  <div style={{ fontSize: '0.7rem', color: '#94a3b8', fontWeight: 700, marginBottom: '0.3rem' }}>
+                    TYPE COVERAGE ({score.typeCoverage})
+                  </div>
+                  <div style={{ display: 'flex', gap: '0.3rem', flexWrap: 'wrap' }}>
+                    {score.types.length === 0 ? (
+                      <span style={{ color: '#64748b', fontStyle: 'italic', fontSize: '0.8rem' }}>None</span>
+                    ) : (
+                      score.types.map((t) => (
+                        <span
+                          key={t}
+                          style={{
+                            textTransform: 'capitalize',
+                            fontSize: '0.72rem',
+                            fontWeight: 800,
+                            color: '#0f172a',
+                            background: '#4ade80',
+                            padding: '0.1rem 0.5rem',
+                            borderRadius: '0.4rem',
+                          }}
+                        >
+                          {t}
+                        </span>
+                      ))
+                    )}
+                  </div>
+                </div>
+                <div style={{ marginLeft: 'auto', textAlign: 'right' }}>
+                  <div style={{ fontSize: '0.65rem', color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase' }}>
+                    Budget — not a factor
+                  </div>
+                  <div style={{ fontSize: '0.85rem', color: '#cbd5e1', fontWeight: 700 }}>
+                    Spent ${player.startBudget - player.budget} / left ${player.budget}
+                  </div>
+                </div>
+              </div>
             </div>
           );
         })}
@@ -905,5 +1198,27 @@ function SummaryView({ session, onPlayAgain }) {
         </button>
       </div>
     </div>
+  );
+}
+
+function ScoreChip({ label, value, detail, color }) {
+  return (
+    <span
+      style={{
+        display: 'inline-flex',
+        flexDirection: 'column',
+        padding: '0.3rem 0.65rem',
+        borderRadius: '0.5rem',
+        background: 'rgba(15, 23, 42, 0.85)',
+        border: `1px solid ${color}`,
+        minWidth: 64,
+      }}
+    >
+      <span style={{ color, fontSize: '0.62rem', fontWeight: 800, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+        {label}
+      </span>
+      <span style={{ color: '#f8fafc', fontWeight: 900, fontSize: '0.95rem' }}>+{value}</span>
+      {detail && <span style={{ color: '#64748b', fontSize: '0.62rem', fontWeight: 700 }}>{detail}</span>}
+    </span>
   );
 }

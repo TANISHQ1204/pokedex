@@ -16,6 +16,25 @@ export const SHINY_CHANCE = 0.15;
 
 export const MAX_TEAM_SIZE = 6;
 
+// Winner-scoring weights: BST is the baseline, type coverage + rarity add taste.
+export const TYPE_COVERAGE_BONUS = 25; // points per distinct type on the team
+export const RARE_BONUS = 8; // points per Legendary/Mythical drafted
+export const SHINY_BONUS = 5; // points per shiny drafted
+
+/** Sum a Pokemon's six base stats (hp/atk/def/spa/spd/spe). */
+export function baseStatTotal(pkmn) {
+  const stats = pkmn && pkmn.stats;
+  if (!stats) return 0;
+  return (
+    Number(stats.hp) +
+    Number(stats.attack) +
+    Number(stats.defense) +
+    Number(stats.specialAttack) +
+    Number(stats.specialDefense) +
+    Number(stats.speed)
+  );
+}
+
 export function formatName(raw) {
   if (!raw) return '';
   return raw.charAt(0).toUpperCase() + raw.slice(1);
@@ -60,9 +79,88 @@ export function enrichEntry(pokemon, speciesMeta, isShiny) {
     genus: meta.genus || '',
     rarer: !!meta.rarer,
     types: pokemon.types,
+    bst: baseStatTotal(pokemon),
     variant: shiny ? 'shiny' : 'normal',
     sprite: shiny ? pokemon.sprites.shiny : pokemon.sprites.normal,
   };
+}
+
+/**
+ * Whole-team scoring used to declare the draft winner. Money played is NOT a
+ * factor — combining raw stats with type coverage and rarity keeps the whole
+ * team meaningful instead of rewarding whoever spent the least.
+ *
+ * Returns a breakdown of every scoring component.
+ */
+export function teamScoreBreakdown(player) {
+  const won = player.won || [];
+  const bst = won.reduce((acc, e) => acc + (Number(e.bst) || 0), 0);
+
+  const types = new Set();
+  won.forEach((e) => (e.types || []).forEach((t) => types.add(t.toLowerCase())));
+  const typeCoverage = types.size;
+
+  const rare = won.filter((e) => e.rarer).length;
+  const shiny = won.filter((e) => e.variant === 'shiny').length;
+
+  return {
+    bst,
+    typeCoverage,
+    rare,
+    shiny,
+    typeBonus: typeCoverage * TYPE_COVERAGE_BONUS,
+    rareBonus: rare * RARE_BONUS,
+    shinyBonus: shiny * SHINY_BONUS,
+    total: bst + typeCoverage * TYPE_COVERAGE_BONUS + rare * RARE_BONUS + shiny * SHINY_BONUS,
+    types: [...types],
+  };
+}
+
+/**
+ * Pick the draft winner from a list of players using whole-team score.
+ * Tie-breaks: more RARES, then more SHINIES, then best single-Pokemon BST.
+ * Returns null when every tiebreak is exhausted (a true draw).
+ */
+export function pickWinner(players) {
+  if (!players || players.length === 0) return null;
+
+  const ranked = [...players]
+    .map((p) => ({ player: p, score: teamScoreBreakdown(p) }))
+    .sort((a, b) => {
+      if (b.score.total !== a.score.total) return b.score.total - a.score.total;
+      if (b.score.rare !== a.score.rare) return b.score.rare - a.score.rare;
+      if (b.score.shiny !== a.score.shiny) return b.score.shiny - a.score.shiny;
+      const bestA = Math.max(0, ...a.player.won.map((e) => Number(e.bst) || 0));
+      const bestB = Math.max(0, ...b.player.won.map((e) => Number(e.bst) || 0));
+      if (bestB !== bestA) return bestB - bestA;
+      return 0;
+    });
+
+  if (ranked.length < 2) return ranked[0]?.player || null;
+  const first = ranked[0];
+  const second = ranked[1];
+  if (first.score.total !== second.score.total) return first.player;
+  if (first.score.rare !== second.score.rare) return first.player;
+  if (first.score.shiny !== second.score.shiny) return first.player;
+  return null;
+}
+
+/** Strongest single Pokemon + BST among a player's drafted team. */
+export function strongestPick(player) {
+  const won = player.won || [];
+  if (won.length === 0) return null;
+  return won
+    .map((e) => ({ entry: e, bst: Number(e.bst) || 0 }))
+    .sort((a, b) => b.bst - a.bst)[0];
+}
+
+/** Weakest single Pokemon + BST among a player's drafted team. */
+export function weakestPick(player) {
+  const won = player.won || [];
+  if (won.length === 0) return null;
+  return won
+    .map((e) => ({ entry: e, bst: Number(e.bst) || 0 }))
+    .sort((a, b) => a.bst - b.bst)[0];
 }
 
 export function draftQueue(pokemonList, speciesMeta, maxGen, count = 12, random = Math.random) {
@@ -75,10 +173,11 @@ export function draftQueue(pokemonList, speciesMeta, maxGen, count = 12, random 
   return shuffled.slice(0, count).map((p) => enrichEntry(p, speciesMeta, random() < SHINY_CHANCE));
 }
 
-export function createSession({ playerNames, budget, queue, firstPlayerId = 0 }) {
+export function createSession({ playerNames, budget, queue, firstPlayerId = 0, blind = false }) {
   return {
     queue,
     queueIndex: 0,
+    blind,
     players: playerNames.map((name, i) => ({
       id: i,
       name,
