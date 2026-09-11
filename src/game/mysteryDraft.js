@@ -314,8 +314,13 @@ export function revealAttribute(state, playerId, attributeId) {
     p.id === playerId ? { ...p, usedTokens: [...p.usedTokens, attributeId] } : p
   );
   // One reveal per Pokemon: record the single clue, then move straight to auction.
+  // Persist the hint onto the Pokemon's queue entry so the final summary can
+  // recap every clue — including no-sale Pokemon that never join a team.
+  const queue = state.queue.map((q, i) =>
+    i === state.queueIndex ? { ...q, hint: { playerId, attributeId } } : q
+  );
   const revealed = [{ playerId, attributeId }];
-  return { ...state, players, revealed, error: null, status: 'bid' };
+  return { ...state, queue, players, revealed, error: null, status: 'bid' };
 }
 
 export function settleAuction(state, { winnerId, amount }) {

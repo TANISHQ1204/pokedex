@@ -1120,6 +1120,8 @@ function SummaryView({ session, onPlayAgain }) {
 
       <SuperlativesSection sup={sup} entryLabel={entryLabel} hasAny={hasAny} />
 
+      <CluesRecap session={session} entryLabel={entryLabel} />
+
       <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginTop: '1rem' }}>
         {playerScores.map(({ player, score }) => {
           const mvp = strongestPick(player);
@@ -1356,6 +1358,92 @@ function SuperlativesSection({ sup, entryLabel, hasAny }) {
             <span style={{ color: '#f8fafc', fontWeight: 900, fontSize: '0.92rem' }}>{r.value}</span>
           </div>
         ))}
+      </div>
+    </div>
+  );
+}
+
+function CluesRecap({ session, entryLabel }) {
+  const wonBy = {};
+  session.players.forEach((p) =>
+    (p.won || []).forEach((w) => {
+      wonBy[`${w.id}:${w.variant}:${w.formKind || ''}`] = { player: p, entry: w };
+    })
+  );
+
+  return (
+    <div className="card" style={{ marginTop: '1rem', border: '2px solid #38bdf8' }}>
+      <div style={{ fontSize: '0.7rem', fontWeight: 800, color: '#38bdf8', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '0.6rem' }}>
+        🔎 Revealed Clue Recap
+      </div>
+      <div style={{ display: 'grid', gap: '0.4rem' }}>
+        {session.queue.map((entry, i) => {
+          const won = wonBy[`${entry.id}:${entry.variant}:${entry.formKind || ''}`];
+          const hint = entry.hint;
+          const attr = hint ? ATTRIBUTES.find((a) => a.id === hint.attributeId) : null;
+          const revealer = hint ? session.players.find((p) => p.id === hint.playerId) : null;
+          return (
+            <div
+              key={`${entry.id}-${entry.variant}-${i}`}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.6rem',
+                padding: '0.35rem 0.5rem',
+                borderRadius: '0.5rem',
+                background: '#0f172a',
+                border: '1px solid #1e293b',
+                flexWrap: 'wrap',
+              }}
+            >
+              <span style={{ color: '#64748b', fontWeight: 800, fontSize: '0.75rem', minWidth: 28, textAlign: 'center' }}>
+                {i + 1}
+              </span>
+              <img src={entry.sprite} alt={entry.name} style={{ width: 30, height: 30, objectFit: 'contain', flexShrink: 0 }} />
+              <span style={{ color: '#f8fafc', fontWeight: 800, fontSize: '0.85rem', flex: 1, minWidth: 140, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                {entryLabel(entry)}
+                {entry.rarer ? ' ⭐' : ''}{entry.variant === 'shiny' ? ' ✨' : ''}{entry.formKind ? ' ◆' : ''}
+              </span>
+              <span
+                style={{
+                  fontSize: '0.72rem',
+                  fontWeight: 800,
+                  color: won ? '#4ade80' : '#94a3b8',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.04em',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {won ? `Won by ${won.player.name}` : 'No sale'}
+              </span>
+              {hint && attr ? (
+                <span
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.35rem',
+                    padding: '0.2rem 0.55rem',
+                    borderRadius: '0.4rem',
+                    background: 'rgba(15, 23, 42, 0.9)',
+                    border: `1px solid ${ATTR_COLORS[attr.id] || '#38bdf8'}`,
+                    fontSize: '0.75rem',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  <span style={{ fontWeight: 800, color: ATTR_COLORS[attr.id] || '#38bdf8', textTransform: 'uppercase', fontSize: '0.66rem' }}>
+                    {attr.label}:
+                  </span>
+                  <span style={{ color: '#f8fafc', fontWeight: 800 }}>{getAttributeValue(entry, attr.id)}</span>
+                  {revealer && (
+                    <span style={{ color: '#64748b', fontSize: '0.68rem', fontWeight: 700 }}>by {revealer.name}</span>
+                  )}
+                </span>
+              ) : (
+                <span style={{ color: '#475569', fontSize: '0.72rem', fontStyle: 'italic' }}>No clue revealed</span>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
