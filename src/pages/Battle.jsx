@@ -570,7 +570,7 @@ export default function Battle() {
       return false;
     }
 
-    // 1. Check Turn-Start Status (Sleep, Freeze, Paralysis, Confusion, Flinch)
+    // 1. Check Turn-Start Status (Sleep, Freeze, Paralysis, Confusion)
     const turnStatusRes = checkTurnStartStatus(attacker, move);
     if (turnStatusRes.logs && turnStatusRes.logs.length > 0) {
       turnStatusRes.logs.forEach((log) => addLog(log.text, log.options || {}));
