@@ -1,5 +1,6 @@
 import pokemonList from '../src/data/pokemon.json' with { type: 'json' };
 import speciesMeta from '../src/data/speciesMeta.json' with { type: 'json' };
+import formsList from '../src/data/forms.json' with { type: 'json' };
 import {
   createSession,
   draftQueue,
@@ -24,13 +25,13 @@ function check(cond, msg) {
   }
 }
 
-console.log(`Pool sanity: all gens eligible ${getEligiblePool(pokemonList, speciesMeta, 9).length}`);
+console.log(`Pool sanity: all gens eligible ${getEligiblePool(pokemonList, formsList, speciesMeta, 9).length}`);
 
 for (let run = 0; run < 2000; run++) {
   const rng = seededRandom(run * 7919 + 13);
   const maxGen = 1 + Math.floor(rng() * 9);
   const budget = 50 + Math.floor(rng() * 2000);
-  const queue = draftQueue(pokemonList, speciesMeta, maxGen, 12, rng);
+  const queue = draftQueue(pokemonList, formsList, speciesMeta, maxGen, 12, rng);
   let state = createSession({ playerNames: ['A', 'B'], budget, queue });
 
   const revealCountTotal = { 0: 0, 1: 0 };
@@ -110,7 +111,7 @@ for (let run = 0; run < 2000; run++) {
 console.log('--- Expected flow trace (no-sale never, $0 bids, Gen 9) ---');
 {
   const rng = seededRandom(12345);
-  const queue = draftQueue(pokemonList, speciesMeta, 9, 12, rng);
+  const queue = draftQueue(pokemonList, formsList, speciesMeta, 9, 12, rng);
   let state = createSession({ playerNames: ['A', 'B'], budget: 500, queue });
   const perPoke = [];
   let leadOrder = [];

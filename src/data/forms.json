@@ -1,0 +1,6646 @@
+[
+  {
+    "id": 10001,
+    "dexNo": 386,
+    "name": "deoxys-attack",
+    "display": "Deoxys Attack",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 3,
+    "rarer": true,
+    "color": "red",
+    "genus": "DNA Pokémon",
+    "types": [
+      "psychic"
+    ],
+    "stats": {
+      "hp": 60,
+      "attack": 180,
+      "defense": 20,
+      "specialAttack": 180,
+      "specialDefense": 20,
+      "speed": 150
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10001.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10001.png"
+    },
+    "bst": 610
+  },
+  {
+    "id": 10002,
+    "dexNo": 386,
+    "name": "deoxys-defense",
+    "display": "Deoxys Defense",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 3,
+    "rarer": true,
+    "color": "red",
+    "genus": "DNA Pokémon",
+    "types": [
+      "psychic"
+    ],
+    "stats": {
+      "hp": 60,
+      "attack": 70,
+      "defense": 160,
+      "specialAttack": 70,
+      "specialDefense": 160,
+      "speed": 90
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10002.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10002.png"
+    },
+    "bst": 610
+  },
+  {
+    "id": 10003,
+    "dexNo": 386,
+    "name": "deoxys-speed",
+    "display": "Deoxys Speed",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 3,
+    "rarer": true,
+    "color": "red",
+    "genus": "DNA Pokémon",
+    "types": [
+      "psychic"
+    ],
+    "stats": {
+      "hp": 60,
+      "attack": 95,
+      "defense": 90,
+      "specialAttack": 95,
+      "specialDefense": 90,
+      "speed": 180
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10003.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10003.png"
+    },
+    "bst": 610
+  },
+  {
+    "id": 10004,
+    "dexNo": 413,
+    "name": "wormadam-sandy",
+    "display": "Wormadam (Sandy Cloak)",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 4,
+    "rarer": false,
+    "color": "green",
+    "genus": "Bagworm Pokémon",
+    "types": [
+      "bug",
+      "ground"
+    ],
+    "stats": {
+      "hp": 72,
+      "attack": 79,
+      "defense": 105,
+      "specialAttack": 59,
+      "specialDefense": 85,
+      "speed": 36
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10004.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10004.png"
+    },
+    "bst": 436
+  },
+  {
+    "id": 10005,
+    "dexNo": 413,
+    "name": "wormadam-trash",
+    "display": "Wormadam (Trash Cloak)",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 4,
+    "rarer": false,
+    "color": "green",
+    "genus": "Bagworm Pokémon",
+    "types": [
+      "bug",
+      "steel"
+    ],
+    "stats": {
+      "hp": 72,
+      "attack": 69,
+      "defense": 95,
+      "specialAttack": 69,
+      "specialDefense": 95,
+      "speed": 36
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10005.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10005.png"
+    },
+    "bst": 436
+  },
+  {
+    "id": 10006,
+    "dexNo": 492,
+    "name": "shaymin-sky",
+    "display": "Shaymin Sky",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 4,
+    "rarer": true,
+    "color": "green",
+    "genus": "Gratitude Pokémon",
+    "types": [
+      "grass",
+      "flying"
+    ],
+    "stats": {
+      "hp": 120,
+      "attack": 103,
+      "defense": 75,
+      "specialAttack": 120,
+      "specialDefense": 75,
+      "speed": 127
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10006.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10006.png"
+    },
+    "bst": 620
+  },
+  {
+    "id": 10007,
+    "dexNo": 487,
+    "name": "giratina-origin",
+    "display": "Giratina Origin",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 4,
+    "rarer": true,
+    "color": "black",
+    "genus": "Renegade Pokémon",
+    "types": [
+      "ghost",
+      "dragon"
+    ],
+    "stats": {
+      "hp": 180,
+      "attack": 120,
+      "defense": 100,
+      "specialAttack": 120,
+      "specialDefense": 100,
+      "speed": 90
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10007.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10007.png"
+    },
+    "bst": 710
+  },
+  {
+    "id": 10008,
+    "dexNo": 479,
+    "name": "rotom-heat",
+    "display": "Rotom Heat",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 4,
+    "rarer": false,
+    "color": "red",
+    "genus": "Plasma Pokémon",
+    "types": [
+      "electric",
+      "fire"
+    ],
+    "stats": {
+      "hp": 60,
+      "attack": 65,
+      "defense": 107,
+      "specialAttack": 105,
+      "specialDefense": 107,
+      "speed": 86
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10008.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10008.png"
+    },
+    "bst": 530
+  },
+  {
+    "id": 10009,
+    "dexNo": 479,
+    "name": "rotom-wash",
+    "display": "Rotom Wash",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 4,
+    "rarer": false,
+    "color": "red",
+    "genus": "Plasma Pokémon",
+    "types": [
+      "electric",
+      "water"
+    ],
+    "stats": {
+      "hp": 60,
+      "attack": 65,
+      "defense": 107,
+      "specialAttack": 105,
+      "specialDefense": 107,
+      "speed": 86
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10009.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10009.png"
+    },
+    "bst": 530
+  },
+  {
+    "id": 10010,
+    "dexNo": 479,
+    "name": "rotom-frost",
+    "display": "Rotom Frost",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 4,
+    "rarer": false,
+    "color": "red",
+    "genus": "Plasma Pokémon",
+    "types": [
+      "electric",
+      "ice"
+    ],
+    "stats": {
+      "hp": 60,
+      "attack": 65,
+      "defense": 107,
+      "specialAttack": 105,
+      "specialDefense": 107,
+      "speed": 86
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10010.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10010.png"
+    },
+    "bst": 530
+  },
+  {
+    "id": 10011,
+    "dexNo": 479,
+    "name": "rotom-fan",
+    "display": "Rotom Fan",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 4,
+    "rarer": false,
+    "color": "red",
+    "genus": "Plasma Pokémon",
+    "types": [
+      "electric",
+      "flying"
+    ],
+    "stats": {
+      "hp": 60,
+      "attack": 65,
+      "defense": 107,
+      "specialAttack": 105,
+      "specialDefense": 107,
+      "speed": 86
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10011.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10011.png"
+    },
+    "bst": 530
+  },
+  {
+    "id": 10012,
+    "dexNo": 479,
+    "name": "rotom-mow",
+    "display": "Rotom Mow",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 4,
+    "rarer": false,
+    "color": "red",
+    "genus": "Plasma Pokémon",
+    "types": [
+      "electric",
+      "grass"
+    ],
+    "stats": {
+      "hp": 60,
+      "attack": 65,
+      "defense": 107,
+      "specialAttack": 105,
+      "specialDefense": 107,
+      "speed": 86
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10012.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10012.png"
+    },
+    "bst": 530
+  },
+  {
+    "id": 10013,
+    "dexNo": 351,
+    "name": "castform-sunny",
+    "display": "Castform Sunny",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 3,
+    "rarer": false,
+    "color": "gray",
+    "genus": "Weather Pokémon",
+    "types": [
+      "fire"
+    ],
+    "stats": {
+      "hp": 84,
+      "attack": 70,
+      "defense": 70,
+      "specialAttack": 70,
+      "specialDefense": 70,
+      "speed": 70
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10013.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10013.png"
+    },
+    "bst": 434
+  },
+  {
+    "id": 10014,
+    "dexNo": 351,
+    "name": "castform-rainy",
+    "display": "Castform Rainy",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 3,
+    "rarer": false,
+    "color": "gray",
+    "genus": "Weather Pokémon",
+    "types": [
+      "water"
+    ],
+    "stats": {
+      "hp": 84,
+      "attack": 70,
+      "defense": 70,
+      "specialAttack": 70,
+      "specialDefense": 70,
+      "speed": 70
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10014.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10014.png"
+    },
+    "bst": 434
+  },
+  {
+    "id": 10015,
+    "dexNo": 351,
+    "name": "castform-snowy",
+    "display": "Castform Snowy",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 3,
+    "rarer": false,
+    "color": "gray",
+    "genus": "Weather Pokémon",
+    "types": [
+      "ice"
+    ],
+    "stats": {
+      "hp": 84,
+      "attack": 70,
+      "defense": 70,
+      "specialAttack": 70,
+      "specialDefense": 70,
+      "speed": 70
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10015.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10015.png"
+    },
+    "bst": 434
+  },
+  {
+    "id": 10017,
+    "dexNo": 555,
+    "name": "darmanitan-zen",
+    "display": "Darmanitan (Zen)",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 5,
+    "rarer": false,
+    "color": "red",
+    "genus": "Blazing Pokémon",
+    "types": [
+      "fire",
+      "psychic"
+    ],
+    "stats": {
+      "hp": 126,
+      "attack": 30,
+      "defense": 105,
+      "specialAttack": 140,
+      "specialDefense": 105,
+      "speed": 55
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10017.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10017.png"
+    },
+    "bst": 561
+  },
+  {
+    "id": 10018,
+    "dexNo": 648,
+    "name": "meloetta-pirouette",
+    "display": "Meloetta (Pirouette)",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 5,
+    "rarer": true,
+    "color": "white",
+    "genus": "Melody Pokémon",
+    "types": [
+      "normal",
+      "fighting"
+    ],
+    "stats": {
+      "hp": 120,
+      "attack": 128,
+      "defense": 90,
+      "specialAttack": 77,
+      "specialDefense": 77,
+      "speed": 128
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10018.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10018.png"
+    },
+    "bst": 620
+  },
+  {
+    "id": 10019,
+    "dexNo": 641,
+    "name": "tornadus-therian",
+    "display": "Tornadus Therian",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 5,
+    "rarer": true,
+    "color": "green",
+    "genus": "Cyclone Pokémon",
+    "types": [
+      "flying"
+    ],
+    "stats": {
+      "hp": 95,
+      "attack": 100,
+      "defense": 80,
+      "specialAttack": 110,
+      "specialDefense": 90,
+      "speed": 121
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10019.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10019.png"
+    },
+    "bst": 596
+  },
+  {
+    "id": 10020,
+    "dexNo": 642,
+    "name": "thundurus-therian",
+    "display": "Thundurus Therian",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 5,
+    "rarer": true,
+    "color": "blue",
+    "genus": "Bolt Strike Pokémon",
+    "types": [
+      "electric",
+      "flying"
+    ],
+    "stats": {
+      "hp": 95,
+      "attack": 105,
+      "defense": 70,
+      "specialAttack": 145,
+      "specialDefense": 80,
+      "speed": 101
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10020.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10020.png"
+    },
+    "bst": 596
+  },
+  {
+    "id": 10021,
+    "dexNo": 645,
+    "name": "landorus-therian",
+    "display": "Landorus Therian",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 5,
+    "rarer": true,
+    "color": "brown",
+    "genus": "Abundance Pokémon",
+    "types": [
+      "ground",
+      "flying"
+    ],
+    "stats": {
+      "hp": 107,
+      "attack": 145,
+      "defense": 90,
+      "specialAttack": 105,
+      "specialDefense": 80,
+      "speed": 91
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10021.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10021.png"
+    },
+    "bst": 618
+  },
+  {
+    "id": 10022,
+    "dexNo": 646,
+    "name": "kyurem-black",
+    "display": "Kyurem Black",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 5,
+    "rarer": true,
+    "color": "gray",
+    "genus": "Boundary Pokémon",
+    "types": [
+      "dragon",
+      "ice"
+    ],
+    "stats": {
+      "hp": 150,
+      "attack": 170,
+      "defense": 100,
+      "specialAttack": 120,
+      "specialDefense": 90,
+      "speed": 95
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10022.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10022.png"
+    },
+    "bst": 725
+  },
+  {
+    "id": 10023,
+    "dexNo": 646,
+    "name": "kyurem-white",
+    "display": "Kyurem White",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 5,
+    "rarer": true,
+    "color": "gray",
+    "genus": "Boundary Pokémon",
+    "types": [
+      "dragon",
+      "ice"
+    ],
+    "stats": {
+      "hp": 150,
+      "attack": 120,
+      "defense": 90,
+      "specialAttack": 170,
+      "specialDefense": 100,
+      "speed": 95
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10023.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10023.png"
+    },
+    "bst": 725
+  },
+  {
+    "id": 10024,
+    "dexNo": 647,
+    "name": "keldeo-resolute",
+    "display": "Keldeo (Resolute)",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 5,
+    "rarer": true,
+    "color": "yellow",
+    "genus": "Colt Pokémon",
+    "types": [
+      "water",
+      "fighting"
+    ],
+    "stats": {
+      "hp": 109,
+      "attack": 72,
+      "defense": 90,
+      "specialAttack": 129,
+      "specialDefense": 90,
+      "speed": 108
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10024.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10024.png"
+    },
+    "bst": 598
+  },
+  {
+    "id": 10026,
+    "dexNo": 681,
+    "name": "aegislash-blade",
+    "display": "Aegislash Blade",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 6,
+    "rarer": false,
+    "color": "brown",
+    "genus": "Royal Sword Pokémon",
+    "types": [
+      "steel",
+      "ghost"
+    ],
+    "stats": {
+      "hp": 72,
+      "attack": 140,
+      "defense": 50,
+      "specialAttack": 140,
+      "specialDefense": 50,
+      "speed": 60
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10026.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10026.png"
+    },
+    "bst": 512
+  },
+  {
+    "id": 10027,
+    "dexNo": 710,
+    "name": "pumpkaboo-small",
+    "display": "Pumpkaboo Small",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 6,
+    "rarer": false,
+    "color": "brown",
+    "genus": "Pumpkin Pokémon",
+    "types": [
+      "ghost",
+      "grass"
+    ],
+    "stats": {
+      "hp": 53,
+      "attack": 66,
+      "defense": 70,
+      "specialAttack": 44,
+      "specialDefense": 55,
+      "speed": 56
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10027.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10027.png"
+    },
+    "bst": 344
+  },
+  {
+    "id": 10028,
+    "dexNo": 710,
+    "name": "pumpkaboo-large",
+    "display": "Pumpkaboo Large",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 6,
+    "rarer": false,
+    "color": "brown",
+    "genus": "Pumpkin Pokémon",
+    "types": [
+      "ghost",
+      "grass"
+    ],
+    "stats": {
+      "hp": 65,
+      "attack": 66,
+      "defense": 70,
+      "specialAttack": 44,
+      "specialDefense": 55,
+      "speed": 46
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10028.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10028.png"
+    },
+    "bst": 346
+  },
+  {
+    "id": 10029,
+    "dexNo": 710,
+    "name": "pumpkaboo-super",
+    "display": "Pumpkaboo Super",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 6,
+    "rarer": false,
+    "color": "brown",
+    "genus": "Pumpkin Pokémon",
+    "types": [
+      "ghost",
+      "grass"
+    ],
+    "stats": {
+      "hp": 71,
+      "attack": 66,
+      "defense": 70,
+      "specialAttack": 44,
+      "specialDefense": 55,
+      "speed": 41
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10029.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10029.png"
+    },
+    "bst": 347
+  },
+  {
+    "id": 10030,
+    "dexNo": 711,
+    "name": "gourgeist-small",
+    "display": "Gourgeist Small",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 6,
+    "rarer": false,
+    "color": "brown",
+    "genus": "Pumpkin Pokémon",
+    "types": [
+      "ghost",
+      "grass"
+    ],
+    "stats": {
+      "hp": 66,
+      "attack": 85,
+      "defense": 122,
+      "specialAttack": 58,
+      "specialDefense": 75,
+      "speed": 99
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10030.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10030.png"
+    },
+    "bst": 505
+  },
+  {
+    "id": 10031,
+    "dexNo": 711,
+    "name": "gourgeist-large",
+    "display": "Gourgeist Large",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 6,
+    "rarer": false,
+    "color": "brown",
+    "genus": "Pumpkin Pokémon",
+    "types": [
+      "ghost",
+      "grass"
+    ],
+    "stats": {
+      "hp": 90,
+      "attack": 95,
+      "defense": 122,
+      "specialAttack": 58,
+      "specialDefense": 75,
+      "speed": 69
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10031.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10031.png"
+    },
+    "bst": 509
+  },
+  {
+    "id": 10032,
+    "dexNo": 711,
+    "name": "gourgeist-super",
+    "display": "Gourgeist Super",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 6,
+    "rarer": false,
+    "color": "brown",
+    "genus": "Pumpkin Pokémon",
+    "types": [
+      "ghost",
+      "grass"
+    ],
+    "stats": {
+      "hp": 102,
+      "attack": 100,
+      "defense": 122,
+      "specialAttack": 58,
+      "specialDefense": 75,
+      "speed": 54
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10032.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10032.png"
+    },
+    "bst": 511
+  },
+  {
+    "id": 10033,
+    "dexNo": 3,
+    "name": "venusaur-mega",
+    "display": "Mega Venusaur",
+    "kind": "mega",
+    "label": "Mega",
+    "generation": 6,
+    "rarer": false,
+    "color": "green",
+    "genus": "Seed Pokémon",
+    "types": [
+      "grass",
+      "poison"
+    ],
+    "stats": {
+      "hp": 96,
+      "attack": 100,
+      "defense": 123,
+      "specialAttack": 122,
+      "specialDefense": 120,
+      "speed": 80
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10033.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10033.png"
+    },
+    "bst": 641
+  },
+  {
+    "id": 10034,
+    "dexNo": 6,
+    "name": "charizard-mega-x",
+    "display": "Mega Charizard X",
+    "kind": "mega",
+    "label": "Mega",
+    "generation": 6,
+    "rarer": false,
+    "color": "red",
+    "genus": "Flame Pokémon",
+    "types": [
+      "fire",
+      "dragon"
+    ],
+    "stats": {
+      "hp": 94,
+      "attack": 130,
+      "defense": 111,
+      "specialAttack": 130,
+      "specialDefense": 85,
+      "speed": 100
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10034.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10034.png"
+    },
+    "bst": 650
+  },
+  {
+    "id": 10035,
+    "dexNo": 6,
+    "name": "charizard-mega-y",
+    "display": "Mega Charizard Y",
+    "kind": "mega",
+    "label": "Mega",
+    "generation": 6,
+    "rarer": false,
+    "color": "red",
+    "genus": "Flame Pokémon",
+    "types": [
+      "fire",
+      "flying"
+    ],
+    "stats": {
+      "hp": 94,
+      "attack": 104,
+      "defense": 78,
+      "specialAttack": 159,
+      "specialDefense": 115,
+      "speed": 100
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10035.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10035.png"
+    },
+    "bst": 650
+  },
+  {
+    "id": 10036,
+    "dexNo": 9,
+    "name": "blastoise-mega",
+    "display": "Mega Blastoise",
+    "kind": "mega",
+    "label": "Mega",
+    "generation": 6,
+    "rarer": false,
+    "color": "blue",
+    "genus": "Shellfish Pokémon",
+    "types": [
+      "water"
+    ],
+    "stats": {
+      "hp": 95,
+      "attack": 103,
+      "defense": 120,
+      "specialAttack": 135,
+      "specialDefense": 115,
+      "speed": 78
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10036.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10036.png"
+    },
+    "bst": 646
+  },
+  {
+    "id": 10037,
+    "dexNo": 65,
+    "name": "alakazam-mega",
+    "display": "Mega Alakazam",
+    "kind": "mega",
+    "label": "Mega",
+    "generation": 6,
+    "rarer": false,
+    "color": "brown",
+    "genus": "Psi Pokémon",
+    "types": [
+      "psychic"
+    ],
+    "stats": {
+      "hp": 66,
+      "attack": 50,
+      "defense": 65,
+      "specialAttack": 175,
+      "specialDefense": 105,
+      "speed": 150
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10037.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10037.png"
+    },
+    "bst": 611
+  },
+  {
+    "id": 10038,
+    "dexNo": 94,
+    "name": "gengar-mega",
+    "display": "Mega Gengar",
+    "kind": "mega",
+    "label": "Mega",
+    "generation": 6,
+    "rarer": false,
+    "color": "purple",
+    "genus": "Shadow Pokémon",
+    "types": [
+      "ghost",
+      "poison"
+    ],
+    "stats": {
+      "hp": 72,
+      "attack": 65,
+      "defense": 80,
+      "specialAttack": 170,
+      "specialDefense": 95,
+      "speed": 130
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10038.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10038.png"
+    },
+    "bst": 612
+  },
+  {
+    "id": 10039,
+    "dexNo": 115,
+    "name": "kangaskhan-mega",
+    "display": "Mega Kangaskhan",
+    "kind": "mega",
+    "label": "Mega",
+    "generation": 6,
+    "rarer": false,
+    "color": "brown",
+    "genus": "Parent Pokémon",
+    "types": [
+      "normal"
+    ],
+    "stats": {
+      "hp": 126,
+      "attack": 125,
+      "defense": 100,
+      "specialAttack": 60,
+      "specialDefense": 100,
+      "speed": 100
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10039.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10039.png"
+    },
+    "bst": 611
+  },
+  {
+    "id": 10040,
+    "dexNo": 127,
+    "name": "pinsir-mega",
+    "display": "Mega Pinsir",
+    "kind": "mega",
+    "label": "Mega",
+    "generation": 6,
+    "rarer": false,
+    "color": "brown",
+    "genus": "Stag Beetle Pokémon",
+    "types": [
+      "bug",
+      "flying"
+    ],
+    "stats": {
+      "hp": 78,
+      "attack": 155,
+      "defense": 120,
+      "specialAttack": 65,
+      "specialDefense": 90,
+      "speed": 105
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10040.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10040.png"
+    },
+    "bst": 613
+  },
+  {
+    "id": 10041,
+    "dexNo": 130,
+    "name": "gyarados-mega",
+    "display": "Mega Gyarados",
+    "kind": "mega",
+    "label": "Mega",
+    "generation": 6,
+    "rarer": false,
+    "color": "blue",
+    "genus": "Atrocious Pokémon",
+    "types": [
+      "water",
+      "dark"
+    ],
+    "stats": {
+      "hp": 114,
+      "attack": 155,
+      "defense": 109,
+      "specialAttack": 70,
+      "specialDefense": 130,
+      "speed": 81
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10041.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10041.png"
+    },
+    "bst": 659
+  },
+  {
+    "id": 10042,
+    "dexNo": 142,
+    "name": "aerodactyl-mega",
+    "display": "Mega Aerodactyl",
+    "kind": "mega",
+    "label": "Mega",
+    "generation": 6,
+    "rarer": false,
+    "color": "purple",
+    "genus": "Fossil Pokémon",
+    "types": [
+      "rock",
+      "flying"
+    ],
+    "stats": {
+      "hp": 96,
+      "attack": 135,
+      "defense": 85,
+      "specialAttack": 70,
+      "specialDefense": 95,
+      "speed": 150
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10042.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10042.png"
+    },
+    "bst": 631
+  },
+  {
+    "id": 10043,
+    "dexNo": 150,
+    "name": "mewtwo-mega-x",
+    "display": "Mega Mewtwo X",
+    "kind": "mega",
+    "label": "Mega",
+    "generation": 6,
+    "rarer": true,
+    "color": "purple",
+    "genus": "Genetic Pokémon",
+    "types": [
+      "psychic",
+      "fighting"
+    ],
+    "stats": {
+      "hp": 127,
+      "attack": 190,
+      "defense": 100,
+      "specialAttack": 154,
+      "specialDefense": 100,
+      "speed": 130
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10043.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10043.png"
+    },
+    "bst": 801
+  },
+  {
+    "id": 10044,
+    "dexNo": 150,
+    "name": "mewtwo-mega-y",
+    "display": "Mega Mewtwo Y",
+    "kind": "mega",
+    "label": "Mega",
+    "generation": 6,
+    "rarer": true,
+    "color": "purple",
+    "genus": "Genetic Pokémon",
+    "types": [
+      "psychic"
+    ],
+    "stats": {
+      "hp": 127,
+      "attack": 150,
+      "defense": 70,
+      "specialAttack": 194,
+      "specialDefense": 120,
+      "speed": 140
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10044.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10044.png"
+    },
+    "bst": 801
+  },
+  {
+    "id": 10045,
+    "dexNo": 181,
+    "name": "ampharos-mega",
+    "display": "Mega Ampharos",
+    "kind": "mega",
+    "label": "Mega",
+    "generation": 6,
+    "rarer": false,
+    "color": "yellow",
+    "genus": "Light Pokémon",
+    "types": [
+      "electric",
+      "dragon"
+    ],
+    "stats": {
+      "hp": 108,
+      "attack": 95,
+      "defense": 105,
+      "specialAttack": 165,
+      "specialDefense": 110,
+      "speed": 45
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10045.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10045.png"
+    },
+    "bst": 628
+  },
+  {
+    "id": 10046,
+    "dexNo": 212,
+    "name": "scizor-mega",
+    "display": "Mega Scizor",
+    "kind": "mega",
+    "label": "Mega",
+    "generation": 6,
+    "rarer": false,
+    "color": "red",
+    "genus": "Pincer Pokémon",
+    "types": [
+      "bug",
+      "steel"
+    ],
+    "stats": {
+      "hp": 84,
+      "attack": 150,
+      "defense": 140,
+      "specialAttack": 65,
+      "specialDefense": 100,
+      "speed": 75
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10046.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10046.png"
+    },
+    "bst": 614
+  },
+  {
+    "id": 10047,
+    "dexNo": 214,
+    "name": "heracross-mega",
+    "display": "Mega Heracross",
+    "kind": "mega",
+    "label": "Mega",
+    "generation": 6,
+    "rarer": false,
+    "color": "blue",
+    "genus": "Single Horn Pokémon",
+    "types": [
+      "bug",
+      "fighting"
+    ],
+    "stats": {
+      "hp": 96,
+      "attack": 185,
+      "defense": 115,
+      "specialAttack": 40,
+      "specialDefense": 105,
+      "speed": 75
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10047.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10047.png"
+    },
+    "bst": 616
+  },
+  {
+    "id": 10048,
+    "dexNo": 229,
+    "name": "houndoom-mega",
+    "display": "Mega Houndoom",
+    "kind": "mega",
+    "label": "Mega",
+    "generation": 6,
+    "rarer": false,
+    "color": "black",
+    "genus": "Dark Pokémon",
+    "types": [
+      "dark",
+      "fire"
+    ],
+    "stats": {
+      "hp": 90,
+      "attack": 90,
+      "defense": 90,
+      "specialAttack": 140,
+      "specialDefense": 90,
+      "speed": 115
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10048.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10048.png"
+    },
+    "bst": 615
+  },
+  {
+    "id": 10049,
+    "dexNo": 248,
+    "name": "tyranitar-mega",
+    "display": "Mega Tyranitar",
+    "kind": "mega",
+    "label": "Mega",
+    "generation": 6,
+    "rarer": false,
+    "color": "green",
+    "genus": "Armor Pokémon",
+    "types": [
+      "rock",
+      "dark"
+    ],
+    "stats": {
+      "hp": 120,
+      "attack": 164,
+      "defense": 150,
+      "specialAttack": 95,
+      "specialDefense": 120,
+      "speed": 71
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10049.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10049.png"
+    },
+    "bst": 720
+  },
+  {
+    "id": 10050,
+    "dexNo": 257,
+    "name": "blaziken-mega",
+    "display": "Mega Blaziken",
+    "kind": "mega",
+    "label": "Mega",
+    "generation": 6,
+    "rarer": false,
+    "color": "red",
+    "genus": "Blaze Pokémon",
+    "types": [
+      "fire",
+      "fighting"
+    ],
+    "stats": {
+      "hp": 96,
+      "attack": 160,
+      "defense": 80,
+      "specialAttack": 130,
+      "specialDefense": 80,
+      "speed": 100
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10050.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10050.png"
+    },
+    "bst": 646
+  },
+  {
+    "id": 10051,
+    "dexNo": 282,
+    "name": "gardevoir-mega",
+    "display": "Mega Gardevoir",
+    "kind": "mega",
+    "label": "Mega",
+    "generation": 6,
+    "rarer": false,
+    "color": "white",
+    "genus": "Embrace Pokémon",
+    "types": [
+      "psychic",
+      "fairy"
+    ],
+    "stats": {
+      "hp": 82,
+      "attack": 85,
+      "defense": 65,
+      "specialAttack": 165,
+      "specialDefense": 135,
+      "speed": 100
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10051.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10051.png"
+    },
+    "bst": 632
+  },
+  {
+    "id": 10052,
+    "dexNo": 303,
+    "name": "mawile-mega",
+    "display": "Mega Mawile",
+    "kind": "mega",
+    "label": "Mega",
+    "generation": 6,
+    "rarer": false,
+    "color": "black",
+    "genus": "Deceiver Pokémon",
+    "types": [
+      "steel",
+      "fairy"
+    ],
+    "stats": {
+      "hp": 60,
+      "attack": 105,
+      "defense": 125,
+      "specialAttack": 55,
+      "specialDefense": 95,
+      "speed": 50
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10052.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10052.png"
+    },
+    "bst": 490
+  },
+  {
+    "id": 10053,
+    "dexNo": 306,
+    "name": "aggron-mega",
+    "display": "Mega Aggron",
+    "kind": "mega",
+    "label": "Mega",
+    "generation": 6,
+    "rarer": false,
+    "color": "gray",
+    "genus": "Iron Armor Pokémon",
+    "types": [
+      "steel"
+    ],
+    "stats": {
+      "hp": 84,
+      "attack": 140,
+      "defense": 230,
+      "specialAttack": 60,
+      "specialDefense": 80,
+      "speed": 50
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10053.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10053.png"
+    },
+    "bst": 644
+  },
+  {
+    "id": 10054,
+    "dexNo": 308,
+    "name": "medicham-mega",
+    "display": "Mega Medicham",
+    "kind": "mega",
+    "label": "Mega",
+    "generation": 6,
+    "rarer": false,
+    "color": "red",
+    "genus": "Meditate Pokémon",
+    "types": [
+      "fighting",
+      "psychic"
+    ],
+    "stats": {
+      "hp": 72,
+      "attack": 100,
+      "defense": 85,
+      "specialAttack": 80,
+      "specialDefense": 85,
+      "speed": 100
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10054.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10054.png"
+    },
+    "bst": 522
+  },
+  {
+    "id": 10055,
+    "dexNo": 310,
+    "name": "manectric-mega",
+    "display": "Mega Manectric",
+    "kind": "mega",
+    "label": "Mega",
+    "generation": 6,
+    "rarer": false,
+    "color": "yellow",
+    "genus": "Discharge Pokémon",
+    "types": [
+      "electric"
+    ],
+    "stats": {
+      "hp": 84,
+      "attack": 75,
+      "defense": 80,
+      "specialAttack": 135,
+      "specialDefense": 80,
+      "speed": 135
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10055.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10055.png"
+    },
+    "bst": 589
+  },
+  {
+    "id": 10056,
+    "dexNo": 354,
+    "name": "banette-mega",
+    "display": "Mega Banette",
+    "kind": "mega",
+    "label": "Mega",
+    "generation": 6,
+    "rarer": false,
+    "color": "black",
+    "genus": "Marionette Pokémon",
+    "types": [
+      "ghost"
+    ],
+    "stats": {
+      "hp": 77,
+      "attack": 165,
+      "defense": 75,
+      "specialAttack": 93,
+      "specialDefense": 83,
+      "speed": 75
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10056.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10056.png"
+    },
+    "bst": 568
+  },
+  {
+    "id": 10057,
+    "dexNo": 359,
+    "name": "absol-mega",
+    "display": "Mega Absol",
+    "kind": "mega",
+    "label": "Mega",
+    "generation": 6,
+    "rarer": false,
+    "color": "white",
+    "genus": "Disaster Pokémon",
+    "types": [
+      "dark"
+    ],
+    "stats": {
+      "hp": 78,
+      "attack": 150,
+      "defense": 60,
+      "specialAttack": 115,
+      "specialDefense": 60,
+      "speed": 115
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10057.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10057.png"
+    },
+    "bst": 578
+  },
+  {
+    "id": 10058,
+    "dexNo": 445,
+    "name": "garchomp-mega",
+    "display": "Mega Garchomp",
+    "kind": "mega",
+    "label": "Mega",
+    "generation": 6,
+    "rarer": false,
+    "color": "blue",
+    "genus": "Mach Pokémon",
+    "types": [
+      "dragon",
+      "ground"
+    ],
+    "stats": {
+      "hp": 130,
+      "attack": 170,
+      "defense": 115,
+      "specialAttack": 120,
+      "specialDefense": 95,
+      "speed": 92
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10058.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10058.png"
+    },
+    "bst": 722
+  },
+  {
+    "id": 10059,
+    "dexNo": 448,
+    "name": "lucario-mega",
+    "display": "Mega Lucario",
+    "kind": "mega",
+    "label": "Mega",
+    "generation": 6,
+    "rarer": false,
+    "color": "blue",
+    "genus": "Aura Pokémon",
+    "types": [
+      "fighting",
+      "steel"
+    ],
+    "stats": {
+      "hp": 84,
+      "attack": 145,
+      "defense": 88,
+      "specialAttack": 140,
+      "specialDefense": 70,
+      "speed": 112
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10059.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10059.png"
+    },
+    "bst": 639
+  },
+  {
+    "id": 10060,
+    "dexNo": 460,
+    "name": "abomasnow-mega",
+    "display": "Mega Abomasnow",
+    "kind": "mega",
+    "label": "Mega",
+    "generation": 6,
+    "rarer": false,
+    "color": "white",
+    "genus": "Frost Tree Pokémon",
+    "types": [
+      "grass",
+      "ice"
+    ],
+    "stats": {
+      "hp": 108,
+      "attack": 132,
+      "defense": 105,
+      "specialAttack": 132,
+      "specialDefense": 105,
+      "speed": 30
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10060.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10060.png"
+    },
+    "bst": 612
+  },
+  {
+    "id": 10061,
+    "dexNo": 670,
+    "name": "floette-eternal",
+    "display": "Eternal Floette",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 6,
+    "rarer": false,
+    "color": "white",
+    "genus": "Single Bloom Pokémon",
+    "types": [
+      "fairy"
+    ],
+    "stats": {
+      "hp": 89,
+      "attack": 65,
+      "defense": 67,
+      "specialAttack": 125,
+      "specialDefense": 128,
+      "speed": 92
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10061.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10061.png"
+    },
+    "bst": 566
+  },
+  {
+    "id": 10062,
+    "dexNo": 380,
+    "name": "latias-mega",
+    "display": "Mega Latias",
+    "kind": "mega",
+    "label": "Mega",
+    "generation": 6,
+    "rarer": true,
+    "color": "red",
+    "genus": "Eon Pokémon",
+    "types": [
+      "dragon",
+      "psychic"
+    ],
+    "stats": {
+      "hp": 96,
+      "attack": 100,
+      "defense": 120,
+      "specialAttack": 140,
+      "specialDefense": 150,
+      "speed": 110
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10062.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10062.png"
+    },
+    "bst": 716
+  },
+  {
+    "id": 10063,
+    "dexNo": 381,
+    "name": "latios-mega",
+    "display": "Mega Latios",
+    "kind": "mega",
+    "label": "Mega",
+    "generation": 6,
+    "rarer": true,
+    "color": "blue",
+    "genus": "Eon Pokémon",
+    "types": [
+      "dragon",
+      "psychic"
+    ],
+    "stats": {
+      "hp": 96,
+      "attack": 130,
+      "defense": 100,
+      "specialAttack": 160,
+      "specialDefense": 120,
+      "speed": 110
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10063.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10063.png"
+    },
+    "bst": 716
+  },
+  {
+    "id": 10064,
+    "dexNo": 260,
+    "name": "swampert-mega",
+    "display": "Mega Swampert",
+    "kind": "mega",
+    "label": "Mega",
+    "generation": 6,
+    "rarer": false,
+    "color": "blue",
+    "genus": "Mud Fish Pokémon",
+    "types": [
+      "water",
+      "ground"
+    ],
+    "stats": {
+      "hp": 120,
+      "attack": 150,
+      "defense": 110,
+      "specialAttack": 95,
+      "specialDefense": 110,
+      "speed": 70
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10064.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10064.png"
+    },
+    "bst": 655
+  },
+  {
+    "id": 10065,
+    "dexNo": 254,
+    "name": "sceptile-mega",
+    "display": "Mega Sceptile",
+    "kind": "mega",
+    "label": "Mega",
+    "generation": 6,
+    "rarer": false,
+    "color": "green",
+    "genus": "Forest Pokémon",
+    "types": [
+      "grass",
+      "dragon"
+    ],
+    "stats": {
+      "hp": 84,
+      "attack": 110,
+      "defense": 75,
+      "specialAttack": 145,
+      "specialDefense": 85,
+      "speed": 145
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10065.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10065.png"
+    },
+    "bst": 644
+  },
+  {
+    "id": 10066,
+    "dexNo": 302,
+    "name": "sableye-mega",
+    "display": "Mega Sableye",
+    "kind": "mega",
+    "label": "Mega",
+    "generation": 6,
+    "rarer": false,
+    "color": "purple",
+    "genus": "Darkness Pokémon",
+    "types": [
+      "dark",
+      "ghost"
+    ],
+    "stats": {
+      "hp": 60,
+      "attack": 85,
+      "defense": 125,
+      "specialAttack": 85,
+      "specialDefense": 115,
+      "speed": 20
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10066.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10066.png"
+    },
+    "bst": 490
+  },
+  {
+    "id": 10067,
+    "dexNo": 334,
+    "name": "altaria-mega",
+    "display": "Mega Altaria",
+    "kind": "mega",
+    "label": "Mega",
+    "generation": 6,
+    "rarer": false,
+    "color": "blue",
+    "genus": "Humming Pokémon",
+    "types": [
+      "dragon",
+      "fairy"
+    ],
+    "stats": {
+      "hp": 90,
+      "attack": 110,
+      "defense": 110,
+      "specialAttack": 110,
+      "specialDefense": 105,
+      "speed": 80
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10067.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10067.png"
+    },
+    "bst": 605
+  },
+  {
+    "id": 10068,
+    "dexNo": 475,
+    "name": "gallade-mega",
+    "display": "Mega Gallade",
+    "kind": "mega",
+    "label": "Mega",
+    "generation": 6,
+    "rarer": false,
+    "color": "white",
+    "genus": "Blade Pokémon",
+    "types": [
+      "psychic",
+      "fighting"
+    ],
+    "stats": {
+      "hp": 82,
+      "attack": 165,
+      "defense": 95,
+      "specialAttack": 65,
+      "specialDefense": 115,
+      "speed": 110
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10068.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10068.png"
+    },
+    "bst": 632
+  },
+  {
+    "id": 10069,
+    "dexNo": 531,
+    "name": "audino-mega",
+    "display": "Mega Audino",
+    "kind": "mega",
+    "label": "Mega",
+    "generation": 6,
+    "rarer": false,
+    "color": "pink",
+    "genus": "Hearing Pokémon",
+    "types": [
+      "normal",
+      "fairy"
+    ],
+    "stats": {
+      "hp": 124,
+      "attack": 60,
+      "defense": 126,
+      "specialAttack": 80,
+      "specialDefense": 126,
+      "speed": 50
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10069.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10069.png"
+    },
+    "bst": 566
+  },
+  {
+    "id": 10070,
+    "dexNo": 319,
+    "name": "sharpedo-mega",
+    "display": "Mega Sharpedo",
+    "kind": "mega",
+    "label": "Mega",
+    "generation": 6,
+    "rarer": false,
+    "color": "blue",
+    "genus": "Brutal Pokémon",
+    "types": [
+      "water",
+      "dark"
+    ],
+    "stats": {
+      "hp": 84,
+      "attack": 140,
+      "defense": 70,
+      "specialAttack": 110,
+      "specialDefense": 65,
+      "speed": 105
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10070.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10070.png"
+    },
+    "bst": 574
+  },
+  {
+    "id": 10071,
+    "dexNo": 80,
+    "name": "slowbro-mega",
+    "display": "Mega Slowbro",
+    "kind": "mega",
+    "label": "Mega",
+    "generation": 6,
+    "rarer": false,
+    "color": "pink",
+    "genus": "Hermit Crab Pokémon",
+    "types": [
+      "water",
+      "psychic"
+    ],
+    "stats": {
+      "hp": 114,
+      "attack": 75,
+      "defense": 180,
+      "specialAttack": 130,
+      "specialDefense": 80,
+      "speed": 30
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10071.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10071.png"
+    },
+    "bst": 609
+  },
+  {
+    "id": 10072,
+    "dexNo": 208,
+    "name": "steelix-mega",
+    "display": "Mega Steelix",
+    "kind": "mega",
+    "label": "Mega",
+    "generation": 6,
+    "rarer": false,
+    "color": "gray",
+    "genus": "Iron Snake Pokémon",
+    "types": [
+      "steel",
+      "ground"
+    ],
+    "stats": {
+      "hp": 90,
+      "attack": 125,
+      "defense": 230,
+      "specialAttack": 55,
+      "specialDefense": 95,
+      "speed": 30
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10072.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10072.png"
+    },
+    "bst": 625
+  },
+  {
+    "id": 10073,
+    "dexNo": 18,
+    "name": "pidgeot-mega",
+    "display": "Mega Pidgeot",
+    "kind": "mega",
+    "label": "Mega",
+    "generation": 6,
+    "rarer": false,
+    "color": "brown",
+    "genus": "Bird Pokémon",
+    "types": [
+      "normal",
+      "flying"
+    ],
+    "stats": {
+      "hp": 100,
+      "attack": 80,
+      "defense": 80,
+      "specialAttack": 135,
+      "specialDefense": 80,
+      "speed": 121
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10073.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10073.png"
+    },
+    "bst": 596
+  },
+  {
+    "id": 10074,
+    "dexNo": 362,
+    "name": "glalie-mega",
+    "display": "Mega Glalie",
+    "kind": "mega",
+    "label": "Mega",
+    "generation": 6,
+    "rarer": false,
+    "color": "gray",
+    "genus": "Face Pokémon",
+    "types": [
+      "ice"
+    ],
+    "stats": {
+      "hp": 96,
+      "attack": 120,
+      "defense": 80,
+      "specialAttack": 120,
+      "specialDefense": 80,
+      "speed": 100
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10074.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10074.png"
+    },
+    "bst": 596
+  },
+  {
+    "id": 10075,
+    "dexNo": 719,
+    "name": "diancie-mega",
+    "display": "Mega Diancie",
+    "kind": "mega",
+    "label": "Mega",
+    "generation": 6,
+    "rarer": true,
+    "color": "pink",
+    "genus": "Jewel Pokémon",
+    "types": [
+      "rock",
+      "fairy"
+    ],
+    "stats": {
+      "hp": 60,
+      "attack": 160,
+      "defense": 110,
+      "specialAttack": 160,
+      "specialDefense": 110,
+      "speed": 110
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10075.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10075.png"
+    },
+    "bst": 710
+  },
+  {
+    "id": 10076,
+    "dexNo": 376,
+    "name": "metagross-mega",
+    "display": "Mega Metagross",
+    "kind": "mega",
+    "label": "Mega",
+    "generation": 6,
+    "rarer": false,
+    "color": "blue",
+    "genus": "Iron Leg Pokémon",
+    "types": [
+      "steel",
+      "psychic"
+    ],
+    "stats": {
+      "hp": 96,
+      "attack": 145,
+      "defense": 150,
+      "specialAttack": 105,
+      "specialDefense": 110,
+      "speed": 110
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10076.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10076.png"
+    },
+    "bst": 716
+  },
+  {
+    "id": 10077,
+    "dexNo": 382,
+    "name": "kyogre-primal",
+    "display": "Primal Kyogre",
+    "kind": "primal",
+    "label": "Primal",
+    "generation": 6,
+    "rarer": true,
+    "color": "blue",
+    "genus": "Sea Basin Pokémon",
+    "types": [
+      "water"
+    ],
+    "stats": {
+      "hp": 120,
+      "attack": 150,
+      "defense": 90,
+      "specialAttack": 180,
+      "specialDefense": 160,
+      "speed": 90
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10077.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10077.png"
+    },
+    "bst": 790
+  },
+  {
+    "id": 10078,
+    "dexNo": 383,
+    "name": "groudon-primal",
+    "display": "Primal Groudon",
+    "kind": "primal",
+    "label": "Primal",
+    "generation": 6,
+    "rarer": true,
+    "color": "red",
+    "genus": "Continent Pokémon",
+    "types": [
+      "ground",
+      "fire"
+    ],
+    "stats": {
+      "hp": 120,
+      "attack": 180,
+      "defense": 160,
+      "specialAttack": 150,
+      "specialDefense": 90,
+      "speed": 90
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10078.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10078.png"
+    },
+    "bst": 790
+  },
+  {
+    "id": 10079,
+    "dexNo": 384,
+    "name": "rayquaza-mega",
+    "display": "Mega Rayquaza",
+    "kind": "mega",
+    "label": "Mega",
+    "generation": 6,
+    "rarer": true,
+    "color": "green",
+    "genus": "Sky High Pokémon",
+    "types": [
+      "dragon",
+      "flying"
+    ],
+    "stats": {
+      "hp": 126,
+      "attack": 180,
+      "defense": 100,
+      "specialAttack": 180,
+      "specialDefense": 100,
+      "speed": 115
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10079.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10079.png"
+    },
+    "bst": 801
+  },
+  {
+    "id": 10086,
+    "dexNo": 720,
+    "name": "hoopa-unbound",
+    "display": "Hoopa Unbound",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 6,
+    "rarer": true,
+    "color": "purple",
+    "genus": "Mischief Pokémon",
+    "types": [
+      "psychic",
+      "dark"
+    ],
+    "stats": {
+      "hp": 96,
+      "attack": 160,
+      "defense": 60,
+      "specialAttack": 170,
+      "specialDefense": 130,
+      "speed": 80
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10086.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10086.png"
+    },
+    "bst": 696
+  },
+  {
+    "id": 10087,
+    "dexNo": 323,
+    "name": "camerupt-mega",
+    "display": "Mega Camerupt",
+    "kind": "mega",
+    "label": "Mega",
+    "generation": 6,
+    "rarer": false,
+    "color": "red",
+    "genus": "Eruption Pokémon",
+    "types": [
+      "fire",
+      "ground"
+    ],
+    "stats": {
+      "hp": 84,
+      "attack": 120,
+      "defense": 100,
+      "specialAttack": 145,
+      "specialDefense": 105,
+      "speed": 20
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10087.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10087.png"
+    },
+    "bst": 574
+  },
+  {
+    "id": 10088,
+    "dexNo": 428,
+    "name": "lopunny-mega",
+    "display": "Mega Lopunny",
+    "kind": "mega",
+    "label": "Mega",
+    "generation": 6,
+    "rarer": false,
+    "color": "brown",
+    "genus": "Rabbit Pokémon",
+    "types": [
+      "normal",
+      "fighting"
+    ],
+    "stats": {
+      "hp": 78,
+      "attack": 136,
+      "defense": 94,
+      "specialAttack": 54,
+      "specialDefense": 96,
+      "speed": 135
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10088.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10088.png"
+    },
+    "bst": 593
+  },
+  {
+    "id": 10089,
+    "dexNo": 373,
+    "name": "salamence-mega",
+    "display": "Mega Salamence",
+    "kind": "mega",
+    "label": "Mega",
+    "generation": 6,
+    "rarer": false,
+    "color": "blue",
+    "genus": "Dragon Pokémon",
+    "types": [
+      "dragon",
+      "flying"
+    ],
+    "stats": {
+      "hp": 114,
+      "attack": 145,
+      "defense": 130,
+      "specialAttack": 120,
+      "specialDefense": 90,
+      "speed": 120
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10089.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10089.png"
+    },
+    "bst": 719
+  },
+  {
+    "id": 10090,
+    "dexNo": 15,
+    "name": "beedrill-mega",
+    "display": "Mega Beedrill",
+    "kind": "mega",
+    "label": "Mega",
+    "generation": 6,
+    "rarer": false,
+    "color": "yellow",
+    "genus": "Poison Bee Pokémon",
+    "types": [
+      "bug",
+      "poison"
+    ],
+    "stats": {
+      "hp": 78,
+      "attack": 150,
+      "defense": 40,
+      "specialAttack": 15,
+      "specialDefense": 80,
+      "speed": 145
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10090.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10090.png"
+    },
+    "bst": 508
+  },
+  {
+    "id": 10091,
+    "dexNo": 19,
+    "name": "rattata-alola",
+    "display": "Alolan Rattata",
+    "kind": "regional",
+    "label": "Alolan",
+    "generation": 7,
+    "rarer": false,
+    "color": "purple",
+    "genus": "Mouse Pokémon",
+    "types": [
+      "dark",
+      "normal"
+    ],
+    "stats": {
+      "hp": 36,
+      "attack": 56,
+      "defense": 35,
+      "specialAttack": 25,
+      "specialDefense": 35,
+      "speed": 72
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10091.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10091.png"
+    },
+    "bst": 259
+  },
+  {
+    "id": 10092,
+    "dexNo": 20,
+    "name": "raticate-alola",
+    "display": "Alolan Raticate",
+    "kind": "regional",
+    "label": "Alolan",
+    "generation": 7,
+    "rarer": false,
+    "color": "brown",
+    "genus": "Mouse Pokémon",
+    "types": [
+      "dark",
+      "normal"
+    ],
+    "stats": {
+      "hp": 90,
+      "attack": 71,
+      "defense": 70,
+      "specialAttack": 40,
+      "specialDefense": 80,
+      "speed": 77
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10092.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10092.png"
+    },
+    "bst": 428
+  },
+  {
+    "id": 10093,
+    "dexNo": 20,
+    "name": "raticate-totem-alola",
+    "display": "Alolan Raticate (Totem)",
+    "kind": "totem",
+    "label": "Alolan",
+    "generation": 7,
+    "rarer": false,
+    "color": "brown",
+    "genus": "Mouse Pokémon",
+    "types": [
+      "dark",
+      "normal"
+    ],
+    "stats": {
+      "hp": 90,
+      "attack": 71,
+      "defense": 70,
+      "specialAttack": 40,
+      "specialDefense": 80,
+      "speed": 77
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10093.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10093.png"
+    },
+    "bst": 428
+  },
+  {
+    "id": 10100,
+    "dexNo": 26,
+    "name": "raichu-alola",
+    "display": "Alolan Raichu",
+    "kind": "regional",
+    "label": "Alolan",
+    "generation": 7,
+    "rarer": false,
+    "color": "yellow",
+    "genus": "Mouse Pokémon",
+    "types": [
+      "electric",
+      "psychic"
+    ],
+    "stats": {
+      "hp": 72,
+      "attack": 85,
+      "defense": 50,
+      "specialAttack": 95,
+      "specialDefense": 85,
+      "speed": 110
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10100.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10100.png"
+    },
+    "bst": 497
+  },
+  {
+    "id": 10101,
+    "dexNo": 27,
+    "name": "sandshrew-alola",
+    "display": "Alolan Sandshrew",
+    "kind": "regional",
+    "label": "Alolan",
+    "generation": 7,
+    "rarer": false,
+    "color": "yellow",
+    "genus": "Mouse Pokémon",
+    "types": [
+      "ice",
+      "steel"
+    ],
+    "stats": {
+      "hp": 60,
+      "attack": 75,
+      "defense": 90,
+      "specialAttack": 10,
+      "specialDefense": 35,
+      "speed": 40
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10101.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10101.png"
+    },
+    "bst": 310
+  },
+  {
+    "id": 10102,
+    "dexNo": 28,
+    "name": "sandslash-alola",
+    "display": "Alolan Sandslash",
+    "kind": "regional",
+    "label": "Alolan",
+    "generation": 7,
+    "rarer": false,
+    "color": "yellow",
+    "genus": "Mouse Pokémon",
+    "types": [
+      "ice",
+      "steel"
+    ],
+    "stats": {
+      "hp": 90,
+      "attack": 100,
+      "defense": 120,
+      "specialAttack": 25,
+      "specialDefense": 65,
+      "speed": 65
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10102.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10102.png"
+    },
+    "bst": 465
+  },
+  {
+    "id": 10103,
+    "dexNo": 37,
+    "name": "vulpix-alola",
+    "display": "Alolan Vulpix",
+    "kind": "regional",
+    "label": "Alolan",
+    "generation": 7,
+    "rarer": false,
+    "color": "brown",
+    "genus": "Fox Pokémon",
+    "types": [
+      "ice"
+    ],
+    "stats": {
+      "hp": 46,
+      "attack": 41,
+      "defense": 40,
+      "specialAttack": 50,
+      "specialDefense": 65,
+      "speed": 65
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10103.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10103.png"
+    },
+    "bst": 307
+  },
+  {
+    "id": 10104,
+    "dexNo": 38,
+    "name": "ninetales-alola",
+    "display": "Alolan Ninetales",
+    "kind": "regional",
+    "label": "Alolan",
+    "generation": 7,
+    "rarer": false,
+    "color": "yellow",
+    "genus": "Fox Pokémon",
+    "types": [
+      "ice",
+      "fairy"
+    ],
+    "stats": {
+      "hp": 88,
+      "attack": 67,
+      "defense": 75,
+      "specialAttack": 81,
+      "specialDefense": 100,
+      "speed": 109
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10104.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10104.png"
+    },
+    "bst": 520
+  },
+  {
+    "id": 10105,
+    "dexNo": 50,
+    "name": "diglett-alola",
+    "display": "Alolan Diglett",
+    "kind": "regional",
+    "label": "Alolan",
+    "generation": 7,
+    "rarer": false,
+    "color": "brown",
+    "genus": "Mole Pokémon",
+    "types": [
+      "ground",
+      "steel"
+    ],
+    "stats": {
+      "hp": 12,
+      "attack": 55,
+      "defense": 30,
+      "specialAttack": 35,
+      "specialDefense": 45,
+      "speed": 90
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10105.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10105.png"
+    },
+    "bst": 267
+  },
+  {
+    "id": 10106,
+    "dexNo": 51,
+    "name": "dugtrio-alola",
+    "display": "Alolan Dugtrio",
+    "kind": "regional",
+    "label": "Alolan",
+    "generation": 7,
+    "rarer": false,
+    "color": "brown",
+    "genus": "Mole Pokémon",
+    "types": [
+      "ground",
+      "steel"
+    ],
+    "stats": {
+      "hp": 42,
+      "attack": 100,
+      "defense": 60,
+      "specialAttack": 50,
+      "specialDefense": 70,
+      "speed": 110
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10106.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10106.png"
+    },
+    "bst": 432
+  },
+  {
+    "id": 10107,
+    "dexNo": 52,
+    "name": "meowth-alola",
+    "display": "Alolan Meowth",
+    "kind": "regional",
+    "label": "Alolan",
+    "generation": 7,
+    "rarer": false,
+    "color": "yellow",
+    "genus": "Scratch Cat Pokémon",
+    "types": [
+      "dark"
+    ],
+    "stats": {
+      "hp": 48,
+      "attack": 35,
+      "defense": 35,
+      "specialAttack": 50,
+      "specialDefense": 40,
+      "speed": 90
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10107.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10107.png"
+    },
+    "bst": 298
+  },
+  {
+    "id": 10108,
+    "dexNo": 53,
+    "name": "persian-alola",
+    "display": "Alolan Persian",
+    "kind": "regional",
+    "label": "Alolan",
+    "generation": 7,
+    "rarer": false,
+    "color": "yellow",
+    "genus": "Classy Cat Pokémon",
+    "types": [
+      "dark"
+    ],
+    "stats": {
+      "hp": 78,
+      "attack": 60,
+      "defense": 60,
+      "specialAttack": 75,
+      "specialDefense": 65,
+      "speed": 115
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10108.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10108.png"
+    },
+    "bst": 453
+  },
+  {
+    "id": 10109,
+    "dexNo": 74,
+    "name": "geodude-alola",
+    "display": "Alolan Geodude",
+    "kind": "regional",
+    "label": "Alolan",
+    "generation": 7,
+    "rarer": false,
+    "color": "brown",
+    "genus": "Rock Pokémon",
+    "types": [
+      "rock",
+      "electric"
+    ],
+    "stats": {
+      "hp": 48,
+      "attack": 80,
+      "defense": 100,
+      "specialAttack": 30,
+      "specialDefense": 30,
+      "speed": 20
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10109.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10109.png"
+    },
+    "bst": 308
+  },
+  {
+    "id": 10110,
+    "dexNo": 75,
+    "name": "graveler-alola",
+    "display": "Alolan Graveler",
+    "kind": "regional",
+    "label": "Alolan",
+    "generation": 7,
+    "rarer": false,
+    "color": "brown",
+    "genus": "Rock Pokémon",
+    "types": [
+      "rock",
+      "electric"
+    ],
+    "stats": {
+      "hp": 66,
+      "attack": 95,
+      "defense": 115,
+      "specialAttack": 45,
+      "specialDefense": 45,
+      "speed": 35
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10110.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10110.png"
+    },
+    "bst": 401
+  },
+  {
+    "id": 10111,
+    "dexNo": 76,
+    "name": "golem-alola",
+    "display": "Alolan Golem",
+    "kind": "regional",
+    "label": "Alolan",
+    "generation": 7,
+    "rarer": false,
+    "color": "brown",
+    "genus": "Megaton Pokémon",
+    "types": [
+      "rock",
+      "electric"
+    ],
+    "stats": {
+      "hp": 96,
+      "attack": 120,
+      "defense": 130,
+      "specialAttack": 55,
+      "specialDefense": 65,
+      "speed": 45
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10111.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10111.png"
+    },
+    "bst": 511
+  },
+  {
+    "id": 10112,
+    "dexNo": 88,
+    "name": "grimer-alola",
+    "display": "Alolan Grimer",
+    "kind": "regional",
+    "label": "Alolan",
+    "generation": 7,
+    "rarer": false,
+    "color": "purple",
+    "genus": "Sludge Pokémon",
+    "types": [
+      "poison",
+      "dark"
+    ],
+    "stats": {
+      "hp": 96,
+      "attack": 80,
+      "defense": 50,
+      "specialAttack": 40,
+      "specialDefense": 50,
+      "speed": 25
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10112.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10112.png"
+    },
+    "bst": 341
+  },
+  {
+    "id": 10113,
+    "dexNo": 89,
+    "name": "muk-alola",
+    "display": "Alolan Muk",
+    "kind": "regional",
+    "label": "Alolan",
+    "generation": 7,
+    "rarer": false,
+    "color": "purple",
+    "genus": "Sludge Pokémon",
+    "types": [
+      "poison",
+      "dark"
+    ],
+    "stats": {
+      "hp": 126,
+      "attack": 105,
+      "defense": 75,
+      "specialAttack": 65,
+      "specialDefense": 100,
+      "speed": 50
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10113.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10113.png"
+    },
+    "bst": 521
+  },
+  {
+    "id": 10114,
+    "dexNo": 103,
+    "name": "exeggutor-alola",
+    "display": "Alolan Exeggutor",
+    "kind": "regional",
+    "label": "Alolan",
+    "generation": 7,
+    "rarer": false,
+    "color": "yellow",
+    "genus": "Coconut Pokémon",
+    "types": [
+      "grass",
+      "dragon"
+    ],
+    "stats": {
+      "hp": 114,
+      "attack": 105,
+      "defense": 85,
+      "specialAttack": 125,
+      "specialDefense": 75,
+      "speed": 45
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10114.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10114.png"
+    },
+    "bst": 549
+  },
+  {
+    "id": 10115,
+    "dexNo": 105,
+    "name": "marowak-alola",
+    "display": "Alolan Marowak",
+    "kind": "regional",
+    "label": "Alolan",
+    "generation": 7,
+    "rarer": false,
+    "color": "brown",
+    "genus": "Bone Keeper Pokémon",
+    "types": [
+      "fire",
+      "ghost"
+    ],
+    "stats": {
+      "hp": 72,
+      "attack": 80,
+      "defense": 110,
+      "specialAttack": 50,
+      "specialDefense": 80,
+      "speed": 45
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10115.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10115.png"
+    },
+    "bst": 437
+  },
+  {
+    "id": 10117,
+    "dexNo": 658,
+    "name": "greninja-ash",
+    "display": "Ash-Greninja",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 6,
+    "rarer": false,
+    "color": "blue",
+    "genus": "Ninja Pokémon",
+    "types": [
+      "water",
+      "dark"
+    ],
+    "stats": {
+      "hp": 86,
+      "attack": 145,
+      "defense": 67,
+      "specialAttack": 153,
+      "specialDefense": 71,
+      "speed": 132
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10117.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10117.png"
+    },
+    "bst": 654
+  },
+  {
+    "id": 10120,
+    "dexNo": 718,
+    "name": "zygarde-complete",
+    "display": "Zygarde Complete",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 7,
+    "rarer": true,
+    "color": "green",
+    "genus": "Order Pokémon",
+    "types": [
+      "dragon",
+      "ground"
+    ],
+    "stats": {
+      "hp": 259,
+      "attack": 100,
+      "defense": 121,
+      "specialAttack": 91,
+      "specialDefense": 95,
+      "speed": 85
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10120.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10120.png"
+    },
+    "bst": 751
+  },
+  {
+    "id": 10121,
+    "dexNo": 735,
+    "name": "gumshoos-totem",
+    "display": "Gumshoos (Totem)",
+    "kind": "totem",
+    "label": "Totem",
+    "generation": 7,
+    "rarer": false,
+    "color": "brown",
+    "genus": "Stakeout Pokémon",
+    "types": [
+      "normal"
+    ],
+    "stats": {
+      "hp": 106,
+      "attack": 110,
+      "defense": 60,
+      "specialAttack": 55,
+      "specialDefense": 60,
+      "speed": 45
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10121.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10121.png"
+    },
+    "bst": 436
+  },
+  {
+    "id": 10122,
+    "dexNo": 738,
+    "name": "vikavolt-totem",
+    "display": "Vikavolt (Totem)",
+    "kind": "totem",
+    "label": "Totem",
+    "generation": 7,
+    "rarer": false,
+    "color": "blue",
+    "genus": "Stag Beetle Pokémon",
+    "types": [
+      "bug",
+      "electric"
+    ],
+    "stats": {
+      "hp": 92,
+      "attack": 70,
+      "defense": 90,
+      "specialAttack": 145,
+      "specialDefense": 75,
+      "speed": 43
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10122.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10122.png"
+    },
+    "bst": 515
+  },
+  {
+    "id": 10123,
+    "dexNo": 741,
+    "name": "oricorio-pom-pom",
+    "display": "Oricorio Pom Pom",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 7,
+    "rarer": false,
+    "color": "red",
+    "genus": "Dancing Pokémon",
+    "types": [
+      "electric",
+      "flying"
+    ],
+    "stats": {
+      "hp": 90,
+      "attack": 70,
+      "defense": 70,
+      "specialAttack": 98,
+      "specialDefense": 70,
+      "speed": 93
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10123.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10123.png"
+    },
+    "bst": 491
+  },
+  {
+    "id": 10124,
+    "dexNo": 741,
+    "name": "oricorio-pau",
+    "display": "Oricorio Pau",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 7,
+    "rarer": false,
+    "color": "red",
+    "genus": "Dancing Pokémon",
+    "types": [
+      "psychic",
+      "flying"
+    ],
+    "stats": {
+      "hp": 90,
+      "attack": 70,
+      "defense": 70,
+      "specialAttack": 98,
+      "specialDefense": 70,
+      "speed": 93
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10124.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10124.png"
+    },
+    "bst": 491
+  },
+  {
+    "id": 10125,
+    "dexNo": 741,
+    "name": "oricorio-sensu",
+    "display": "Oricorio Sensu",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 7,
+    "rarer": false,
+    "color": "red",
+    "genus": "Dancing Pokémon",
+    "types": [
+      "ghost",
+      "flying"
+    ],
+    "stats": {
+      "hp": 90,
+      "attack": 70,
+      "defense": 70,
+      "specialAttack": 98,
+      "specialDefense": 70,
+      "speed": 93
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10125.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10125.png"
+    },
+    "bst": 491
+  },
+  {
+    "id": 10126,
+    "dexNo": 745,
+    "name": "lycanroc-midnight",
+    "display": "Lycanroc Midnight",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 7,
+    "rarer": false,
+    "color": "brown",
+    "genus": "Wolf Pokémon",
+    "types": [
+      "rock"
+    ],
+    "stats": {
+      "hp": 102,
+      "attack": 115,
+      "defense": 75,
+      "specialAttack": 55,
+      "specialDefense": 75,
+      "speed": 82
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10126.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10126.png"
+    },
+    "bst": 504
+  },
+  {
+    "id": 10127,
+    "dexNo": 746,
+    "name": "wishiwashi-school",
+    "display": "Wishiwashi School",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 7,
+    "rarer": false,
+    "color": "blue",
+    "genus": "Small Fry Pokémon",
+    "types": [
+      "water"
+    ],
+    "stats": {
+      "hp": 54,
+      "attack": 140,
+      "defense": 130,
+      "specialAttack": 140,
+      "specialDefense": 135,
+      "speed": 30
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10127.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10127.png"
+    },
+    "bst": 629
+  },
+  {
+    "id": 10128,
+    "dexNo": 754,
+    "name": "lurantis-totem",
+    "display": "Lurantis (Totem)",
+    "kind": "totem",
+    "label": "Totem",
+    "generation": 7,
+    "rarer": false,
+    "color": "pink",
+    "genus": "Bloom Sickle Pokémon",
+    "types": [
+      "grass"
+    ],
+    "stats": {
+      "hp": 84,
+      "attack": 105,
+      "defense": 90,
+      "specialAttack": 80,
+      "specialDefense": 90,
+      "speed": 45
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10128.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10128.png"
+    },
+    "bst": 494
+  },
+  {
+    "id": 10129,
+    "dexNo": 758,
+    "name": "salazzle-totem",
+    "display": "Salazzle (Totem)",
+    "kind": "totem",
+    "label": "Totem",
+    "generation": 7,
+    "rarer": false,
+    "color": "black",
+    "genus": "Toxic Lizard Pokémon",
+    "types": [
+      "poison",
+      "fire"
+    ],
+    "stats": {
+      "hp": 82,
+      "attack": 64,
+      "defense": 60,
+      "specialAttack": 111,
+      "specialDefense": 60,
+      "speed": 117
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10129.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10129.png"
+    },
+    "bst": 494
+  },
+  {
+    "id": 10143,
+    "dexNo": 778,
+    "name": "mimikyu-busted",
+    "display": "Mimikyu Busted",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 7,
+    "rarer": false,
+    "color": "yellow",
+    "genus": "Disguise Pokémon",
+    "types": [
+      "ghost",
+      "fairy"
+    ],
+    "stats": {
+      "hp": 66,
+      "attack": 90,
+      "defense": 80,
+      "specialAttack": 50,
+      "specialDefense": 105,
+      "speed": 96
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10143.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10143.png"
+    },
+    "bst": 487
+  },
+  {
+    "id": 10144,
+    "dexNo": 778,
+    "name": "mimikyu-totem-disguised",
+    "display": "Mimikyu Disguised (Totem)",
+    "kind": "totem",
+    "label": "Totem",
+    "generation": 7,
+    "rarer": false,
+    "color": "yellow",
+    "genus": "Disguise Pokémon",
+    "types": [
+      "ghost",
+      "fairy"
+    ],
+    "stats": {
+      "hp": 66,
+      "attack": 90,
+      "defense": 80,
+      "specialAttack": 50,
+      "specialDefense": 105,
+      "speed": 96
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10144.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10144.png"
+    },
+    "bst": 487
+  },
+  {
+    "id": 10145,
+    "dexNo": 778,
+    "name": "mimikyu-totem-busted",
+    "display": "Mimikyu Busted (Totem)",
+    "kind": "totem",
+    "label": "Totem",
+    "generation": 7,
+    "rarer": false,
+    "color": "yellow",
+    "genus": "Disguise Pokémon",
+    "types": [
+      "ghost",
+      "fairy"
+    ],
+    "stats": {
+      "hp": 66,
+      "attack": 90,
+      "defense": 80,
+      "specialAttack": 50,
+      "specialDefense": 105,
+      "speed": 96
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10145.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10145.png"
+    },
+    "bst": 487
+  },
+  {
+    "id": 10146,
+    "dexNo": 784,
+    "name": "kommo-o-totem",
+    "display": "Kommo O (Totem)",
+    "kind": "totem",
+    "label": "Totem",
+    "generation": 7,
+    "rarer": false,
+    "color": "gray",
+    "genus": "Scaly Pokémon",
+    "types": [
+      "dragon",
+      "fighting"
+    ],
+    "stats": {
+      "hp": 90,
+      "attack": 110,
+      "defense": 125,
+      "specialAttack": 100,
+      "specialDefense": 105,
+      "speed": 85
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10146.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10146.png"
+    },
+    "bst": 615
+  },
+  {
+    "id": 10147,
+    "dexNo": 801,
+    "name": "magearna-original",
+    "display": "Magearna Original",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 7,
+    "rarer": true,
+    "color": "gray",
+    "genus": "Artificial Pokémon",
+    "types": [
+      "steel",
+      "fairy"
+    ],
+    "stats": {
+      "hp": 96,
+      "attack": 95,
+      "defense": 115,
+      "specialAttack": 130,
+      "specialDefense": 115,
+      "speed": 65
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10147.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10147.png"
+    },
+    "bst": 616
+  },
+  {
+    "id": 10149,
+    "dexNo": 105,
+    "name": "marowak-totem",
+    "display": "Alolan Marowak (Totem)",
+    "kind": "totem",
+    "label": "Totem",
+    "generation": 7,
+    "rarer": false,
+    "color": "brown",
+    "genus": "Bone Keeper Pokémon",
+    "types": [
+      "fire",
+      "ghost"
+    ],
+    "stats": {
+      "hp": 72,
+      "attack": 80,
+      "defense": 110,
+      "specialAttack": 50,
+      "specialDefense": 80,
+      "speed": 45
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10149.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10149.png"
+    },
+    "bst": 437
+  },
+  {
+    "id": 10150,
+    "dexNo": 743,
+    "name": "ribombee-totem",
+    "display": "Ribombee (Totem)",
+    "kind": "totem",
+    "label": "Totem",
+    "generation": 7,
+    "rarer": false,
+    "color": "yellow",
+    "genus": "Bee Fly Pokémon",
+    "types": [
+      "bug",
+      "fairy"
+    ],
+    "stats": {
+      "hp": 72,
+      "attack": 55,
+      "defense": 60,
+      "specialAttack": 95,
+      "specialDefense": 70,
+      "speed": 124
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10150.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10150.png"
+    },
+    "bst": 476
+  },
+  {
+    "id": 10152,
+    "dexNo": 745,
+    "name": "lycanroc-dusk",
+    "display": "Lycanroc Dusk",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 7,
+    "rarer": false,
+    "color": "brown",
+    "genus": "Wolf Pokémon",
+    "types": [
+      "rock"
+    ],
+    "stats": {
+      "hp": 90,
+      "attack": 117,
+      "defense": 65,
+      "specialAttack": 55,
+      "specialDefense": 65,
+      "speed": 110
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10152.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10152.png"
+    },
+    "bst": 502
+  },
+  {
+    "id": 10153,
+    "dexNo": 752,
+    "name": "araquanid-totem",
+    "display": "Araquanid (Totem)",
+    "kind": "totem",
+    "label": "Totem",
+    "generation": 7,
+    "rarer": false,
+    "color": "green",
+    "genus": "Water Bubble Pokémon",
+    "types": [
+      "water",
+      "bug"
+    ],
+    "stats": {
+      "hp": 82,
+      "attack": 70,
+      "defense": 92,
+      "specialAttack": 50,
+      "specialDefense": 132,
+      "speed": 42
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10153.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10153.png"
+    },
+    "bst": 468
+  },
+  {
+    "id": 10154,
+    "dexNo": 777,
+    "name": "togedemaru-totem",
+    "display": "Togedemaru (Totem)",
+    "kind": "totem",
+    "label": "Totem",
+    "generation": 7,
+    "rarer": false,
+    "color": "gray",
+    "genus": "Roly-Poly Pokémon",
+    "types": [
+      "electric",
+      "steel"
+    ],
+    "stats": {
+      "hp": 78,
+      "attack": 98,
+      "defense": 63,
+      "specialAttack": 40,
+      "specialDefense": 73,
+      "speed": 96
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10154.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10154.png"
+    },
+    "bst": 448
+  },
+  {
+    "id": 10155,
+    "dexNo": 800,
+    "name": "necrozma-dusk",
+    "display": "Necrozma Dusk",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 7,
+    "rarer": true,
+    "color": "black",
+    "genus": "Prism Pokémon",
+    "types": [
+      "psychic",
+      "steel"
+    ],
+    "stats": {
+      "hp": 116,
+      "attack": 157,
+      "defense": 127,
+      "specialAttack": 113,
+      "specialDefense": 109,
+      "speed": 77
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10155.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10155.png"
+    },
+    "bst": 699
+  },
+  {
+    "id": 10156,
+    "dexNo": 800,
+    "name": "necrozma-dawn",
+    "display": "Necrozma Dawn",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 7,
+    "rarer": true,
+    "color": "black",
+    "genus": "Prism Pokémon",
+    "types": [
+      "psychic",
+      "ghost"
+    ],
+    "stats": {
+      "hp": 116,
+      "attack": 113,
+      "defense": 109,
+      "specialAttack": 157,
+      "specialDefense": 127,
+      "speed": 77
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10156.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10156.png"
+    },
+    "bst": 699
+  },
+  {
+    "id": 10157,
+    "dexNo": 800,
+    "name": "necrozma-ultra",
+    "display": "Necrozma Ultra",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 7,
+    "rarer": true,
+    "color": "black",
+    "genus": "Prism Pokémon",
+    "types": [
+      "psychic",
+      "dragon"
+    ],
+    "stats": {
+      "hp": 116,
+      "attack": 167,
+      "defense": 97,
+      "specialAttack": 167,
+      "specialDefense": 97,
+      "speed": 129
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10157.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10157.png"
+    },
+    "bst": 773
+  },
+  {
+    "id": 10161,
+    "dexNo": 52,
+    "name": "meowth-galar",
+    "display": "Galarian Meowth",
+    "kind": "regional",
+    "label": "Galarian",
+    "generation": 8,
+    "rarer": false,
+    "color": "yellow",
+    "genus": "Scratch Cat Pokémon",
+    "types": [
+      "steel"
+    ],
+    "stats": {
+      "hp": 60,
+      "attack": 65,
+      "defense": 55,
+      "specialAttack": 40,
+      "specialDefense": 40,
+      "speed": 40
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10161.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10161.png"
+    },
+    "bst": 300
+  },
+  {
+    "id": 10162,
+    "dexNo": 77,
+    "name": "ponyta-galar",
+    "display": "Galarian Ponyta",
+    "kind": "regional",
+    "label": "Galarian",
+    "generation": 8,
+    "rarer": false,
+    "color": "yellow",
+    "genus": "Fire Horse Pokémon",
+    "types": [
+      "psychic"
+    ],
+    "stats": {
+      "hp": 60,
+      "attack": 85,
+      "defense": 55,
+      "specialAttack": 65,
+      "specialDefense": 65,
+      "speed": 90
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10162.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10162.png"
+    },
+    "bst": 420
+  },
+  {
+    "id": 10163,
+    "dexNo": 78,
+    "name": "rapidash-galar",
+    "display": "Galarian Rapidash",
+    "kind": "regional",
+    "label": "Galarian",
+    "generation": 8,
+    "rarer": false,
+    "color": "yellow",
+    "genus": "Fire Horse Pokémon",
+    "types": [
+      "psychic",
+      "fairy"
+    ],
+    "stats": {
+      "hp": 78,
+      "attack": 100,
+      "defense": 70,
+      "specialAttack": 80,
+      "specialDefense": 80,
+      "speed": 105
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10163.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10163.png"
+    },
+    "bst": 513
+  },
+  {
+    "id": 10164,
+    "dexNo": 79,
+    "name": "slowpoke-galar",
+    "display": "Galarian Slowpoke",
+    "kind": "regional",
+    "label": "Galarian",
+    "generation": 8,
+    "rarer": false,
+    "color": "pink",
+    "genus": "Dopey Pokémon",
+    "types": [
+      "psychic"
+    ],
+    "stats": {
+      "hp": 108,
+      "attack": 65,
+      "defense": 65,
+      "specialAttack": 40,
+      "specialDefense": 40,
+      "speed": 15
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10164.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10164.png"
+    },
+    "bst": 333
+  },
+  {
+    "id": 10165,
+    "dexNo": 80,
+    "name": "slowbro-galar",
+    "display": "Galarian Slowbro",
+    "kind": "regional",
+    "label": "Galarian",
+    "generation": 8,
+    "rarer": false,
+    "color": "pink",
+    "genus": "Hermit Crab Pokémon",
+    "types": [
+      "poison",
+      "psychic"
+    ],
+    "stats": {
+      "hp": 114,
+      "attack": 100,
+      "defense": 95,
+      "specialAttack": 100,
+      "specialDefense": 70,
+      "speed": 30
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10165.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10165.png"
+    },
+    "bst": 509
+  },
+  {
+    "id": 10166,
+    "dexNo": 83,
+    "name": "farfetchd-galar",
+    "display": "Galarian Farfetchd",
+    "kind": "regional",
+    "label": "Galarian",
+    "generation": 8,
+    "rarer": false,
+    "color": "brown",
+    "genus": "Wild Duck Pokémon",
+    "types": [
+      "fighting"
+    ],
+    "stats": {
+      "hp": 62,
+      "attack": 95,
+      "defense": 55,
+      "specialAttack": 58,
+      "specialDefense": 62,
+      "speed": 55
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10166.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10166.png"
+    },
+    "bst": 387
+  },
+  {
+    "id": 10167,
+    "dexNo": 110,
+    "name": "weezing-galar",
+    "display": "Galarian Weezing",
+    "kind": "regional",
+    "label": "Galarian",
+    "generation": 8,
+    "rarer": false,
+    "color": "purple",
+    "genus": "Poison Gas Pokémon",
+    "types": [
+      "poison",
+      "fairy"
+    ],
+    "stats": {
+      "hp": 78,
+      "attack": 90,
+      "defense": 120,
+      "specialAttack": 85,
+      "specialDefense": 70,
+      "speed": 60
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10167.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10167.png"
+    },
+    "bst": 503
+  },
+  {
+    "id": 10168,
+    "dexNo": 122,
+    "name": "mr-mime-galar",
+    "display": "Galarian Mr Mime",
+    "kind": "regional",
+    "label": "Galarian",
+    "generation": 8,
+    "rarer": false,
+    "color": "pink",
+    "genus": "Barrier Pokémon",
+    "types": [
+      "ice",
+      "psychic"
+    ],
+    "stats": {
+      "hp": 60,
+      "attack": 65,
+      "defense": 65,
+      "specialAttack": 90,
+      "specialDefense": 90,
+      "speed": 100
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10168.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10168.png"
+    },
+    "bst": 470
+  },
+  {
+    "id": 10169,
+    "dexNo": 144,
+    "name": "articuno-galar",
+    "display": "Galarian Articuno",
+    "kind": "regional",
+    "label": "Galarian",
+    "generation": 8,
+    "rarer": true,
+    "color": "blue",
+    "genus": "Freeze Pokémon",
+    "types": [
+      "psychic",
+      "flying"
+    ],
+    "stats": {
+      "hp": 108,
+      "attack": 85,
+      "defense": 85,
+      "specialAttack": 125,
+      "specialDefense": 100,
+      "speed": 95
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10169.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10169.png"
+    },
+    "bst": 598
+  },
+  {
+    "id": 10170,
+    "dexNo": 145,
+    "name": "zapdos-galar",
+    "display": "Galarian Zapdos",
+    "kind": "regional",
+    "label": "Galarian",
+    "generation": 8,
+    "rarer": true,
+    "color": "yellow",
+    "genus": "Electric Pokémon",
+    "types": [
+      "fighting",
+      "flying"
+    ],
+    "stats": {
+      "hp": 108,
+      "attack": 125,
+      "defense": 90,
+      "specialAttack": 85,
+      "specialDefense": 90,
+      "speed": 100
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10170.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10170.png"
+    },
+    "bst": 598
+  },
+  {
+    "id": 10171,
+    "dexNo": 146,
+    "name": "moltres-galar",
+    "display": "Galarian Moltres",
+    "kind": "regional",
+    "label": "Galarian",
+    "generation": 8,
+    "rarer": true,
+    "color": "yellow",
+    "genus": "Flame Pokémon",
+    "types": [
+      "dark",
+      "flying"
+    ],
+    "stats": {
+      "hp": 108,
+      "attack": 85,
+      "defense": 90,
+      "specialAttack": 100,
+      "specialDefense": 125,
+      "speed": 90
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10171.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10171.png"
+    },
+    "bst": 598
+  },
+  {
+    "id": 10172,
+    "dexNo": 199,
+    "name": "slowking-galar",
+    "display": "Galarian Slowking",
+    "kind": "regional",
+    "label": "Galarian",
+    "generation": 8,
+    "rarer": false,
+    "color": "pink",
+    "genus": "Royal Pokémon",
+    "types": [
+      "poison",
+      "psychic"
+    ],
+    "stats": {
+      "hp": 114,
+      "attack": 65,
+      "defense": 80,
+      "specialAttack": 110,
+      "specialDefense": 110,
+      "speed": 30
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10172.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10172.png"
+    },
+    "bst": 509
+  },
+  {
+    "id": 10173,
+    "dexNo": 222,
+    "name": "corsola-galar",
+    "display": "Galarian Corsola",
+    "kind": "regional",
+    "label": "Galarian",
+    "generation": 8,
+    "rarer": false,
+    "color": "pink",
+    "genus": "Coral Pokémon",
+    "types": [
+      "ghost"
+    ],
+    "stats": {
+      "hp": 72,
+      "attack": 55,
+      "defense": 100,
+      "specialAttack": 65,
+      "specialDefense": 100,
+      "speed": 30
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10173.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10173.png"
+    },
+    "bst": 422
+  },
+  {
+    "id": 10174,
+    "dexNo": 263,
+    "name": "zigzagoon-galar",
+    "display": "Galarian Zigzagoon",
+    "kind": "regional",
+    "label": "Galarian",
+    "generation": 8,
+    "rarer": false,
+    "color": "brown",
+    "genus": "Tiny Raccoon Pokémon",
+    "types": [
+      "dark",
+      "normal"
+    ],
+    "stats": {
+      "hp": 46,
+      "attack": 30,
+      "defense": 41,
+      "specialAttack": 30,
+      "specialDefense": 41,
+      "speed": 60
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10174.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10174.png"
+    },
+    "bst": 248
+  },
+  {
+    "id": 10175,
+    "dexNo": 264,
+    "name": "linoone-galar",
+    "display": "Galarian Linoone",
+    "kind": "regional",
+    "label": "Galarian",
+    "generation": 8,
+    "rarer": false,
+    "color": "white",
+    "genus": "Rushing Pokémon",
+    "types": [
+      "dark",
+      "normal"
+    ],
+    "stats": {
+      "hp": 94,
+      "attack": 70,
+      "defense": 61,
+      "specialAttack": 50,
+      "specialDefense": 61,
+      "speed": 100
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10175.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10175.png"
+    },
+    "bst": 436
+  },
+  {
+    "id": 10176,
+    "dexNo": 554,
+    "name": "darumaka-galar",
+    "display": "Galarian Darumaka",
+    "kind": "regional",
+    "label": "Galarian",
+    "generation": 8,
+    "rarer": false,
+    "color": "red",
+    "genus": "Zen Charm Pokémon",
+    "types": [
+      "ice"
+    ],
+    "stats": {
+      "hp": 84,
+      "attack": 90,
+      "defense": 45,
+      "specialAttack": 15,
+      "specialDefense": 45,
+      "speed": 50
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10176.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10176.png"
+    },
+    "bst": 329
+  },
+  {
+    "id": 10177,
+    "dexNo": 555,
+    "name": "darmanitan-galar-standard",
+    "display": "Galarian Darmanitan",
+    "kind": "regional",
+    "label": "Galarian",
+    "generation": 8,
+    "rarer": false,
+    "color": "red",
+    "genus": "Blazing Pokémon",
+    "types": [
+      "ice"
+    ],
+    "stats": {
+      "hp": 126,
+      "attack": 140,
+      "defense": 55,
+      "specialAttack": 30,
+      "specialDefense": 55,
+      "speed": 95
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10177.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10177.png"
+    },
+    "bst": 501
+  },
+  {
+    "id": 10178,
+    "dexNo": 555,
+    "name": "darmanitan-galar-zen",
+    "display": "Galarian Darmanitan (Zen)",
+    "kind": "regional",
+    "label": "Galarian",
+    "generation": 8,
+    "rarer": false,
+    "color": "red",
+    "genus": "Blazing Pokémon",
+    "types": [
+      "ice",
+      "fire"
+    ],
+    "stats": {
+      "hp": 126,
+      "attack": 160,
+      "defense": 55,
+      "specialAttack": 30,
+      "specialDefense": 55,
+      "speed": 135
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10178.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10178.png"
+    },
+    "bst": 561
+  },
+  {
+    "id": 10179,
+    "dexNo": 562,
+    "name": "yamask-galar",
+    "display": "Galarian Yamask",
+    "kind": "regional",
+    "label": "Galarian",
+    "generation": 8,
+    "rarer": false,
+    "color": "black",
+    "genus": "Spirit Pokémon",
+    "types": [
+      "ground",
+      "ghost"
+    ],
+    "stats": {
+      "hp": 46,
+      "attack": 55,
+      "defense": 85,
+      "specialAttack": 30,
+      "specialDefense": 65,
+      "speed": 30
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10179.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10179.png"
+    },
+    "bst": 311
+  },
+  {
+    "id": 10180,
+    "dexNo": 618,
+    "name": "stunfisk-galar",
+    "display": "Galarian Stunfisk",
+    "kind": "regional",
+    "label": "Galarian",
+    "generation": 8,
+    "rarer": false,
+    "color": "brown",
+    "genus": "Trap Pokémon",
+    "types": [
+      "ground",
+      "steel"
+    ],
+    "stats": {
+      "hp": 131,
+      "attack": 81,
+      "defense": 99,
+      "specialAttack": 66,
+      "specialDefense": 84,
+      "speed": 32
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10180.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10180.png"
+    },
+    "bst": 493
+  },
+  {
+    "id": 10181,
+    "dexNo": 718,
+    "name": "zygarde-10",
+    "display": "Zygarde 10%",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 6,
+    "rarer": true,
+    "color": "green",
+    "genus": "Order Pokémon",
+    "types": [
+      "dragon",
+      "ground"
+    ],
+    "stats": {
+      "hp": 65,
+      "attack": 100,
+      "defense": 71,
+      "specialAttack": 61,
+      "specialDefense": 85,
+      "speed": 115
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10181.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10181.png"
+    },
+    "bst": 497
+  },
+  {
+    "id": 10184,
+    "dexNo": 849,
+    "name": "toxtricity-low-key",
+    "display": "Toxtricity Low Key",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 8,
+    "rarer": false,
+    "color": "purple",
+    "genus": "Punk Pokémon",
+    "types": [
+      "electric",
+      "poison"
+    ],
+    "stats": {
+      "hp": 90,
+      "attack": 98,
+      "defense": 70,
+      "specialAttack": 114,
+      "specialDefense": 70,
+      "speed": 75
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10184.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10184.png"
+    },
+    "bst": 517
+  },
+  {
+    "id": 10185,
+    "dexNo": 875,
+    "name": "eiscue-noice",
+    "display": "Eiscue Noice",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 8,
+    "rarer": false,
+    "color": "blue",
+    "genus": "Penguin Pokémon",
+    "types": [
+      "ice"
+    ],
+    "stats": {
+      "hp": 90,
+      "attack": 80,
+      "defense": 70,
+      "specialAttack": 65,
+      "specialDefense": 50,
+      "speed": 130
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10185.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10185.png"
+    },
+    "bst": 485
+  },
+  {
+    "id": 10187,
+    "dexNo": 877,
+    "name": "morpeko-hangry",
+    "display": "Morpeko Hangry",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 8,
+    "rarer": false,
+    "color": "yellow",
+    "genus": "Two-Sided Pokémon",
+    "types": [
+      "electric",
+      "dark"
+    ],
+    "stats": {
+      "hp": 70,
+      "attack": 95,
+      "defense": 58,
+      "specialAttack": 70,
+      "specialDefense": 58,
+      "speed": 97
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10187.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10187.png"
+    },
+    "bst": 448
+  },
+  {
+    "id": 10188,
+    "dexNo": 888,
+    "name": "zacian-crowned",
+    "display": "Zacian Crowned",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 8,
+    "rarer": true,
+    "color": "blue",
+    "genus": "Warrior Pokémon",
+    "types": [
+      "fairy",
+      "steel"
+    ],
+    "stats": {
+      "hp": 110,
+      "attack": 150,
+      "defense": 115,
+      "specialAttack": 80,
+      "specialDefense": 115,
+      "speed": 148
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10188.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10188.png"
+    },
+    "bst": 718
+  },
+  {
+    "id": 10189,
+    "dexNo": 889,
+    "name": "zamazenta-crowned",
+    "display": "Zamazenta Crowned",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 8,
+    "rarer": true,
+    "color": "red",
+    "genus": "Warrior Pokémon",
+    "types": [
+      "fighting",
+      "steel"
+    ],
+    "stats": {
+      "hp": 110,
+      "attack": 120,
+      "defense": 140,
+      "specialAttack": 80,
+      "specialDefense": 140,
+      "speed": 128
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10189.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10189.png"
+    },
+    "bst": 718
+  },
+  {
+    "id": 10190,
+    "dexNo": 890,
+    "name": "eternatus-eternamax",
+    "display": "Eternatus Eternamax",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 8,
+    "rarer": true,
+    "color": "purple",
+    "genus": "Gigantic Pokémon",
+    "types": [
+      "poison",
+      "dragon"
+    ],
+    "stats": {
+      "hp": 306,
+      "attack": 115,
+      "defense": 250,
+      "specialAttack": 125,
+      "specialDefense": 250,
+      "speed": 130
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10190.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10190.png"
+    },
+    "bst": 1176
+  },
+  {
+    "id": 10191,
+    "dexNo": 892,
+    "name": "urshifu-rapid-strike",
+    "display": "Urshifu Rapid Strike",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 8,
+    "rarer": true,
+    "color": "gray",
+    "genus": "Wushu Pokémon",
+    "types": [
+      "fighting",
+      "water"
+    ],
+    "stats": {
+      "hp": 120,
+      "attack": 130,
+      "defense": 100,
+      "specialAttack": 63,
+      "specialDefense": 60,
+      "speed": 97
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10191.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10191.png"
+    },
+    "bst": 570
+  },
+  {
+    "id": 10192,
+    "dexNo": 893,
+    "name": "zarude-dada",
+    "display": "Zarude Dada",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 8,
+    "rarer": true,
+    "color": "green",
+    "genus": "Rogue Monkey Pokémon",
+    "types": [
+      "dark",
+      "grass"
+    ],
+    "stats": {
+      "hp": 126,
+      "attack": 120,
+      "defense": 105,
+      "specialAttack": 70,
+      "specialDefense": 95,
+      "speed": 105
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10192.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10192.png"
+    },
+    "bst": 621
+  },
+  {
+    "id": 10193,
+    "dexNo": 898,
+    "name": "calyrex-ice",
+    "display": "Calyrex Ice",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 8,
+    "rarer": true,
+    "color": "green",
+    "genus": "King Pokémon",
+    "types": [
+      "psychic",
+      "ice"
+    ],
+    "stats": {
+      "hp": 120,
+      "attack": 165,
+      "defense": 150,
+      "specialAttack": 85,
+      "specialDefense": 130,
+      "speed": 50
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10193.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10193.png"
+    },
+    "bst": 700
+  },
+  {
+    "id": 10194,
+    "dexNo": 898,
+    "name": "calyrex-shadow",
+    "display": "Calyrex Shadow",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 8,
+    "rarer": true,
+    "color": "green",
+    "genus": "King Pokémon",
+    "types": [
+      "psychic",
+      "ghost"
+    ],
+    "stats": {
+      "hp": 120,
+      "attack": 85,
+      "defense": 80,
+      "specialAttack": 165,
+      "specialDefense": 100,
+      "speed": 150
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10194.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10194.png"
+    },
+    "bst": 700
+  },
+  {
+    "id": 10195,
+    "dexNo": 3,
+    "name": "venusaur-gmax",
+    "display": "Gigantamax Venusaur",
+    "kind": "gmax",
+    "label": "Gigantamax",
+    "generation": 8,
+    "rarer": false,
+    "color": "green",
+    "genus": "Seed Pokémon",
+    "types": [
+      "grass",
+      "poison"
+    ],
+    "stats": {
+      "hp": 96,
+      "attack": 82,
+      "defense": 83,
+      "specialAttack": 100,
+      "specialDefense": 100,
+      "speed": 80
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10195.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10195.png"
+    },
+    "bst": 541
+  },
+  {
+    "id": 10196,
+    "dexNo": 6,
+    "name": "charizard-gmax",
+    "display": "Gigantamax Charizard",
+    "kind": "gmax",
+    "label": "Gigantamax",
+    "generation": 8,
+    "rarer": false,
+    "color": "red",
+    "genus": "Flame Pokémon",
+    "types": [
+      "fire",
+      "flying"
+    ],
+    "stats": {
+      "hp": 94,
+      "attack": 84,
+      "defense": 78,
+      "specialAttack": 109,
+      "specialDefense": 85,
+      "speed": 100
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10196.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10196.png"
+    },
+    "bst": 550
+  },
+  {
+    "id": 10197,
+    "dexNo": 9,
+    "name": "blastoise-gmax",
+    "display": "Gigantamax Blastoise",
+    "kind": "gmax",
+    "label": "Gigantamax",
+    "generation": 8,
+    "rarer": false,
+    "color": "blue",
+    "genus": "Shellfish Pokémon",
+    "types": [
+      "water"
+    ],
+    "stats": {
+      "hp": 95,
+      "attack": 83,
+      "defense": 100,
+      "specialAttack": 85,
+      "specialDefense": 105,
+      "speed": 78
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10197.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10197.png"
+    },
+    "bst": 546
+  },
+  {
+    "id": 10198,
+    "dexNo": 12,
+    "name": "butterfree-gmax",
+    "display": "Gigantamax Butterfree",
+    "kind": "gmax",
+    "label": "Gigantamax",
+    "generation": 8,
+    "rarer": false,
+    "color": "white",
+    "genus": "Butterfly Pokémon",
+    "types": [
+      "bug",
+      "flying"
+    ],
+    "stats": {
+      "hp": 72,
+      "attack": 45,
+      "defense": 50,
+      "specialAttack": 90,
+      "specialDefense": 80,
+      "speed": 70
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10198.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10198.png"
+    },
+    "bst": 407
+  },
+  {
+    "id": 10199,
+    "dexNo": 25,
+    "name": "pikachu-gmax",
+    "display": "Gigantamax Pikachu",
+    "kind": "gmax",
+    "label": "Gigantamax",
+    "generation": 8,
+    "rarer": false,
+    "color": "yellow",
+    "genus": "Mouse Pokémon",
+    "types": [
+      "electric"
+    ],
+    "stats": {
+      "hp": 42,
+      "attack": 55,
+      "defense": 40,
+      "specialAttack": 50,
+      "specialDefense": 50,
+      "speed": 90
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10199.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10199.png"
+    },
+    "bst": 327
+  },
+  {
+    "id": 10200,
+    "dexNo": 52,
+    "name": "meowth-gmax",
+    "display": "Gigantamax Meowth",
+    "kind": "gmax",
+    "label": "Gigantamax",
+    "generation": 8,
+    "rarer": false,
+    "color": "yellow",
+    "genus": "Scratch Cat Pokémon",
+    "types": [
+      "normal"
+    ],
+    "stats": {
+      "hp": 48,
+      "attack": 45,
+      "defense": 35,
+      "specialAttack": 40,
+      "specialDefense": 40,
+      "speed": 90
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10200.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10200.png"
+    },
+    "bst": 298
+  },
+  {
+    "id": 10201,
+    "dexNo": 68,
+    "name": "machamp-gmax",
+    "display": "Gigantamax Machamp",
+    "kind": "gmax",
+    "label": "Gigantamax",
+    "generation": 8,
+    "rarer": false,
+    "color": "gray",
+    "genus": "Superpower Pokémon",
+    "types": [
+      "fighting"
+    ],
+    "stats": {
+      "hp": 108,
+      "attack": 130,
+      "defense": 80,
+      "specialAttack": 65,
+      "specialDefense": 85,
+      "speed": 55
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10201.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10201.png"
+    },
+    "bst": 523
+  },
+  {
+    "id": 10202,
+    "dexNo": 94,
+    "name": "gengar-gmax",
+    "display": "Gigantamax Gengar",
+    "kind": "gmax",
+    "label": "Gigantamax",
+    "generation": 8,
+    "rarer": false,
+    "color": "purple",
+    "genus": "Shadow Pokémon",
+    "types": [
+      "ghost",
+      "poison"
+    ],
+    "stats": {
+      "hp": 72,
+      "attack": 65,
+      "defense": 60,
+      "specialAttack": 130,
+      "specialDefense": 75,
+      "speed": 110
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10202.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10202.png"
+    },
+    "bst": 512
+  },
+  {
+    "id": 10203,
+    "dexNo": 99,
+    "name": "kingler-gmax",
+    "display": "Gigantamax Kingler",
+    "kind": "gmax",
+    "label": "Gigantamax",
+    "generation": 8,
+    "rarer": false,
+    "color": "red",
+    "genus": "Pincer Pokémon",
+    "types": [
+      "water"
+    ],
+    "stats": {
+      "hp": 66,
+      "attack": 130,
+      "defense": 115,
+      "specialAttack": 50,
+      "specialDefense": 50,
+      "speed": 75
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10203.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10203.png"
+    },
+    "bst": 486
+  },
+  {
+    "id": 10204,
+    "dexNo": 131,
+    "name": "lapras-gmax",
+    "display": "Gigantamax Lapras",
+    "kind": "gmax",
+    "label": "Gigantamax",
+    "generation": 8,
+    "rarer": false,
+    "color": "blue",
+    "genus": "Transport Pokémon",
+    "types": [
+      "water",
+      "ice"
+    ],
+    "stats": {
+      "hp": 156,
+      "attack": 85,
+      "defense": 80,
+      "specialAttack": 85,
+      "specialDefense": 95,
+      "speed": 60
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10204.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10204.png"
+    },
+    "bst": 561
+  },
+  {
+    "id": 10205,
+    "dexNo": 133,
+    "name": "eevee-gmax",
+    "display": "Gigantamax Eevee",
+    "kind": "gmax",
+    "label": "Gigantamax",
+    "generation": 8,
+    "rarer": false,
+    "color": "brown",
+    "genus": "Evolution Pokémon",
+    "types": [
+      "normal"
+    ],
+    "stats": {
+      "hp": 66,
+      "attack": 55,
+      "defense": 50,
+      "specialAttack": 45,
+      "specialDefense": 65,
+      "speed": 55
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10205.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10205.png"
+    },
+    "bst": 336
+  },
+  {
+    "id": 10206,
+    "dexNo": 143,
+    "name": "snorlax-gmax",
+    "display": "Gigantamax Snorlax",
+    "kind": "gmax",
+    "label": "Gigantamax",
+    "generation": 8,
+    "rarer": false,
+    "color": "black",
+    "genus": "Sleeping Pokémon",
+    "types": [
+      "normal"
+    ],
+    "stats": {
+      "hp": 192,
+      "attack": 110,
+      "defense": 65,
+      "specialAttack": 65,
+      "specialDefense": 110,
+      "speed": 30
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10206.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10206.png"
+    },
+    "bst": 572
+  },
+  {
+    "id": 10207,
+    "dexNo": 569,
+    "name": "garbodor-gmax",
+    "display": "Gigantamax Garbodor",
+    "kind": "gmax",
+    "label": "Gigantamax",
+    "generation": 8,
+    "rarer": false,
+    "color": "green",
+    "genus": "Trash Heap Pokémon",
+    "types": [
+      "poison"
+    ],
+    "stats": {
+      "hp": 96,
+      "attack": 95,
+      "defense": 82,
+      "specialAttack": 60,
+      "specialDefense": 82,
+      "speed": 75
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10207.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10207.png"
+    },
+    "bst": 490
+  },
+  {
+    "id": 10208,
+    "dexNo": 809,
+    "name": "melmetal-gmax",
+    "display": "Gigantamax Melmetal",
+    "kind": "gmax",
+    "label": "Gigantamax",
+    "generation": 8,
+    "rarer": true,
+    "color": "gray",
+    "genus": "Hex Nut Pokémon",
+    "types": [
+      "steel"
+    ],
+    "stats": {
+      "hp": 162,
+      "attack": 143,
+      "defense": 143,
+      "specialAttack": 80,
+      "specialDefense": 65,
+      "speed": 34
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10208.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10208.png"
+    },
+    "bst": 627
+  },
+  {
+    "id": 10209,
+    "dexNo": 812,
+    "name": "rillaboom-gmax",
+    "display": "Gigantamax Rillaboom",
+    "kind": "gmax",
+    "label": "Gigantamax",
+    "generation": 8,
+    "rarer": false,
+    "color": "green",
+    "genus": "Drummer Pokémon",
+    "types": [
+      "grass"
+    ],
+    "stats": {
+      "hp": 120,
+      "attack": 125,
+      "defense": 90,
+      "specialAttack": 60,
+      "specialDefense": 70,
+      "speed": 85
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10209.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10209.png"
+    },
+    "bst": 550
+  },
+  {
+    "id": 10210,
+    "dexNo": 815,
+    "name": "cinderace-gmax",
+    "display": "Gigantamax Cinderace",
+    "kind": "gmax",
+    "label": "Gigantamax",
+    "generation": 8,
+    "rarer": false,
+    "color": "white",
+    "genus": "Striker Pokémon",
+    "types": [
+      "fire"
+    ],
+    "stats": {
+      "hp": 96,
+      "attack": 116,
+      "defense": 75,
+      "specialAttack": 65,
+      "specialDefense": 75,
+      "speed": 119
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10210.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10210.png"
+    },
+    "bst": 546
+  },
+  {
+    "id": 10211,
+    "dexNo": 818,
+    "name": "inteleon-gmax",
+    "display": "Gigantamax Inteleon",
+    "kind": "gmax",
+    "label": "Gigantamax",
+    "generation": 8,
+    "rarer": false,
+    "color": "blue",
+    "genus": "Secret Agent Pokémon",
+    "types": [
+      "water"
+    ],
+    "stats": {
+      "hp": 84,
+      "attack": 85,
+      "defense": 65,
+      "specialAttack": 125,
+      "specialDefense": 65,
+      "speed": 120
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10211.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10211.png"
+    },
+    "bst": 544
+  },
+  {
+    "id": 10212,
+    "dexNo": 823,
+    "name": "corviknight-gmax",
+    "display": "Gigantamax Corviknight",
+    "kind": "gmax",
+    "label": "Gigantamax",
+    "generation": 8,
+    "rarer": false,
+    "color": "purple",
+    "genus": "Raven Pokémon",
+    "types": [
+      "flying",
+      "steel"
+    ],
+    "stats": {
+      "hp": 118,
+      "attack": 87,
+      "defense": 105,
+      "specialAttack": 53,
+      "specialDefense": 85,
+      "speed": 67
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10212.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10212.png"
+    },
+    "bst": 515
+  },
+  {
+    "id": 10213,
+    "dexNo": 826,
+    "name": "orbeetle-gmax",
+    "display": "Gigantamax Orbeetle",
+    "kind": "gmax",
+    "label": "Gigantamax",
+    "generation": 8,
+    "rarer": false,
+    "color": "red",
+    "genus": "Seven Spot Pokémon",
+    "types": [
+      "bug",
+      "psychic"
+    ],
+    "stats": {
+      "hp": 72,
+      "attack": 45,
+      "defense": 110,
+      "specialAttack": 80,
+      "specialDefense": 120,
+      "speed": 90
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10213.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10213.png"
+    },
+    "bst": 517
+  },
+  {
+    "id": 10214,
+    "dexNo": 834,
+    "name": "drednaw-gmax",
+    "display": "Gigantamax Drednaw",
+    "kind": "gmax",
+    "label": "Gigantamax",
+    "generation": 8,
+    "rarer": false,
+    "color": "green",
+    "genus": "Bite Pokémon",
+    "types": [
+      "water",
+      "rock"
+    ],
+    "stats": {
+      "hp": 108,
+      "attack": 115,
+      "defense": 90,
+      "specialAttack": 48,
+      "specialDefense": 68,
+      "speed": 74
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10214.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10214.png"
+    },
+    "bst": 503
+  },
+  {
+    "id": 10215,
+    "dexNo": 839,
+    "name": "coalossal-gmax",
+    "display": "Gigantamax Coalossal",
+    "kind": "gmax",
+    "label": "Gigantamax",
+    "generation": 8,
+    "rarer": false,
+    "color": "black",
+    "genus": "Coal Pokémon",
+    "types": [
+      "rock",
+      "fire"
+    ],
+    "stats": {
+      "hp": 132,
+      "attack": 80,
+      "defense": 120,
+      "specialAttack": 80,
+      "specialDefense": 90,
+      "speed": 30
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10215.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10215.png"
+    },
+    "bst": 532
+  },
+  {
+    "id": 10216,
+    "dexNo": 841,
+    "name": "flapple-gmax",
+    "display": "Gigantamax Flapple",
+    "kind": "gmax",
+    "label": "Gigantamax",
+    "generation": 8,
+    "rarer": false,
+    "color": "green",
+    "genus": "Apple Wing Pokémon",
+    "types": [
+      "grass",
+      "dragon"
+    ],
+    "stats": {
+      "hp": 84,
+      "attack": 110,
+      "defense": 80,
+      "specialAttack": 95,
+      "specialDefense": 60,
+      "speed": 70
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10216.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10216.png"
+    },
+    "bst": 499
+  },
+  {
+    "id": 10217,
+    "dexNo": 842,
+    "name": "appletun-gmax",
+    "display": "Gigantamax Appletun",
+    "kind": "gmax",
+    "label": "Gigantamax",
+    "generation": 8,
+    "rarer": false,
+    "color": "green",
+    "genus": "Apple Nectar Pokémon",
+    "types": [
+      "grass",
+      "dragon"
+    ],
+    "stats": {
+      "hp": 132,
+      "attack": 85,
+      "defense": 80,
+      "specialAttack": 100,
+      "specialDefense": 80,
+      "speed": 30
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10217.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10217.png"
+    },
+    "bst": 507
+  },
+  {
+    "id": 10218,
+    "dexNo": 844,
+    "name": "sandaconda-gmax",
+    "display": "Gigantamax Sandaconda",
+    "kind": "gmax",
+    "label": "Gigantamax",
+    "generation": 8,
+    "rarer": false,
+    "color": "green",
+    "genus": "Sand Snake Pokémon",
+    "types": [
+      "ground"
+    ],
+    "stats": {
+      "hp": 86,
+      "attack": 107,
+      "defense": 125,
+      "specialAttack": 65,
+      "specialDefense": 70,
+      "speed": 71
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10218.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10218.png"
+    },
+    "bst": 524
+  },
+  {
+    "id": 10219,
+    "dexNo": 849,
+    "name": "toxtricity-amped-gmax",
+    "display": "Gigantamax Toxtricity Amped",
+    "kind": "gmax",
+    "label": "Gigantamax",
+    "generation": 8,
+    "rarer": false,
+    "color": "purple",
+    "genus": "Punk Pokémon",
+    "types": [
+      "electric",
+      "poison"
+    ],
+    "stats": {
+      "hp": 90,
+      "attack": 98,
+      "defense": 70,
+      "specialAttack": 114,
+      "specialDefense": 70,
+      "speed": 75
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10219.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10219.png"
+    },
+    "bst": 517
+  },
+  {
+    "id": 10220,
+    "dexNo": 851,
+    "name": "centiskorch-gmax",
+    "display": "Gigantamax Centiskorch",
+    "kind": "gmax",
+    "label": "Gigantamax",
+    "generation": 8,
+    "rarer": false,
+    "color": "red",
+    "genus": "Radiator Pokémon",
+    "types": [
+      "fire",
+      "bug"
+    ],
+    "stats": {
+      "hp": 120,
+      "attack": 115,
+      "defense": 65,
+      "specialAttack": 90,
+      "specialDefense": 90,
+      "speed": 65
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10220.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10220.png"
+    },
+    "bst": 545
+  },
+  {
+    "id": 10221,
+    "dexNo": 858,
+    "name": "hatterene-gmax",
+    "display": "Gigantamax Hatterene",
+    "kind": "gmax",
+    "label": "Gigantamax",
+    "generation": 8,
+    "rarer": false,
+    "color": "pink",
+    "genus": "Silent Pokémon",
+    "types": [
+      "psychic",
+      "fairy"
+    ],
+    "stats": {
+      "hp": 68,
+      "attack": 90,
+      "defense": 95,
+      "specialAttack": 136,
+      "specialDefense": 103,
+      "speed": 29
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10221.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10221.png"
+    },
+    "bst": 521
+  },
+  {
+    "id": 10222,
+    "dexNo": 861,
+    "name": "grimmsnarl-gmax",
+    "display": "Gigantamax Grimmsnarl",
+    "kind": "gmax",
+    "label": "Gigantamax",
+    "generation": 8,
+    "rarer": false,
+    "color": "purple",
+    "genus": "Bulk Up Pokémon",
+    "types": [
+      "dark",
+      "fairy"
+    ],
+    "stats": {
+      "hp": 114,
+      "attack": 120,
+      "defense": 65,
+      "specialAttack": 95,
+      "specialDefense": 75,
+      "speed": 60
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10222.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10222.png"
+    },
+    "bst": 529
+  },
+  {
+    "id": 10223,
+    "dexNo": 869,
+    "name": "alcremie-gmax",
+    "display": "Gigantamax Alcremie",
+    "kind": "gmax",
+    "label": "Gigantamax",
+    "generation": 8,
+    "rarer": false,
+    "color": "white",
+    "genus": "Cream Pokémon",
+    "types": [
+      "fairy"
+    ],
+    "stats": {
+      "hp": 78,
+      "attack": 60,
+      "defense": 75,
+      "specialAttack": 110,
+      "specialDefense": 121,
+      "speed": 64
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10223.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10223.png"
+    },
+    "bst": 508
+  },
+  {
+    "id": 10224,
+    "dexNo": 879,
+    "name": "copperajah-gmax",
+    "display": "Gigantamax Copperajah",
+    "kind": "gmax",
+    "label": "Gigantamax",
+    "generation": 8,
+    "rarer": false,
+    "color": "green",
+    "genus": "Copperderm Pokémon",
+    "types": [
+      "steel"
+    ],
+    "stats": {
+      "hp": 146,
+      "attack": 130,
+      "defense": 69,
+      "specialAttack": 80,
+      "specialDefense": 69,
+      "speed": 30
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10224.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10224.png"
+    },
+    "bst": 524
+  },
+  {
+    "id": 10225,
+    "dexNo": 884,
+    "name": "duraludon-gmax",
+    "display": "Gigantamax Duraludon",
+    "kind": "gmax",
+    "label": "Gigantamax",
+    "generation": 8,
+    "rarer": false,
+    "color": "white",
+    "genus": "Alloy Pokémon",
+    "types": [
+      "steel",
+      "dragon"
+    ],
+    "stats": {
+      "hp": 84,
+      "attack": 95,
+      "defense": 115,
+      "specialAttack": 120,
+      "specialDefense": 50,
+      "speed": 85
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10225.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10225.png"
+    },
+    "bst": 549
+  },
+  {
+    "id": 10226,
+    "dexNo": 892,
+    "name": "urshifu-single-strike-gmax",
+    "display": "Gigantamax Urshifu Single Strike",
+    "kind": "gmax",
+    "label": "Gigantamax",
+    "generation": 8,
+    "rarer": true,
+    "color": "gray",
+    "genus": "Wushu Pokémon",
+    "types": [
+      "fighting",
+      "dark"
+    ],
+    "stats": {
+      "hp": 120,
+      "attack": 130,
+      "defense": 100,
+      "specialAttack": 63,
+      "specialDefense": 60,
+      "speed": 97
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10226.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10226.png"
+    },
+    "bst": 570
+  },
+  {
+    "id": 10227,
+    "dexNo": 892,
+    "name": "urshifu-rapid-strike-gmax",
+    "display": "Gigantamax Urshifu Rapid Strike",
+    "kind": "gmax",
+    "label": "Gigantamax",
+    "generation": 8,
+    "rarer": true,
+    "color": "gray",
+    "genus": "Wushu Pokémon",
+    "types": [
+      "fighting",
+      "water"
+    ],
+    "stats": {
+      "hp": 120,
+      "attack": 130,
+      "defense": 100,
+      "specialAttack": 63,
+      "specialDefense": 60,
+      "speed": 97
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10227.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10227.png"
+    },
+    "bst": 570
+  },
+  {
+    "id": 10228,
+    "dexNo": 849,
+    "name": "toxtricity-low-key-gmax",
+    "display": "Gigantamax Toxtricity Low Key",
+    "kind": "gmax",
+    "label": "Gigantamax",
+    "generation": 8,
+    "rarer": false,
+    "color": "purple",
+    "genus": "Punk Pokémon",
+    "types": [
+      "electric",
+      "poison"
+    ],
+    "stats": {
+      "hp": 90,
+      "attack": 98,
+      "defense": 70,
+      "specialAttack": 114,
+      "specialDefense": 70,
+      "speed": 75
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10228.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10228.png"
+    },
+    "bst": 517
+  },
+  {
+    "id": 10229,
+    "dexNo": 58,
+    "name": "growlithe-hisui",
+    "display": "Hisuian Growlithe",
+    "kind": "regional",
+    "label": "Hisuian",
+    "generation": 8,
+    "rarer": false,
+    "color": "brown",
+    "genus": "Puppy Pokémon",
+    "types": [
+      "fire",
+      "rock"
+    ],
+    "stats": {
+      "hp": 72,
+      "attack": 75,
+      "defense": 45,
+      "specialAttack": 65,
+      "specialDefense": 50,
+      "speed": 55
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10229.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10229.png"
+    },
+    "bst": 362
+  },
+  {
+    "id": 10230,
+    "dexNo": 59,
+    "name": "arcanine-hisui",
+    "display": "Hisuian Arcanine",
+    "kind": "regional",
+    "label": "Hisuian",
+    "generation": 8,
+    "rarer": false,
+    "color": "brown",
+    "genus": "Legendary Pokémon",
+    "types": [
+      "fire",
+      "rock"
+    ],
+    "stats": {
+      "hp": 114,
+      "attack": 115,
+      "defense": 80,
+      "specialAttack": 95,
+      "specialDefense": 80,
+      "speed": 90
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10230.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10230.png"
+    },
+    "bst": 574
+  },
+  {
+    "id": 10231,
+    "dexNo": 100,
+    "name": "voltorb-hisui",
+    "display": "Hisuian Voltorb",
+    "kind": "regional",
+    "label": "Hisuian",
+    "generation": 8,
+    "rarer": false,
+    "color": "red",
+    "genus": "Ball Pokémon",
+    "types": [
+      "electric",
+      "grass"
+    ],
+    "stats": {
+      "hp": 48,
+      "attack": 30,
+      "defense": 50,
+      "specialAttack": 55,
+      "specialDefense": 55,
+      "speed": 100
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10231.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10231.png"
+    },
+    "bst": 338
+  },
+  {
+    "id": 10232,
+    "dexNo": 101,
+    "name": "electrode-hisui",
+    "display": "Hisuian Electrode",
+    "kind": "regional",
+    "label": "Hisuian",
+    "generation": 8,
+    "rarer": false,
+    "color": "red",
+    "genus": "Ball Pokémon",
+    "types": [
+      "electric",
+      "grass"
+    ],
+    "stats": {
+      "hp": 72,
+      "attack": 50,
+      "defense": 70,
+      "specialAttack": 80,
+      "specialDefense": 80,
+      "speed": 150
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10232.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10232.png"
+    },
+    "bst": 502
+  },
+  {
+    "id": 10233,
+    "dexNo": 157,
+    "name": "typhlosion-hisui",
+    "display": "Hisuian Typhlosion",
+    "kind": "regional",
+    "label": "Hisuian",
+    "generation": 8,
+    "rarer": false,
+    "color": "yellow",
+    "genus": "Volcano Pokémon",
+    "types": [
+      "fire",
+      "ghost"
+    ],
+    "stats": {
+      "hp": 88,
+      "attack": 84,
+      "defense": 78,
+      "specialAttack": 119,
+      "specialDefense": 85,
+      "speed": 95
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10233.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10233.png"
+    },
+    "bst": 549
+  },
+  {
+    "id": 10234,
+    "dexNo": 211,
+    "name": "qwilfish-hisui",
+    "display": "Hisuian Qwilfish",
+    "kind": "regional",
+    "label": "Hisuian",
+    "generation": 8,
+    "rarer": false,
+    "color": "gray",
+    "genus": "Balloon Pokémon",
+    "types": [
+      "dark",
+      "poison"
+    ],
+    "stats": {
+      "hp": 78,
+      "attack": 95,
+      "defense": 85,
+      "specialAttack": 55,
+      "specialDefense": 55,
+      "speed": 85
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10234.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10234.png"
+    },
+    "bst": 453
+  },
+  {
+    "id": 10235,
+    "dexNo": 215,
+    "name": "sneasel-hisui",
+    "display": "Hisuian Sneasel",
+    "kind": "regional",
+    "label": "Hisuian",
+    "generation": 8,
+    "rarer": false,
+    "color": "black",
+    "genus": "Sharp Claw Pokémon",
+    "types": [
+      "fighting",
+      "poison"
+    ],
+    "stats": {
+      "hp": 66,
+      "attack": 95,
+      "defense": 55,
+      "specialAttack": 35,
+      "specialDefense": 75,
+      "speed": 115
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10235.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10235.png"
+    },
+    "bst": 441
+  },
+  {
+    "id": 10236,
+    "dexNo": 503,
+    "name": "samurott-hisui",
+    "display": "Hisuian Samurott",
+    "kind": "regional",
+    "label": "Hisuian",
+    "generation": 8,
+    "rarer": false,
+    "color": "blue",
+    "genus": "Formidable Pokémon",
+    "types": [
+      "water",
+      "dark"
+    ],
+    "stats": {
+      "hp": 108,
+      "attack": 108,
+      "defense": 80,
+      "specialAttack": 100,
+      "specialDefense": 65,
+      "speed": 85
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10236.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10236.png"
+    },
+    "bst": 546
+  },
+  {
+    "id": 10237,
+    "dexNo": 549,
+    "name": "lilligant-hisui",
+    "display": "Hisuian Lilligant",
+    "kind": "regional",
+    "label": "Hisuian",
+    "generation": 8,
+    "rarer": false,
+    "color": "green",
+    "genus": "Flowering Pokémon",
+    "types": [
+      "grass",
+      "fighting"
+    ],
+    "stats": {
+      "hp": 84,
+      "attack": 105,
+      "defense": 75,
+      "specialAttack": 50,
+      "specialDefense": 75,
+      "speed": 105
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10237.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10237.png"
+    },
+    "bst": 494
+  },
+  {
+    "id": 10238,
+    "dexNo": 570,
+    "name": "zorua-hisui",
+    "display": "Hisuian Zorua",
+    "kind": "regional",
+    "label": "Hisuian",
+    "generation": 8,
+    "rarer": false,
+    "color": "gray",
+    "genus": "Tricky Fox Pokémon",
+    "types": [
+      "normal",
+      "ghost"
+    ],
+    "stats": {
+      "hp": 42,
+      "attack": 60,
+      "defense": 40,
+      "specialAttack": 85,
+      "specialDefense": 40,
+      "speed": 70
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10238.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10238.png"
+    },
+    "bst": 337
+  },
+  {
+    "id": 10239,
+    "dexNo": 571,
+    "name": "zoroark-hisui",
+    "display": "Hisuian Zoroark",
+    "kind": "regional",
+    "label": "Hisuian",
+    "generation": 8,
+    "rarer": false,
+    "color": "gray",
+    "genus": "Illusion Fox Pokémon",
+    "types": [
+      "normal",
+      "ghost"
+    ],
+    "stats": {
+      "hp": 66,
+      "attack": 100,
+      "defense": 60,
+      "specialAttack": 125,
+      "specialDefense": 60,
+      "speed": 110
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10239.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10239.png"
+    },
+    "bst": 521
+  },
+  {
+    "id": 10240,
+    "dexNo": 628,
+    "name": "braviary-hisui",
+    "display": "Hisuian Braviary",
+    "kind": "regional",
+    "label": "Hisuian",
+    "generation": 8,
+    "rarer": false,
+    "color": "red",
+    "genus": "Valiant Pokémon",
+    "types": [
+      "psychic",
+      "flying"
+    ],
+    "stats": {
+      "hp": 132,
+      "attack": 83,
+      "defense": 70,
+      "specialAttack": 112,
+      "specialDefense": 70,
+      "speed": 65
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10240.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10240.png"
+    },
+    "bst": 532
+  },
+  {
+    "id": 10241,
+    "dexNo": 705,
+    "name": "sliggoo-hisui",
+    "display": "Hisuian Sliggoo",
+    "kind": "regional",
+    "label": "Hisuian",
+    "generation": 8,
+    "rarer": false,
+    "color": "purple",
+    "genus": "Soft Tissue Pokémon",
+    "types": [
+      "steel",
+      "dragon"
+    ],
+    "stats": {
+      "hp": 70,
+      "attack": 75,
+      "defense": 83,
+      "specialAttack": 83,
+      "specialDefense": 113,
+      "speed": 40
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10241.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10241.png"
+    },
+    "bst": 464
+  },
+  {
+    "id": 10242,
+    "dexNo": 706,
+    "name": "goodra-hisui",
+    "display": "Hisuian Goodra",
+    "kind": "regional",
+    "label": "Hisuian",
+    "generation": 8,
+    "rarer": false,
+    "color": "purple",
+    "genus": "Dragon Pokémon",
+    "types": [
+      "steel",
+      "dragon"
+    ],
+    "stats": {
+      "hp": 96,
+      "attack": 100,
+      "defense": 100,
+      "specialAttack": 110,
+      "specialDefense": 150,
+      "speed": 60
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10242.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10242.png"
+    },
+    "bst": 616
+  },
+  {
+    "id": 10243,
+    "dexNo": 713,
+    "name": "avalugg-hisui",
+    "display": "Hisuian Avalugg",
+    "kind": "regional",
+    "label": "Hisuian",
+    "generation": 8,
+    "rarer": false,
+    "color": "blue",
+    "genus": "Iceberg Pokémon",
+    "types": [
+      "ice",
+      "rock"
+    ],
+    "stats": {
+      "hp": 114,
+      "attack": 127,
+      "defense": 184,
+      "specialAttack": 34,
+      "specialDefense": 36,
+      "speed": 38
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10243.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10243.png"
+    },
+    "bst": 533
+  },
+  {
+    "id": 10244,
+    "dexNo": 724,
+    "name": "decidueye-hisui",
+    "display": "Hisuian Decidueye",
+    "kind": "regional",
+    "label": "Hisuian",
+    "generation": 8,
+    "rarer": false,
+    "color": "brown",
+    "genus": "Arrow Quill Pokémon",
+    "types": [
+      "grass",
+      "fighting"
+    ],
+    "stats": {
+      "hp": 106,
+      "attack": 112,
+      "defense": 80,
+      "specialAttack": 95,
+      "specialDefense": 95,
+      "speed": 60
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10244.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10244.png"
+    },
+    "bst": 548
+  },
+  {
+    "id": 10245,
+    "dexNo": 483,
+    "name": "dialga-origin",
+    "display": "Dialga Origin",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 8,
+    "rarer": true,
+    "color": "white",
+    "genus": "Temporal Pokémon",
+    "types": [
+      "steel",
+      "dragon"
+    ],
+    "stats": {
+      "hp": 120,
+      "attack": 100,
+      "defense": 120,
+      "specialAttack": 150,
+      "specialDefense": 120,
+      "speed": 90
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10245.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10245.png"
+    },
+    "bst": 700
+  },
+  {
+    "id": 10246,
+    "dexNo": 484,
+    "name": "palkia-origin",
+    "display": "Palkia Origin",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 8,
+    "rarer": true,
+    "color": "purple",
+    "genus": "Spatial Pokémon",
+    "types": [
+      "water",
+      "dragon"
+    ],
+    "stats": {
+      "hp": 108,
+      "attack": 100,
+      "defense": 100,
+      "specialAttack": 150,
+      "specialDefense": 120,
+      "speed": 120
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10246.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10246.png"
+    },
+    "bst": 698
+  },
+  {
+    "id": 10247,
+    "dexNo": 550,
+    "name": "basculin-white-striped",
+    "display": "Basculin White Striped",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 5,
+    "rarer": false,
+    "color": "green",
+    "genus": "Hostile Pokémon",
+    "types": [
+      "water"
+    ],
+    "stats": {
+      "hp": 84,
+      "attack": 92,
+      "defense": 65,
+      "specialAttack": 80,
+      "specialDefense": 55,
+      "speed": 98
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10247.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10247.png"
+    },
+    "bst": 474
+  },
+  {
+    "id": 10248,
+    "dexNo": 902,
+    "name": "basculegion-female",
+    "display": "Basculegion (Female)",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 8,
+    "rarer": false,
+    "color": "green",
+    "genus": "Big Fish Pokémon",
+    "types": [
+      "water",
+      "ghost"
+    ],
+    "stats": {
+      "hp": 144,
+      "attack": 92,
+      "defense": 65,
+      "specialAttack": 100,
+      "specialDefense": 75,
+      "speed": 78
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10248.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10248.png"
+    },
+    "bst": 554
+  },
+  {
+    "id": 10249,
+    "dexNo": 905,
+    "name": "enamorus-therian",
+    "display": "Enamorus Therian",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 8,
+    "rarer": true,
+    "color": "pink",
+    "genus": "Love-Hate Pokémon",
+    "types": [
+      "fairy",
+      "flying"
+    ],
+    "stats": {
+      "hp": 89,
+      "attack": 115,
+      "defense": 110,
+      "specialAttack": 135,
+      "specialDefense": 100,
+      "speed": 46
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10249.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10249.png"
+    },
+    "bst": 595
+  },
+  {
+    "id": 10250,
+    "dexNo": 128,
+    "name": "tauros-paldea-combat-breed",
+    "display": "Paldean Tauros (Combat Breed)",
+    "kind": "regional",
+    "label": "Paldean",
+    "generation": 9,
+    "rarer": false,
+    "color": "brown",
+    "genus": "Wild Bull Pokémon",
+    "types": [
+      "fighting"
+    ],
+    "stats": {
+      "hp": 90,
+      "attack": 110,
+      "defense": 105,
+      "specialAttack": 30,
+      "specialDefense": 70,
+      "speed": 100
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10250.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10250.png"
+    },
+    "bst": 505
+  },
+  {
+    "id": 10251,
+    "dexNo": 128,
+    "name": "tauros-paldea-blaze-breed",
+    "display": "Paldean Tauros (Blaze Breed)",
+    "kind": "regional",
+    "label": "Paldean",
+    "generation": 9,
+    "rarer": false,
+    "color": "brown",
+    "genus": "Wild Bull Pokémon",
+    "types": [
+      "fighting",
+      "fire"
+    ],
+    "stats": {
+      "hp": 90,
+      "attack": 110,
+      "defense": 105,
+      "specialAttack": 30,
+      "specialDefense": 70,
+      "speed": 100
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10251.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10251.png"
+    },
+    "bst": 505
+  },
+  {
+    "id": 10252,
+    "dexNo": 128,
+    "name": "tauros-paldea-aqua-breed",
+    "display": "Paldean Tauros (Aqua Breed)",
+    "kind": "regional",
+    "label": "Paldean",
+    "generation": 9,
+    "rarer": false,
+    "color": "brown",
+    "genus": "Wild Bull Pokémon",
+    "types": [
+      "fighting",
+      "water"
+    ],
+    "stats": {
+      "hp": 90,
+      "attack": 110,
+      "defense": 105,
+      "specialAttack": 30,
+      "specialDefense": 70,
+      "speed": 100
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10252.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10252.png"
+    },
+    "bst": 505
+  },
+  {
+    "id": 10253,
+    "dexNo": 194,
+    "name": "wooper-paldea",
+    "display": "Paldean Wooper",
+    "kind": "regional",
+    "label": "Paldean",
+    "generation": 9,
+    "rarer": false,
+    "color": "blue",
+    "genus": "Water Fish Pokémon",
+    "types": [
+      "poison",
+      "ground"
+    ],
+    "stats": {
+      "hp": 66,
+      "attack": 45,
+      "defense": 45,
+      "specialAttack": 25,
+      "specialDefense": 25,
+      "speed": 15
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10253.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10253.png"
+    },
+    "bst": 221
+  },
+  {
+    "id": 10256,
+    "dexNo": 964,
+    "name": "palafin-hero",
+    "display": "Palafin (Hero)",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 9,
+    "rarer": false,
+    "color": "blue",
+    "genus": "Dolphin Pokémon",
+    "types": [
+      "water"
+    ],
+    "stats": {
+      "hp": 120,
+      "attack": 160,
+      "defense": 97,
+      "specialAttack": 106,
+      "specialDefense": 87,
+      "speed": 100
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10256.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10256.png"
+    },
+    "bst": 670
+  },
+  {
+    "id": 10263,
+    "dexNo": 999,
+    "name": "gimmighoul-roaming",
+    "display": "Gimmighoul (Roaming)",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 9,
+    "rarer": false,
+    "color": "brown",
+    "genus": "Coin Chest Pokémon",
+    "types": [
+      "ghost"
+    ],
+    "stats": {
+      "hp": 54,
+      "attack": 30,
+      "defense": 25,
+      "specialAttack": 75,
+      "specialDefense": 45,
+      "speed": 80
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10263.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10263.png"
+    },
+    "bst": 309
+  },
+  {
+    "id": 10264,
+    "dexNo": 1007,
+    "name": "koraidon-limited-build",
+    "display": "Koraidon (Limited Build)",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 9,
+    "rarer": true,
+    "color": "red",
+    "genus": "Paradox Pokémon",
+    "types": [
+      "fighting",
+      "dragon"
+    ],
+    "stats": {
+      "hp": 120,
+      "attack": 135,
+      "defense": 115,
+      "specialAttack": 85,
+      "specialDefense": 100,
+      "speed": 135
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1007.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/1007.png"
+    },
+    "bst": 690
+  },
+  {
+    "id": 10265,
+    "dexNo": 1007,
+    "name": "koraidon-sprinting-build",
+    "display": "Koraidon (Sprinting Build)",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 9,
+    "rarer": true,
+    "color": "red",
+    "genus": "Paradox Pokémon",
+    "types": [
+      "fighting",
+      "dragon"
+    ],
+    "stats": {
+      "hp": 120,
+      "attack": 135,
+      "defense": 115,
+      "specialAttack": 85,
+      "specialDefense": 100,
+      "speed": 135
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1007.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/1007.png"
+    },
+    "bst": 690
+  },
+  {
+    "id": 10266,
+    "dexNo": 1007,
+    "name": "koraidon-swimming-build",
+    "display": "Koraidon (Swimming Build)",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 9,
+    "rarer": true,
+    "color": "red",
+    "genus": "Paradox Pokémon",
+    "types": [
+      "fighting",
+      "dragon"
+    ],
+    "stats": {
+      "hp": 120,
+      "attack": 135,
+      "defense": 115,
+      "specialAttack": 85,
+      "specialDefense": 100,
+      "speed": 135
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1007.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/1007.png"
+    },
+    "bst": 690
+  },
+  {
+    "id": 10267,
+    "dexNo": 1007,
+    "name": "koraidon-gliding-build",
+    "display": "Koraidon (Gliding Build)",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 9,
+    "rarer": true,
+    "color": "red",
+    "genus": "Paradox Pokémon",
+    "types": [
+      "fighting",
+      "dragon"
+    ],
+    "stats": {
+      "hp": 120,
+      "attack": 135,
+      "defense": 115,
+      "specialAttack": 85,
+      "specialDefense": 100,
+      "speed": 135
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1007.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/1007.png"
+    },
+    "bst": 690
+  },
+  {
+    "id": 10268,
+    "dexNo": 1008,
+    "name": "miraidon-low-power-mode",
+    "display": "Miraidon (Low Power Mode)",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 9,
+    "rarer": true,
+    "color": "blue",
+    "genus": "Paradox Pokémon",
+    "types": [
+      "electric",
+      "dragon"
+    ],
+    "stats": {
+      "hp": 120,
+      "attack": 85,
+      "defense": 100,
+      "specialAttack": 135,
+      "specialDefense": 115,
+      "speed": 135
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1008.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/1008.png"
+    },
+    "bst": 690
+  },
+  {
+    "id": 10269,
+    "dexNo": 1008,
+    "name": "miraidon-drive-mode",
+    "display": "Miraidon (Drive Mode)",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 9,
+    "rarer": true,
+    "color": "blue",
+    "genus": "Paradox Pokémon",
+    "types": [
+      "electric",
+      "dragon"
+    ],
+    "stats": {
+      "hp": 120,
+      "attack": 85,
+      "defense": 100,
+      "specialAttack": 135,
+      "specialDefense": 115,
+      "speed": 135
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1008.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/1008.png"
+    },
+    "bst": 690
+  },
+  {
+    "id": 10270,
+    "dexNo": 1008,
+    "name": "miraidon-aquatic-mode",
+    "display": "Miraidon (Aquatic Mode)",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 9,
+    "rarer": true,
+    "color": "blue",
+    "genus": "Paradox Pokémon",
+    "types": [
+      "electric",
+      "dragon"
+    ],
+    "stats": {
+      "hp": 120,
+      "attack": 85,
+      "defense": 100,
+      "specialAttack": 135,
+      "specialDefense": 115,
+      "speed": 135
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1008.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/1008.png"
+    },
+    "bst": 690
+  },
+  {
+    "id": 10271,
+    "dexNo": 1008,
+    "name": "miraidon-glide-mode",
+    "display": "Miraidon (Glide Mode)",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 9,
+    "rarer": true,
+    "color": "blue",
+    "genus": "Paradox Pokémon",
+    "types": [
+      "electric",
+      "dragon"
+    ],
+    "stats": {
+      "hp": 120,
+      "attack": 85,
+      "defense": 100,
+      "specialAttack": 135,
+      "specialDefense": 115,
+      "speed": 135
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1008.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/1008.png"
+    },
+    "bst": 690
+  },
+  {
+    "id": 10272,
+    "dexNo": 901,
+    "name": "ursaluna-bloodmoon",
+    "display": "Ursaluna Bloodmoon",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 9,
+    "rarer": false,
+    "color": "brown",
+    "genus": "Peat Pokémon",
+    "types": [
+      "ground",
+      "normal"
+    ],
+    "stats": {
+      "hp": 136,
+      "attack": 70,
+      "defense": 120,
+      "specialAttack": 135,
+      "specialDefense": 65,
+      "speed": 52
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10272.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10272.png"
+    },
+    "bst": 578
+  },
+  {
+    "id": 10273,
+    "dexNo": 1017,
+    "name": "ogerpon-wellspring-mask",
+    "display": "Ogerpon (Wellspring Mask)",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 9,
+    "rarer": true,
+    "color": "green",
+    "genus": "Mask Pokémon",
+    "types": [
+      "grass",
+      "water"
+    ],
+    "stats": {
+      "hp": 96,
+      "attack": 120,
+      "defense": 84,
+      "specialAttack": 60,
+      "specialDefense": 96,
+      "speed": 110
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10273.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10273.png"
+    },
+    "bst": 566
+  },
+  {
+    "id": 10274,
+    "dexNo": 1017,
+    "name": "ogerpon-hearthflame-mask",
+    "display": "Ogerpon (Hearthflame Mask)",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 9,
+    "rarer": true,
+    "color": "green",
+    "genus": "Mask Pokémon",
+    "types": [
+      "grass",
+      "fire"
+    ],
+    "stats": {
+      "hp": 96,
+      "attack": 120,
+      "defense": 84,
+      "specialAttack": 60,
+      "specialDefense": 96,
+      "speed": 110
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10274.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10274.png"
+    },
+    "bst": 566
+  },
+  {
+    "id": 10275,
+    "dexNo": 1017,
+    "name": "ogerpon-cornerstone-mask",
+    "display": "Ogerpon (Cornerstone Mask)",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 9,
+    "rarer": true,
+    "color": "green",
+    "genus": "Mask Pokémon",
+    "types": [
+      "grass",
+      "rock"
+    ],
+    "stats": {
+      "hp": 96,
+      "attack": 120,
+      "defense": 84,
+      "specialAttack": 60,
+      "specialDefense": 96,
+      "speed": 110
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10275.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10275.png"
+    },
+    "bst": 566
+  },
+  {
+    "id": 10276,
+    "dexNo": 1024,
+    "name": "terapagos-terastal",
+    "display": "Terapagos (Terastal)",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 9,
+    "rarer": true,
+    "color": "blue",
+    "genus": "Tera Pokémon",
+    "types": [
+      "normal"
+    ],
+    "stats": {
+      "hp": 114,
+      "attack": 95,
+      "defense": 110,
+      "specialAttack": 105,
+      "specialDefense": 110,
+      "speed": 85
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10276.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10276.png"
+    },
+    "bst": 619
+  },
+  {
+    "id": 10277,
+    "dexNo": 1024,
+    "name": "terapagos-stellar",
+    "display": "Terapagos (Stellar)",
+    "kind": "form",
+    "label": "Alternate Form",
+    "generation": 9,
+    "rarer": true,
+    "color": "blue",
+    "genus": "Tera Pokémon",
+    "types": [
+      "normal"
+    ],
+    "stats": {
+      "hp": 192,
+      "attack": 105,
+      "defense": 110,
+      "specialAttack": 130,
+      "specialDefense": 110,
+      "speed": 85
+    },
+    "sprites": {
+      "normal": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10277.png",
+      "shiny": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/10277.png"
+    },
+    "bst": 732
+  }
+]

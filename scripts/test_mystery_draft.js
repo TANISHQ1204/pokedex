@@ -1,5 +1,6 @@
 import pokemonList from '../src/data/pokemon.json' with { type: 'json' };
 import speciesMeta from '../src/data/speciesMeta.json' with { type: 'json' };
+import formsList from '../src/data/forms.json' with { type: 'json' };
 import {
   ATTRIBUTE_IDS,
   MAX_TEAM_SIZE,
@@ -31,24 +32,37 @@ function seededRandom(seed) {
 }
 
 console.log('--- Pool eligibility test ---');
-const pool3 = getEligiblePool(pokemonList, speciesMeta, 3);
-const pool9 = getEligiblePool(pokemonList, speciesMeta, 9);
-check(pool3.length === 386, `Gen 3 pool has 386 (got ${pool3.length})`);
-check(pool9.length === 1025, `Gen 9 pool has 1025 (got ${pool9.length})`);
-check(pool3.every((p) => p.id <= 386), 'Gen 3 pool only contains #1-386');
-check(pool9.every((p) => p.id >= 1 && p.id <= 1025), 'Gen 9 pool spans full dex');
+// Base species count <= gen 3 is 386; the pool also includes alternate forms
+// whose OWN debut generation is <= 3 (Deoxys/Castform forms).
+const pool3EligibleForms = formsList.filter((f) => f.generation <= 3).length;
+const pool3 = getEligiblePool(pokemonList, formsList, speciesMeta, 3);
+const pool9 = getEligiblePool(pokemonList, formsList, speciesMeta, 9);
+check(pool3.length === 386 + pool3EligibleForms, `Gen 3 pool = 386 + ${pool3EligibleForms} forms (got ${pool3.length})`);
+check(pool3EligibleForms === 6, `Gen 3 has 6 eligible forms (Deoxys + Castform, got ${pool3EligibleForms})`);
+check(pool3.filter((p) => p.id > 1025).every((f) => f.generation <= 3), 'Gen 3 pool only contains gen<=3 forms');
+check(pool3.filter((p) => p.id <= 1025).every((p) => p.id <= 386), 'Gen 3 pool only contains #1-386 bases');
+check(pool9.length === 1025 + formsList.length, `Gen 9 pool = 1025 + ${formsList.length} forms (got ${pool9.length})`);
+check(pool9.every((p) => p.id >= 1 && (p.id <= 1025 || p.id >= 1026)), 'Gen 9 pool spans full dex + forms');
+
+// Generational coverage of forms: Gen 5 must have NO megas/primals, Gen 6 has all.
+const gen5 = getEligiblePool(pokemonList, formsList, speciesMeta, 5);
+const gen6 = getEligiblePool(pokemonList, formsList, speciesMeta, 6);
+check(gen5.every((f) => !(f.kind === 'mega' || f.kind === 'primal')), 'No megas/primals eligible before Gen 6');
+check(gen6.some((f) => f.kind === 'mega') && gen6.some((f) => f.kind === 'primal'), 'Gen 6 pool includes megas + primals');
 
 console.log('--- Draft tests ---');
 const rng = seededRandom(42);
-const queue = draftQueue(pokemonList, speciesMeta, 3, 12, rng);
+const queue = draftQueue(pokemonList, formsList, speciesMeta, 3, 12, rng);
 check(queue.length === 12, `Drafted 12 Pokemon (got ${queue.length})`);
-check(queue.every((e) => e.id <= 386), 'All drafted within Gen 3');
-check(new Set(queue.map((e) => e.id)).size === 12, 'Drafted Pokemon are unique (no dup species)');
+check(queue.every((e) => e.dexNo <= 386 && e.generation <= 3), 'All drafted within Gen 3');
+check(new Set(queue.map((e) => e.dexNo)).size === 12, 'Drafted Pokemon have 12 unique base species (no dup species)');
 queue.forEach((e) => {
   check(
     typeof e.name === 'string' && e.name.length > 0,
     `Entry ${e.id} has name`
   );
+  check(typeof e.display === 'string' && e.display.length > 0, `Entry ${e.id} has display (${e.display})`);
+  check(Number.isInteger(e.dexNo) && e.dexNo >= 1, `Entry ${e.id} has dexNo (${e.dexNo})`);
   check(typeof e.color === 'string' && e.color.length > 0, `Entry ${e.id} has color (${e.color})`);
   check(Number.isInteger(e.generation) && e.generation >= 1, `Entry ${e.id} has generation`);
   check(typeof e.genus === 'string' && e.genus.length > 0, `Entry ${e.id} has species/genus (${e.genus})`);
@@ -59,11 +73,21 @@ const shinyCount = queue.filter((e) => e.variant === 'shiny').length;
 console.log(`  (shiny count in queue: ${shinyCount})`);
 check(queue.every((e) => e.sprite.startsWith('http')), 'All entries have a sprite URL');
 
+console.log('--- Forms pool integration ---');
+const q9 = draftQueue(pokemonList, formsList, speciesMeta, 9, 24, rng);
+const draftForms = q9.filter((e) => e.formKind);
+check(draftForms.length > 0, `Gen 9 draft pulls alternate forms (got ${draftForms.length} of 24)`);
+draftForms.forEach((e) => {
+  check(Number.isInteger(e.id) && e.id > 1025, `Form entry has resource id > 1025 (${e.id})`);
+  check(e.dexNo === e.dexNo && e.dexNo >= 1 && e.dexNo <= 1025, `Form entry dexNo points at its base species (#${e.dexNo})`);
+  check(['mega', 'primal', 'regional', 'gmax', 'totem', 'form'].includes(e.formKind), `Form entry has valid kind (${e.formKind})`);
+});
+
 console.log('--- Full session simulation (12 Pokemon, budget 500) ---');
 let state = createSession({
   playerNames: ['Alice', 'Bob'],
   budget: 500,
-  queue: draftQueue(pokemonList, speciesMeta, 9, 12, rng),
+  queue: draftQueue(pokemonList, formsList, speciesMeta, 9, 12, rng),
 });
 let revealLog = [];
 let auctionLog = [];
@@ -160,7 +184,7 @@ console.log('--- Boundary: team-full player cannot win ---');
 const capSt = createSession({
   playerNames: ['X', 'Y'],
   budget: 50,
-  queue: draftQueue(pokemonList, speciesMeta, 1, 12, rng),
+  queue: draftQueue(pokemonList, formsList, speciesMeta, 1, 12, rng),
 });
 const fullTeam0 = {
   ...capSt,

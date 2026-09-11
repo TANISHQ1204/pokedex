@@ -1,6 +1,7 @@
 import React, { Component, useEffect, useState } from 'react';
 import pokemonList from '../data/pokemon.json' with { type: 'json' };
 import speciesMeta from '../data/speciesMeta.json' with { type: 'json' };
+import formsList from '../data/forms.json' with { type: 'json' };
 import {
   ATTRIBUTES,
   MAX_TEAM_SIZE,
@@ -15,9 +16,10 @@ import {
   pickWinner,
   strongestPick,
   weakestPick,
-  TYPE_COVERAGE_BONUS,
-  RARE_BONUS,
-  SHINY_BONUS,
+  superlatives,
+  RARE_MULTIPLIER,
+  SHINY_MULTIPLIER,
+  FORM_MULTIPLIER,
 } from '../game/mysteryDraft';
 
 class DraftErrorBoundary extends Component {
@@ -199,7 +201,7 @@ function PlayerPanel({ player, highlight, subtitle, blind }) {
           {player.won.map((entry, i) => (
             <span
               key={`${entry.id}-${i}`}
-              title={blind ? 'Mystery Pokemon — revealed at the end' : `#${entry.id} ${entry.name} · BST ${entry.bst ?? baseStatTotal(entry)}${entry.variant === 'shiny' ? ' (shiny)' : ''}`}
+              title={blind ? 'Mystery Pokemon — revealed at the end' : `#${entry.dexNo || entry.id} ${entry.display || entry.name} · BST ${entry.bst ?? baseStatTotal(entry)}${entry.variant === 'shiny' ? ' (shiny)' : ''}`}
               style={{
                 width: 34,
                 height: 34,
@@ -367,7 +369,11 @@ function SetupScreen({ initial, onStart }) {
         </div>
         <h2 style={{ margin: 0, fontSize: '1.5rem', color: '#f8fafc' }}>Mystery Draft Setup</h2>
         <p style={{ margin: '0.4rem 0 0 0', color: '#94a3b8', fontSize: '0.9rem' }}>
-          The arbitrator runs this screen. Randomly queue 12 mystery Pokemon — legendaries &amp; mythicals are included with equal weight, and ~15% of drafts are shiny. Players alternate revealing ONE attribute clue each, then verbally bid their budget — each team cap at 6 Pokemon and $0 (free) bids are allowed. Enable 🔒 Blind Mode to keep every identity hidden until the final reveal.
+          The arbitrator runs this screen. Randomly queue 12 mystery Pokemon — base forms, alternate forms (
+          Alolan, Galarian, Hisuian, Paldean), Mega Evolutions &amp; Gigantamax all included — legendaries &amp; mythicals
+          with equal weight, and ~15% of drafts are shiny. Players alternate revealing ONE attribute clue each,
+          then verbally bid their budget — each team cap at 6 Pokemon and $0 (free) bids are allowed. Enable 🔒
+          Blind Mode to keep every identity hidden until the final reveal.
         </p>
       </div>
 
@@ -662,7 +668,7 @@ function ResultBanner({ result, playerMap, blind }) {
     ? 'No sale — nobody claimed it.'
     : blind
       ? `${playerMap[result.winnerId]} won a mystery Pokemon for $${result.amount}`
-      : `${playerMap[result.winnerId]} won #${String(result.entry.id).padStart(3, '0')} ${result.entry.name} for $${result.amount}`;
+      : `${playerMap[result.winnerId]} won #${String(result.entry.dexNo || result.entry.id).padStart(3, '0')} ${result.entry.display || result.entry.name} for $${result.amount}`;
   return (
     <div
       style={{
@@ -689,7 +695,7 @@ export default function MysteryDraft() {
 
   const handleStart = ({ nameA, nameB, budget, maxGen, blind }) => {
     setLastSetup({ nameA, nameB, budget, maxGen, blind });
-    const queue = draftQueue(pokemonList, speciesMeta, maxGen, 12);
+    const queue = draftQueue(pokemonList, formsList, speciesMeta, maxGen, 12);
     setSession(createSession({ playerNames: [nameA, nameB], budget, queue, blind }));
     setPhase('playing');
   };
@@ -834,10 +840,10 @@ function PlayingView({ session, setSession, onExit }) {
                 bg = '#166534';
                 title = blind
                   ? `${winnerId.name} won a mystery Pokemon`
-                  : `${winnerId.name} won #${entry.id} ${entry.name}`;
+                  : `${winnerId.name} won #${entry.dexNo || entry.id} ${entry.display || entry.name}`;
               } else {
                 bg = '#7f1d1d';
-                title = blind ? 'No sale — mystery Pokemon' : `No sale — #${entry.id} ${entry.name}`;
+                title = blind ? 'No sale — mystery Pokemon' : `No sale — #${entry.dexNo || entry.id} ${entry.display || entry.name}`;
               }
             }
             return (
@@ -1042,13 +1048,12 @@ function RevealedList({ state }) {
 
 function SummaryView({ session, onPlayAgain }) {
   const champion = pickWinner(session.players);
-  const championScore = champion ? teamScoreBreakdown(champion) : null;
-  const strongestAll = strongestPick(
-    session.players.length > 0
-      ? { won: session.players.flatMap((p) => p.won) }
-      : null
-  );
   const playerScores = session.players.map((p) => ({ player: p, score: teamScoreBreakdown(p) }));
+  const sup = superlatives(session.players);
+
+  const entryLabel = (e) => `#${String(e.dexNo || e.id).padStart(3, '0')} ${e.display || e.name}`;
+  const multLabel = (m) => (m === 1 ? 'no modifiers' : `×${m}`);
+  const hasAny = playerScores.some(({ player }) => player.won.length > 0);
 
   return (
     <div>
@@ -1071,15 +1076,18 @@ function SummaryView({ session, onPlayAgain }) {
             🔓 Blind mode — every mystery Pokemon revealed at last!
           </div>
         )}
-        <p style={{ margin: 0, color: '#94a3b8', fontSize: '0.95rem' }}>
-          {session.queue.length} mystery Pokemon were on the block. The winner is decided by total team
-          strength — combined base stats (BST), type coverage, and rarity. Budget is informational only.
+        <p style={{ margin: '0 auto 0.5rem auto', color: '#94a3b8', fontSize: '0.95rem', maxWidth: 640 }}>
+          {session.queue.length} mystery Pokemon were on the block. Each Pokemon scores its BST modified by a
+          transparent stack — <strong style={{ color: '#f87272' }}>×{RARE_MULTIPLIER}</strong> Legendary/Mythical,{' '}
+          <strong style={{ color: '#fbbf24' }}>×{SHINY_MULTIPLIER}</strong> shiny,{' '}
+          <strong style={{ color: '#a78bfa' }}>×{FORM_MULTIPLIER}</strong> alternate form — and the highest total
+          team score wins. Budget is informational only.
         </p>
-        {session.players.length > 0 && champion && championScore && (
+        {champion ? (
           <div
             style={{
               display: 'inline-block',
-              marginTop: '0.75rem',
+              marginTop: '0.5rem',
               padding: '0.4rem 1rem',
               borderRadius: '2rem',
               background: 'rgba(245, 158, 11, 0.15)',
@@ -1089,37 +1097,28 @@ function SummaryView({ session, onPlayAgain }) {
               fontSize: '0.9rem',
             }}
           >
-            🏆 {champion.name} wins — best team score of {championScore.total} points
+            🏆 {champion.name} wins — best team score of {teamScoreBreakdown(champion).total} points
           </div>
-        )}
-
-        <div style={{ marginTop: '0.9rem', textAlign: 'left' }}>
+        ) : (
           <div
             style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.75rem',
-              padding: '0.75rem 1rem',
-              borderRadius: '0.6rem',
-              background: 'rgba(30, 41, 59, 0.7)',
-              border: '1px solid #334155',
+              display: 'inline-block',
+              marginTop: '0.5rem',
+              padding: '0.4rem 1rem',
+              borderRadius: '2rem',
+              background: 'rgba(148, 163, 184, 0.1)',
+              border: '1px solid #64748b',
+              color: '#cbd5e1',
+              fontWeight: 800,
+              fontSize: '0.9rem',
             }}
           >
-            <span style={{ fontSize: '1.1rem' }}>💎</span>
-            <span style={{ color: '#cbd5e1', fontWeight: 700, fontSize: '0.9rem' }}>
-              Strongest single Pokemon of the session:
-            </span>
-            {strongestAll && strongestAll.entry ? (
-              <span style={{ color: '#f8fafc', fontWeight: 900, fontSize: '0.95rem' }}>
-                #{String(strongestAll.entry.id).padStart(3, '0')} {strongestAll.entry.name}
-                {strongestAll.entry.variant === 'shiny' ? ' ★' : ''} · BST {strongestAll.bst}
-              </span>
-            ) : (
-              <span style={{ color: '#64748b', fontSize: '0.9rem' }}>No Pokemon drafted</span>
-            )}
+            🤝 It's a draw — both teams finished with identical scores!
           </div>
-        </div>
+        )}
       </div>
+
+      <SuperlativesSection sup={sup} entryLabel={entryLabel} hasAny={hasAny} />
 
       <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginTop: '1rem' }}>
         {playerScores.map(({ player, score }) => {
@@ -1143,6 +1142,9 @@ function SummaryView({ session, onPlayAgain }) {
                   {champion && champion.id === player.id && (
                     <span style={{ marginLeft: '0.5rem', fontSize: '0.8rem', color: '#fbbf24' }}>🏆 WINNER</span>
                   )}
+                  {!champion && (
+                    <span style={{ marginLeft: '0.5rem', fontSize: '0.8rem', color: '#94a3b8' }}>🤝 tied</span>
+                  )}
                 </div>
                 <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '1.4rem', fontWeight: 800, color: '#fbbf24', background: 'rgba(245, 158, 11, 0.12)', border: '1px solid #f59e0b', borderRadius: '0.5rem', padding: '0.1rem 0.7rem' }}>
                   {score.total} pts
@@ -1154,11 +1156,36 @@ function SummaryView({ session, onPlayAgain }) {
                 SCORE BREAKDOWN
               </div>
               <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', marginBottom: '0.6rem' }}>
-                <ScoreChip label="BST" value={`${score.bst}`} color="#38bdf8" detail={`avg ${player.won.length > 0 ? Math.round(score.bst / player.won.length) : 0}/mon`} />
-                <ScoreChip label="Types" value={score.typeBonus} color="#4ade80" detail={`${score.typeCoverage} × ${TYPE_COVERAGE_BONUS}`} />
-                <ScoreChip label="Rare" value={score.rareBonus} color="#f472b6" detail={`${score.rare} × ${RARE_BONUS}`} />
-                <ScoreChip label="Shiny" value={score.shinyBonus} color="#fbbf24" detail={`${score.shiny} × ${SHINY_BONUS}`} />
+                <ScoreChip label="Raw BST" value={`${score.bst}`} color="#38bdf8" prefix="" detail={`avg ${player.won.length > 0 ? Math.round(score.bst / player.won.length) : 0}/mon`} />
+                <ScoreChip label="Rare" value={score.rare} color="#f87272" prefix="" detail={`×${RARE_MULTIPLIER} each`} />
+                <ScoreChip label="Shiny" value={score.shiny} color="#fbbf24" prefix="" detail={`×${SHINY_MULTIPLIER} each`} />
+                <ScoreChip label="Forms" value={score.forms} color="#a78bfa" prefix="" detail={`×${FORM_MULTIPLIER} each`} />
+                <ScoreChip label="Types" value={score.typeCoverage} color="#4ade80" prefix="" detail="distinct" />
               </div>
+
+              {player.won.length === 0 ? (
+                <div style={{ color: '#64748b', fontStyle: 'italic', fontSize: '0.85rem', marginBottom: '0.75rem' }}>
+                  Won nothing this session.
+                </div>
+              ) : (
+                <div style={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: '0.6rem', padding: '0.6rem', marginBottom: '0.75rem' }}>
+                  <div style={{ fontSize: '0.7rem', color: '#94a3b8', fontWeight: 700, marginBottom: '0.35rem' }}>
+                    PER-POKEMON SCORES (sum = {score.total})
+                  </div>
+                  {score.perPokemon.map(({ entry, mult, score: pts }) => (
+                    <div key={`${entry.id}-${entry.variant}`} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.25rem 0', borderBottom: '1px solid #1e293b', fontSize: '0.82rem' }}>
+                      <img src={entry.sprite} alt={entry.name} style={{ width: 28, height: 28, objectFit: 'contain', flexShrink: 0 }} />
+                      <span style={{ color: '#f8fafc', fontWeight: 800, flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {entryLabel(entry)}
+                      </span>
+                      <span style={{ color: '#94a3b8', fontSize: '0.72rem', fontWeight: 700, whiteSpace: 'nowrap' }}>
+                        {entry.rarer ? '⭐' : ''}{entry.variant === 'shiny' ? '✨' : ''}{entry.formKind ? '◆' : ''} {multLabel(mult)}
+                      </span>
+                      <span style={{ color: '#fbbf24', fontWeight: 900, whiteSpace: 'nowrap' }}>{pts} pts</span>
+                    </div>
+                  ))}
+                </div>
+              )}
 
               <div style={{ fontSize: '0.7rem', color: '#94a3b8', fontWeight: 700, marginBottom: '0.3rem' }}>
                 POKEMON WON ({player.won.length}/{MAX_TEAM_SIZE})
@@ -1173,7 +1200,7 @@ function SummaryView({ session, onPlayAgain }) {
                     return (
                       <div
                         key={`${entry.id}-${i}`}
-                        title={`#${entry.id} ${entry.name} · BST ${entry.bst ?? baseStatTotal(entry)}`}
+                        title={`${entryLabel(entry)} · BST ${entry.bst ?? baseStatTotal(entry)}${entry.paid !== undefined ? ` · paid $${entry.paid}` : ''}`}
                         style={{
                           background: '#0f172a',
                           border: entry.variant === 'shiny' ? '2px solid #fbbf24' : '1px solid #334155',
@@ -1185,9 +1212,12 @@ function SummaryView({ session, onPlayAgain }) {
                       >
                         <img src={entry.sprite} alt={entry.name} style={{ width: 52, height: 52, objectFit: 'contain' }} />
                         <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#f8fafc' }}>
-                          #{String(entry.id).padStart(3, '0')} {entry.name}
+                          {entryLabel(entry)}
                         </div>
                         <div style={{ fontSize: '0.72rem', fontWeight: 700, color: '#38bdf8' }}>BST {entry.bst ?? baseStatTotal(entry)}</div>
+                        {entry.paid !== undefined && (
+                          <div style={{ fontSize: '0.65rem', fontWeight: 700, color: '#94a3b8' }}>paid ${entry.paid}</div>
+                        )}
                         {entry.variant === 'shiny' && (
                           <div style={{ fontSize: '0.65rem', fontWeight: 900, color: '#fbbf24' }}>★ SHINY</div>
                         )}
@@ -1272,7 +1302,66 @@ function SummaryView({ session, onPlayAgain }) {
   );
 }
 
-function ScoreChip({ label, value, detail, color }) {
+function SuperlativesSection({ sup, entryLabel, hasAny }) {
+  if (!sup || !hasAny) return null;
+  const rows = [
+    {
+      icon: '💪',
+      label: 'Strongest Single Pokemon',
+      value: sup.strongest
+        ? `${entryLabel(sup.strongest.entry)} · ${sup.strongest.score} pts`
+        : null,
+    },
+    {
+      icon: '💰',
+      label: 'Best Value Pick',
+      value: sup.valuePick
+        ? `${entryLabel(sup.valuePick.entry)} · paid $${sup.valuePick.cost}`
+        : null,
+    },
+    {
+      icon: '👑',
+      label: 'Most Legendaries / Mythicals',
+      value: sup.mostLegendaries ? `${sup.mostLegendaries.player.name} · ${sup.mostLegendaries.count}` : null,
+    },
+    {
+      icon: '🎨',
+      label: 'Best Type Coverage',
+      value: sup.bestCoverage ? `${sup.bestCoverage.player.name} · ${sup.bestCoverage.count} types` : null,
+    },
+  ].filter((r) => r.value !== null);
+
+  return (
+    <div className="card" style={{ marginTop: '1rem', border: '2px solid #7c3aed' }}>
+      <div style={{ fontSize: '0.7rem', fontWeight: 800, color: '#c4b5fd', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '0.6rem' }}>
+        🎉 Fun Superlatives
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.6rem' }}>
+        {rows.map((r) => (
+          <div
+            key={r.label}
+            style={{
+              background: 'rgba(30, 41, 59, 0.7)',
+              border: '1px solid #475569',
+              borderRadius: '0.6rem',
+              padding: '0.6rem 0.8rem',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.2rem',
+            }}
+          >
+            <span style={{ color: '#94a3b8', fontSize: '0.68rem', fontWeight: 800, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+              {r.icon} {r.label}
+            </span>
+            <span style={{ color: '#f8fafc', fontWeight: 900, fontSize: '0.92rem' }}>{r.value}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ScoreChip({ label, value, detail, color, prefix = '+' }) {
   return (
     <span
       style={{
@@ -1288,7 +1377,7 @@ function ScoreChip({ label, value, detail, color }) {
       <span style={{ color, fontSize: '0.62rem', fontWeight: 800, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
         {label}
       </span>
-      <span style={{ color: '#f8fafc', fontWeight: 900, fontSize: '0.95rem' }}>+{value}</span>
+      <span style={{ color: '#f8fafc', fontWeight: 900, fontSize: '0.95rem' }}>{prefix}{value}</span>
       {detail && <span style={{ color: '#64748b', fontSize: '0.62rem', fontWeight: 700 }}>{detail}</span>}
     </span>
   );

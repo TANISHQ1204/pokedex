@@ -16,10 +16,12 @@ export const SHINY_CHANCE = 0.15;
 
 export const MAX_TEAM_SIZE = 6;
 
-// Winner-scoring weights: BST is the baseline, type coverage + rarity add taste.
-export const TYPE_COVERAGE_BONUS = 25; // points per distinct type on the team
-export const RARE_BONUS = 8; // points per Legendary/Mythical drafted
-export const SHINY_BONUS = 5; // points per shiny drafted
+// Winner-scoring multipliers: every Pokemon's base stat total (BST) is scaled
+// by a transparent stack — rarer/legendary-mythical, shiny, and alternate form.
+// A shiny legendary form would score BST × 1.5 × 1.2 × 1.1.
+export const RARE_MULTIPLIER = 1.5;
+export const SHINY_MULTIPLIER = 1.2;
+export const FORM_MULTIPLIER = 1.1;
 
 /** Sum a Pokemon's six base stats (hp/atk/def/spa/spd/spe). */
 export function baseStatTotal(pkmn) {
@@ -43,13 +45,13 @@ export function formatName(raw) {
 export function getAttributeValue(entry, attrId) {
   switch (attrId) {
     case 'name':
-      return formatName(entry.name);
+      return entry.display || formatName(entry.name);
     case 'color':
       return entry.color ? formatName(entry.color) : '???';
     case 'generation':
       return `Gen ${entry.generation}`;
     case 'number':
-      return `#${String(entry.id).padStart(3, '0')}`;
+      return `#${String(entry.dexNo || entry.id).padStart(3, '0')}`;
     case 'types':
       return (entry.types || []).map(formatName).join(' / ') || '???';
     case 'species':
@@ -60,12 +62,15 @@ export function getAttributeValue(entry, attrId) {
 }
 
 export function entryGeneration(entry, speciesMeta) {
+  if (Number.isInteger(entry.generation)) return entry.generation;
   const meta = speciesMeta[entry.id];
   return meta && Number.isInteger(meta.gen) ? meta.gen : Math.ceil(entry.id / 151);
 }
 
-export function getEligiblePool(pokemonList, speciesMeta, maxGen) {
-  return pokemonList.filter((p) => entryGeneration(p, speciesMeta) <= maxGen);
+export function getEligiblePool(pokemonList, forms, speciesMeta, maxGen) {
+  const bases = pokemonList.filter((p) => entryGeneration(p, speciesMeta) <= maxGen);
+  const formPool = (forms || []).filter((f) => f.generation <= maxGen);
+  return [...bases, ...formPool];
 }
 
 export function enrichEntry(pokemon, speciesMeta, isShiny) {
@@ -73,7 +78,9 @@ export function enrichEntry(pokemon, speciesMeta, isShiny) {
   const shiny = !!isShiny;
   return {
     id: pokemon.id,
+    dexNo: pokemon.id,
     name: pokemon.name,
+    display: formatName(pokemon.name),
     color: meta.color || 'unknown',
     generation: entryGeneration(pokemon, speciesMeta),
     genus: meta.genus || '',
@@ -85,64 +92,93 @@ export function enrichEntry(pokemon, speciesMeta, isShiny) {
   };
 }
 
+/** Enrich an alternate-form entry read from src/data/forms.json. */
+export function enrichFormEntry(form, isShiny) {
+  const shiny = !!isShiny;
+  return {
+    id: form.id,
+    dexNo: form.dexNo,
+    name: form.name,
+    display: form.display,
+    color: form.color || 'unknown',
+    generation: form.generation,
+    genus: form.genus || '',
+    rarer: !!form.rarer,
+    formKind: form.kind,
+    formLabel: form.label || 'Alternate Form',
+    types: form.types,
+    bst: Number(form.bst) || baseStatTotal(form),
+    variant: shiny ? 'shiny' : 'normal',
+    sprite: shiny ? form.sprites.shiny : form.sprites.normal,
+  };
+}
+
+/**
+ * Score a single Pokemon: base BST scaled by rarity (×1.5), shiny (×1.2) and
+ * alternate-form (×1.1) multipliers. Multipliers stack multiplicatively and the
+ * result is rounded so the math is easy to eyeball at the summary screen.
+ */
+export function pkmnScore(entry) {
+  const bst = Number(entry && entry.bst) || 0;
+  const mult = pkmnMultiplier(entry);
+  return Math.round(bst * mult);
+}
+
+export function pkmnMultiplier(entry) {
+  return (
+    (entry && entry.rarer ? RARE_MULTIPLIER : 1) *
+    (entry && entry.variant === 'shiny' ? SHINY_MULTIPLIER : 1) *
+    (entry && entry.formKind ? FORM_MULTIPLIER : 1)
+  );
+}
+
 /**
  * Whole-team scoring used to declare the draft winner. Money played is NOT a
- * factor — combining raw stats with type coverage and rarity keeps the whole
- * team meaningful instead of rewarding whoever spent the least.
+ * factor — every Pokemon earns its own scaled score (see pkmnScore) and the
+ * team's total is simply the sum.
  *
- * Returns a breakdown of every scoring component.
+ * Returns a transparent breakdown including each Pokemon's multiplier.
  */
 export function teamScoreBreakdown(player) {
   const won = player.won || [];
-  const bst = won.reduce((acc, e) => acc + (Number(e.bst) || 0), 0);
+  const perPokemon = won.map((entry) => {
+    const bst = Number(entry.bst) || 0;
+    const mult = pkmnMultiplier(entry);
+    return { entry, bst, mult, score: Math.round(bst * mult) };
+  });
 
   const types = new Set();
-  won.forEach((e) => (e.types || []).forEach((t) => types.add(t.toLowerCase())));
+  won.forEach((e) => (e.types || []).forEach((t) => types.add(String(t).toLowerCase())));
   const typeCoverage = types.size;
 
   const rare = won.filter((e) => e.rarer).length;
   const shiny = won.filter((e) => e.variant === 'shiny').length;
+  const forms = won.filter((e) => e.formKind).length;
 
   return {
-    bst,
+    bst: perPokemon.reduce((acc, p) => acc + p.bst, 0),
     typeCoverage,
     rare,
     shiny,
-    typeBonus: typeCoverage * TYPE_COVERAGE_BONUS,
-    rareBonus: rare * RARE_BONUS,
-    shinyBonus: shiny * SHINY_BONUS,
-    total: bst + typeCoverage * TYPE_COVERAGE_BONUS + rare * RARE_BONUS + shiny * SHINY_BONUS,
+    forms,
+    perPokemon,
+    total: perPokemon.reduce((acc, p) => acc + p.score, 0),
     types: [...types],
   };
 }
 
 /**
- * Pick the draft winner from a list of players using whole-team score.
- * Tie-breaks: more RARES, then more SHINIES, then best single-Pokemon BST.
- * Returns null when every tiebreak is exhausted (a true draw).
+ * Pick the draft winner: highest whole-team scored total. Exact-equal totals
+ * are always a true draw (returns null) — no hidden tiebreak bonuses.
  */
 export function pickWinner(players) {
   if (!players || players.length === 0) return null;
+  if (players.length === 1) return players[0];
 
-  const ranked = [...players]
-    .map((p) => ({ player: p, score: teamScoreBreakdown(p) }))
-    .sort((a, b) => {
-      if (b.score.total !== a.score.total) return b.score.total - a.score.total;
-      if (b.score.rare !== a.score.rare) return b.score.rare - a.score.rare;
-      if (b.score.shiny !== a.score.shiny) return b.score.shiny - a.score.shiny;
-      const bestA = Math.max(0, ...a.player.won.map((e) => Number(e.bst) || 0));
-      const bestB = Math.max(0, ...b.player.won.map((e) => Number(e.bst) || 0));
-      if (bestB !== bestA) return bestB - bestA;
-      return 0;
-    });
-
-  if (ranked.length < 2) return ranked[0]?.player || null;
-  const first = ranked[0];
-  const second = ranked[1];
-  if (first.score.total !== second.score.total) return first.player;
-  if (first.score.rare !== second.score.rare) return first.player;
-  if (first.score.shiny !== second.score.shiny) return first.player;
-  return null;
+  const scored = players.map((p) => ({ player: p, total: teamScoreBreakdown(p).total }));
+  const max = Math.max(...scored.map((s) => s.total));
+  const winners = scored.filter((s) => s.total === max);
+  return winners.length === 1 ? winners[0].player : null;
 }
 
 /** Strongest single Pokemon + BST among a player's drafted team. */
@@ -163,20 +199,70 @@ export function weakestPick(player) {
     .sort((a, b) => a.bst - b.bst)[0];
 }
 
+/**
+ * Fun end-screen superlatives across every player's drafted team.
+ * Tie-breaks resolve to the first in player order (deterministic).
+ */
+export function superlatives(players) {
+  const all = (players || []).flatMap((player) =>
+    (player.won || []).map((entry) => ({ player, entry, score: pkmnScore(entry) }))
+  );
+
+  let strongest = null;
+  for (const it of all) {
+    if (!strongest || it.score > strongest.score) strongest = { entry: it.entry, score: it.score };
+  }
+
+  // Best value pick: paid is stamped on each won entry by settleAuction.
+  // A $0 (free) bid is infinite value; ties break toward higher BST.
+  let valuePick = null;
+  for (const it of all) {
+    const cost = it.entry.paid;
+    if (typeof cost !== 'number') continue;
+    const bst = Number(it.entry.bst) || 0;
+    const value = cost === 0 ? Infinity : bst / cost;
+    const better =
+      !valuePick ||
+      value > valuePick.value ||
+      (value === valuePick.value && bst > valuePick.bst);
+    if (better) valuePick = { entry: it.entry, value, bst, cost };
+  }
+
+  let mostLegendaries = null;
+  for (const p of players || []) {
+    const count = (p.won || []).filter((e) => e.rarer).length;
+    if (count > 0 && (!mostLegendaries || count > mostLegendaries.count)) mostLegendaries = { player: p, count };
+  }
+
+  let bestCoverage = null;
+  for (const p of players || []) {
+    const types = new Set();
+    (p.won || []).forEach((e) => (e.types || []).forEach((t) => types.add(String(t).toLowerCase())));
+    const count = types.size;
+    if (count > 0 && (!bestCoverage || count > bestCoverage.count)) bestCoverage = { player: p, count };
+  }
+
+  return { strongest, valuePick, mostLegendaries, bestCoverage };
+}
+
 function secureRandom() {
   const buf = new Uint32Array(1);
   crypto.getRandomValues(buf);
   return buf[0] / (0xffffffff + 1);
 }
 
-export function draftQueue(pokemonList, speciesMeta, maxGen, count = 12, random = secureRandom) {
-  const pool = getEligiblePool(pokemonList, speciesMeta, maxGen);
+export function draftQueue(pokemonList, forms, speciesMeta, maxGen, count = 12, random = secureRandom) {
+  const pool = getEligiblePool(pokemonList, forms, speciesMeta, maxGen);
   const shuffled = [...pool];
   for (let i = shuffled.length - 1; i > 0; i--) {
     const j = Math.floor(random() * (i + 1));
     [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
   }
-  return shuffled.slice(0, count).map((p) => enrichEntry(p, speciesMeta, random() < SHINY_CHANCE));
+  return shuffled
+    .slice(0, count)
+    .map((p) =>
+      p.kind ? enrichFormEntry(p, random() < SHINY_CHANCE) : enrichEntry(p, speciesMeta, random() < SHINY_CHANCE)
+    );
 }
 
 export function createSession({ playerNames, budget, queue, firstPlayerId = 0, blind = false }) {
@@ -255,7 +341,9 @@ export function settleAuction(state, { winnerId, amount }) {
       return { ...state, error: `Bid exceeds ${winner.name}'s remaining budget (${winner.budget}).` };
     }
     players = state.players.map((p) =>
-      p.id === winnerId ? { ...p, budget: p.budget - bidAmount, won: [...p.won, currentEntry] } : p
+      p.id === winnerId
+        ? { ...p, budget: p.budget - bidAmount, won: [...p.won, { ...currentEntry, paid: bidAmount }] }
+        : p
     );
   }
 
