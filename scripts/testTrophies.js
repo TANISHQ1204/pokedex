@@ -62,3 +62,42 @@ if (tier4.tier === 'gold') {
 } else {
   console.error('❌ Failed! Should be gold.');
 }
+
+// Test 5: Full collection @ 7 stars -> Platinum
+const mockStar7Collection = fireCollection.pokemonIds.map((id) => ({
+  pokemon_id: id,
+  star_level: 7,
+}));
+const tier5 = getTrophyTier(fireCollection, mockStar7Collection);
+console.log('Test 5 (100% owned @ 7 stars):', tier5.tierName, `(Avg: ${tier5.progress.avgStarLevel}) - Expected: Platinum Trophy`);
+if (tier5.tier === 'platinum') {
+  console.log('✅ Success! Platinum trophy awarded.');
+} else {
+  console.error('❌ Failed! Should be platinum.');
+}
+
+// Test 6: Full collection @ 9 stars -> Diamond
+const mockStar9Collection = fireCollection.pokemonIds.map((id) => ({
+  pokemon_id: id,
+  star_level: 9,
+}));
+const tier6 = getTrophyTier(fireCollection, mockStar9Collection);
+console.log('Test 6 (100% owned @ 9 stars):', tier6.tierName, `(Avg: ${tier6.progress.avgStarLevel}) - Expected: Diamond Trophy`);
+if (tier6.tier === 'diamond') {
+  console.log('✅ Success! Diamond trophy awarded.');
+} else {
+  console.error('❌ Failed! Should be diamond.');
+}
+
+// Test 7: Full collection @ 10 stars -> Master (Shiny)
+const mockStar10Collection = fireCollection.pokemonIds.map((id) => ({
+  pokemon_id: id,
+  star_level: 10,
+}));
+const tier7 = getTrophyTier(fireCollection, mockStar10Collection);
+console.log('Test 7 (100% owned @ 10 stars):', tier7.tierName, `(Avg: ${tier7.progress.avgStarLevel}) - Expected: Master Trophy (Shiny)`);
+if (tier7.tier === 'master') {
+  console.log('✅ Success! Master trophy awarded.');
+} else {
+  console.error('❌ Failed! Should be master.');
+}

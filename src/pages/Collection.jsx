@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { getUserCollection } from '../store/collection';
-import pokemonList from '../data/pokemon.json' with { type: 'json' };
+import { fullPokemonList, displayName, isAltForm } from '../utils/pokemonCatalog.js';
 import { glowBaseFor } from '../utils/glow';
 import PokemonDetailModal from '../components/PokemonDetailModal';
+import { MAX_STAR_LEVEL, SHINY_STAR_LEVEL, starTierInfo } from '../game/cardLevels.js';
 
 const ITEMS_PER_PAGE = 48;
 
@@ -39,6 +40,7 @@ const GENERATIONS = [
   { label: 'Gen 7 (Alola)', value: '7', range: [722, 809] },
   { label: 'Gen 8 (Galar)', value: '8', range: [810, 905] },
   { label: 'Gen 9 (Paldea)', value: '9', range: [906, 1025] },
+  { label: 'Alt Forms', value: 'forms', range: [10001, 11000] },
 ];
 
 function formatTitle(str) {
@@ -96,12 +98,14 @@ export default function Collection() {
 
   // Filter & Sort logic
   const filteredPokemon = useMemo(() => {
-    let result = pokemonList;
+    let result = fullPokemonList;
 
     // Search query
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase().trim();
-      result = result.filter((p) => p.name.toLowerCase().includes(q) || String(p.id).includes(q));
+      result = result.filter(
+        (p) => p.name.toLowerCase().includes(q) || displayName(p).toLowerCase().includes(q) || String(p.id).includes(q)
+      );
     }
 
     // Ownership filter (normal cards only)
@@ -154,7 +158,7 @@ export default function Collection() {
 
   // Statistics (normal cards only)
   const ownedCount = collectionMap.size;
-  const totalCount = pokemonList.length;
+  const totalCount = fullPokemonList.length;
   const completionPercentage = Math.round((ownedCount / totalCount) * 100);
 
   const handleCardClick = (p) => {
@@ -277,25 +281,33 @@ export default function Collection() {
             const entry = collectionMap.get(p.id);
             const isOwned = Boolean(entry);
             const starLevel = entry?.star_level || 0;
-            const isShiny = entry?.is_shiny || starLevel >= 5;
+            const isShiny = entry?.is_shiny || starLevel >= SHINY_STAR_LEVEL;
             const spriteSrc = isOwned ? (isShiny ? p.sprites.shiny : p.sprites.normal) : p.sprites.normal;
 
             let rarityClass = 'rarity-card-common';
             if (starLevel === 2) rarityClass = 'rarity-card-uncommon';
             else if (starLevel === 3) rarityClass = 'rarity-card-rare';
             else if (starLevel === 4) rarityClass = 'rarity-card-legendary';
-            else if (starLevel >= 5 || isShiny) rarityClass = 'rarity-card-shiny holo-shimmer-effect';
+            else if (starLevel === 5) rarityClass = 'rarity-card-super';
+            else if (starLevel === 6) rarityClass = 'rarity-card-radiant';
+            else if (starLevel === 7) rarityClass = 'rarity-card-golden';
+            else if (starLevel === 8) rarityClass = 'rarity-card-prismatic';
+            else if (starLevel === 9) rarityClass = 'rarity-card-aurora';
+            else if (starLevel >= MAX_STAR_LEVEL || isShiny) rarityClass = 'rarity-card-shiny holo-shimmer-effect';
 
             return (
               <div
                 key={p.id}
-                className={`collection-card tcg-card ${isOwned ? rarityClass + ' owned' : 'unowned'}`}
+                className={`collection-card tcg-card ${isOwned ? rarityClass + ' owned' : 'unowned'} star-tier-${isOwned ? starLevel : 0}`}
                 onClick={() => handleCardClick(p)}
                 data-glow
                 style={{ '--base': glowBaseFor(p.types) }}
               >
                 <span className="card-glow-overlay" data-glow aria-hidden="true" />
-                <div className="card-top-id stat-number-condensed">#{String(p.id).padStart(4, '0')}</div>
+                <div className="card-top-id stat-number-condensed">
+                    #{String(p.id).padStart(4, '0')}
+                    {isAltForm(p) && <span className="form-badge-mark"> ◆{p.generation ? `Gen ${p.generation}` : ''}</span>}
+                  </div>
 
                 <div className="card-image-wrapper">
                   <img
@@ -307,15 +319,18 @@ export default function Collection() {
                 </div>
 
                 <div className="card-info">
-                  <div className="card-name">{isOwned ? formatTitle(p.name) : '???'}</div>
+                  <div className="card-name">{isOwned ? displayName(p) : '???'}</div>
 
                   {isOwned ? (
                     <>
                       <div className="star-rating">
                         {'★'.repeat(starLevel)}
-                        {'☆'.repeat(5 - starLevel)}
+                        {'☆'.repeat(MAX_STAR_LEVEL - starLevel)}
                       </div>
                       <div className="card-types">
+                        <span className={`pokemon-type-badge tier-chip ${rarityClass}`} style={{ fontSize: '0.6rem', padding: '0.1rem 0.4rem', marginRight: '0.25rem', boxShadow: 'none' }}>
+                          {starTierInfo(starLevel).label}
+                        </span>
                         {p.types.map((t) => (
                           <span key={t} className={`pokemon-type-badge type-${t}`}>
                             {t}

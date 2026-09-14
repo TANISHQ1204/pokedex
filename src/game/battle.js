@@ -1055,10 +1055,17 @@ export function selectCpuMove(cpuPokemon, playerPokemon) {
 }
 
 // The chance a single battle-team slot rolls as the SHINY variant of whatever
-// Pokemon was selected. This is a purely battle-time random roll (~2.5%) that is
-// fully independent of any player's collection / shiny ownership — it applies
-// symmetrically to both sides and is discarded once the battle ends.
+// Pokemon was selected in a PvP / friend battle. This is a purely battle-time
+// random roll (~2.5%) that is fully independent of any player's collection /
+// shiny ownership — it applies symmetrically to both sides and is discarded once
+// the battle ends. Used ONLY when no ownedShinyIds gate is provided.
 export const SHINY_BATTLE_CHANCE = 0.025;
+
+// CPU battles use a COMPLETELY DIFFERENT shiny rule: a randomly selected Pokemon
+// can only appear shiny if the LOGGED-IN PLAYER owns that Pokemon's shiny in
+// their real collection. When owned, the slot rolls against this chance to
+// actually show as shiny this battle. Unowned -> never shiny, no roll at all.
+export const CPU_SHINY_OWNED_CHANCE = 0.5;
 
 // Stat multiplier applied to a battle Pokemon whose slot rolled shiny, for that
 // battle instance only (no effect on collection or any persisted data).
@@ -1081,16 +1088,63 @@ export function applyShinyStatBoost(baseStats = {}) {
 }
 
 /**
+ * Selects the 4-move battle set for a team member.
+ *
+ * options.movePool (Map<pokemonId, move[]> | null):
+ *   - When provided (CPU battles, player's side): picks the random 4 from the
+ *     player's UNLOCKED moves for that species (per-card progression). Species
+ *     not in the map -> defaults to the template's base moves.
+ *   - When null (CPU opponent side & PvP/friend battles): random 4 from the
+ *     template's full moveset.
+ */
+function selectBattleMoves(template, options = {}) {
+  const unlockPool = options.unlockPool;
+  let pool = null;
+  if (unlockPool instanceof Map) {
+    pool = unlockPool.get(Number(template.id)) || null;
+  }
+  const source = pool && pool.length > 0 ? pool : (template.moves || []);
+  const available = source.filter((m) => m && typeof m === 'object');
+  if (!available.length) return [];
+
+  // Guarantee at least one damaging move when available, then fill randomly.
+  const damaged = available.filter((m) => (m.power || 0) > 0);
+  const chosen = [];
+  if (damaged.length > 0) {
+    chosen.push(damaged[Math.floor(Math.random() * damaged.length)]);
+  }
+  const rest = available.filter((m) => !chosen.includes(m));
+  for (let i = rest.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const tmp = rest[i];
+    rest[i] = rest[j];
+    rest[j] = tmp;
+  }
+  chosen.push(...rest);
+  return chosen.slice(0, 4);
+}
+
+/**
  * Generates a random battle team of `count` Pokémon (any evolution stage is
  * eligible) with currentHp, currentPp, and status condition states initialized.
  *
- * Shiny rolling: each slot independently has a ~2.5% chance (SHINY_BATTLE_CHANCE)
- * of being the SHINY variant of the selected Pokemon. This is a pure random
- * battle-time roll with NO connection to collection ownership. A shiny slot
- * receives a 12% stat boost (SHINY_STAT_BOOST) for this battle only and is
- * flagged with isShiny = true so the UI can show the shiny sprite + indicator.
+ * SHINY RULES:
+ *   - options.ownedShinyIds (Set<pokemonId> | null) — CPU battle mode.
+ *     A slot is shiny only if the LOGGED-IN player owns that Pokemon's shiny
+ *     (is_shiny in their real normal collection) AND passes CPU_SHINY_OWNED_CHANCE.
+ *     Unowned species can NEVER roll shiny. Applies to BOTH sides of a CPU battle.
+ *   - No ownedShinyIds (PvP / friend battles) — pure random ~2.5% per slot,
+ *     fully independent of any collection (unchanged legacy behavior).
+ *
+ * MOVE SELECTION: options.unlockPool (Map<pokemonId, move[]> | null) gates the
+ * player's CPU-battle team to their unlocked moves; CPU opponent + PvP sides
+ * use the full moveset. See selectBattleMoves.
+ *
+ * A shiny slot receives a 12% stat boost (SHINY_STAT_BOOST) for this battle only
+ * and is flagged with isShiny = true so the UI can show the shiny sprite + indicator.
  */
-export function generateRandomTeam(customList = null, count = 6) {
+export function generateRandomTeam(customList = null, count = 6, options = {}) {
+  const safeOptions = options || {};
   const baseList = customList && Array.isArray(customList) && customList.length > 0 ? customList : defaultPokemonList;
 
   // ALL Pokemon are eligible regardless of evolution stage (no final-evo filter).
@@ -1110,15 +1164,23 @@ export function generateRandomTeam(customList = null, count = 6) {
   for (let i = 0; i < picks; i++) {
     const template = shuffled[i];
 
-    // Independent shiny roll per slot (~2.5%). Purely battle-time; no ownership
-    // check anywhere.
-    const isShiny = Math.random() < SHINY_BATTLE_CHANCE;
+    // Shiny roll:
+    //   CPU battles (ownedShinyIds gate provided) -> only if player owns the shiny.
+    //   PvP / friend battles (no gate)              -> pure random ~2.5%.
+    let isShiny = false;
+    if (safeOptions.ownedShinyIds != null) {
+      isShiny =
+        safeOptions.ownedShinyIds.has(Number(template.id)) &&
+        Math.random() < CPU_SHINY_OWNED_CHANCE;
+    } else {
+      isShiny = Math.random() < SHINY_BATTLE_CHANCE;
+    }
 
     // Apply the 12% stat boost for shiny slots for this battle instance only.
     const stats = isShiny ? applyShinyStatBoost(template.stats) : template.stats;
     const maxHp = stats.hp;
 
-    const moves = (template.moves || []).map((m) => ({
+    const moves = selectBattleMoves(template, safeOptions).map((m) => ({
       ...m,
       currentPp: m.pp || 10,
       maxPp: m.pp || 10,

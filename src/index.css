@@ -64,6 +64,33 @@
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.7), 0 0 35px rgba(244, 114, 182, 0.7), 0 0 60px rgba(250, 204, 21, 0.5) !important;
 }
 
+/* 10-Star progression tiers — one distinct look per star level (stars 5-9) */
+.rarity-card-super { /* star 5 - Elite */
+  border-color: #f43f5e;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.6), 0 0 30px rgba(244, 63, 94, 0.55);
+}
+
+.rarity-card-radiant { /* star 6 - Radiant */
+  border-color: #fb923c;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.6), 0 0 32px rgba(251, 146, 60, 0.6);
+}
+
+.rarity-card-golden { /* star 7 - Golden */
+  border-color: #facc15;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.65), 0 0 36px rgba(250, 204, 21, 0.7);
+}
+
+.rarity-card-prismatic { /* star 8 - Prismatic */
+  border-color: #a78bfa;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.65), 0 0 36px rgba(167, 139, 250, 0.7);
+}
+
+.rarity-card-aurora { /* star 9 - Aurora */
+  border-color: #22d3ee;
+  background: linear-gradient(135deg, #052e2b 0%, #13304f 50%, #2a0e4a 100%) !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.65), 0 0 40px rgba(34, 211, 238, 0.55), 0 0 60px rgba(168, 85, 247, 0.45);
+}
+
 /* Holographic Rainbow Shimmer Effect for Shiny Cards */
 .holo-shimmer-effect {
   position: relative;
@@ -140,6 +167,49 @@ body {
 .nav-links a:hover,
 .nav-links a.active {
   color: #38bdf8;
+}
+
+.nav-bar-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Hamburger toggle — desktop hidden */
+.nav-toggle {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  width: 42px;
+  height: 42px;
+  padding: 0.5rem;
+  background: rgba(51, 65, 85, 0.6);
+  border: 1px solid #475569;
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+
+.nav-toggle span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background-color: #e2e8f0;
+  border-radius: 2px;
+  transition: transform 0.25s ease, opacity 0.2s ease;
+}
+
+.nav-toggle.open span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+
+.nav-toggle.open span:nth-child(2) {
+  opacity: 0;
+}
+
+.nav-toggle.open span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
 }
 
 .page-container {
@@ -1646,6 +1716,23 @@ body {
   background-color: #1e293b;
 }
 
+.trophy-summary-pill.master {
+  border-color: #ec4899;
+  color: #fbcfe8;
+  box-shadow: 0 0 10px rgba(236, 72, 153, 0.3);
+}
+
+.trophy-summary-pill.diamond {
+  border-color: #22d3ee;
+  color: #cffafe;
+  box-shadow: 0 0 10px rgba(34, 211, 238, 0.3);
+}
+
+.trophy-summary-pill.platinum {
+  border-color: #94b8c7;
+  color: #e2e8f0;
+}
+
 .trophy-summary-pill.gold {
   border-color: #f59e0b;
   color: #fef08a;
@@ -1690,6 +1777,21 @@ body {
   transform: translateY(-3px);
   border-color: #38bdf8;
   box-shadow: 0 6px 16px rgba(56, 189, 248, 0.2);
+}
+
+.trophy-card.master {
+  border-color: #ec4899;
+  box-shadow: 0 0 14px rgba(236, 72, 153, 0.35);
+}
+
+.trophy-card.diamond {
+  border-color: #22d3ee;
+  box-shadow: 0 0 14px rgba(34, 211, 238, 0.35);
+}
+
+.trophy-card.platinum {
+  border-color: #94b8c7;
+  box-shadow: 0 0 10px rgba(148, 184, 199, 0.25);
 }
 
 .trophy-card.gold {
@@ -2136,27 +2238,60 @@ body {
   }
 
   /* Navbar Mobile Layout */
+  /* Navbar Mobile Layout — hamburger drawer */
   .nav-bar {
+    position: relative;
     padding: 0.75rem 1rem;
     flex-direction: column;
-    gap: 0.75rem;
     align-items: stretch;
   }
 
-  .nav-brand {
-    justify-content: center;
-    text-align: center;
+  .nav-bar-top {
+    width: 100%;
+  }
+
+  .nav-toggle {
+    display: inline-flex;
   }
 
   .nav-links {
-    gap: 0.5rem;
-    justify-content: center;
-    flex-wrap: wrap;
-    font-size: 0.85rem;
+    display: none;
   }
 
-  .nav-links a {
-    padding: 0.35rem 0.5rem;
+  .nav-links.nav-open {
+    display: flex;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    gap: 0.15rem;
+    background: #1e293b;
+    border-bottom: 1px solid #334155;
+    box-shadow: 0 14px 24px rgba(0, 0, 0, 0.45);
+    padding: 0.5rem 1rem 1rem;
+    z-index: 50;
+    font-size: 0.95rem;
+  }
+
+  .nav-links.nav-open a {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.7rem 0.65rem;
+    border-radius: 0.5rem;
+  }
+
+  .nav-links.nav-open a:hover,
+  .nav-links.nav-open a.active {
+    background: rgba(56, 189, 248, 0.12);
+  }
+
+  .nav-links.nav-open .nav-user-link {
+    border-top: 1px solid #334155;
+    margin-top: 0.35rem;
+    padding-top: 0.75rem;
   }
 
   /* Battle Arena Mobile Layout */

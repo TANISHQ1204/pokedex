@@ -26,6 +26,7 @@ import {
   findPowerRecord,
   findAncientRecord,
 } from '../src/utils/cardTypes.js';
+import { MAX_STAR_LEVEL } from '../src/game/cardLevels.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -58,10 +59,10 @@ function rollIt(userCollection, randomQueue) {
   return withRandom(randomQueue, () => rollBattleDrop(userCollection, pokemonList));
 }
 
-const normalRecord = (id, { star = 5, shiny = false } = {}) => ({
+const normalRecord = (id, { star = MAX_STAR_LEVEL, shiny = false } = {}) => ({
   pokemon_id: id,
   star_level: star,
-  dupes_collected: 0,
+  dupes_collected: star >= MAX_STAR_LEVEL ? 18 : 0,
   is_shiny: shiny,
   is_power_card: false,
   is_ancient_card: false,
@@ -157,9 +158,9 @@ assert(ancientRow && isAncientRecord(ancientRow), 'Ancient finder returns only t
 
 console.log('\n--- Test E: maxed special rows can NOT corrupt/block the normal card ---\n');
 
-// Defense-in-depth: even if a special row ever held star_level >= 5, the normal
-// award path must not treat it as a maxed normal card.
-const specialHighStar = [{ pokemon_id: N, star_level: 5, dupes_collected: 40, is_shiny: true, is_ancient_card: true }];
+// Defense-in-depth: even if a special row ever held star_level >= MAX_STAR_LEVEL,
+// the normal award path must not treat it as a maxed normal card.
+const specialHighStar = [{ pokemon_id: N, star_level: MAX_STAR_LEVEL, dupes_collected: 40, is_shiny: true, is_ancient_card: true }];
 assert(findNormalRecord(specialHighStar) === null, 'A maxed Ancient row does not masquerade as a maxed normal card');
 assert(!isNormalRecord(specialHighStar[0]), 'Maxed Ancient rows are excluded from normal-card progress/eligibility');
 

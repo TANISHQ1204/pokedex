@@ -1,5 +1,8 @@
-import { supabase } from './supabaseClient';
+import { supabase, isSupabaseConfigured } from './supabaseClient';
 import { findNormalRecord, findPowerRecord, findAncientRecord } from '../utils/cardTypes';
+import { MAX_STAR_LEVEL, SHINY_STAR_LEVEL } from '../game/cardLevels.js';
+
+const MOCK_COLLECTION_KEY = 'pokedex_mock_normal_collection';
 
 /**
  * Fetch the user's full card collection from Supabase.
@@ -123,8 +126,8 @@ export async function awardCard(userId, pokemonId) {
     };
   }
 
-  // Case B: Card is already maxed out at 5 stars
-  if (existing.star_level >= 5) {
+  // Case B: Card is already maxed out at MAX_STAR_LEVEL (10) stars
+  if (existing.star_level >= MAX_STAR_LEVEL) {
     return {
       isNew: false,
       entry: existing,
@@ -134,12 +137,15 @@ export async function awardCard(userId, pokemonId) {
     };
   }
 
-  // Case C: Card exists and star_level < 5 -> Increment dupes and calculate star level
+  // Case C: Card exists and star_level < MAX_STAR_LEVEL -> Increment dupes and calculate star level.
   const newDupes = (existing.dupes_collected || 0) + 1;
-  // Calculate star level: each dupe = +1 star (max 5)
-  const newStarLevel = Math.min(5, 1 + newDupes);
+  // Star formula (chosen in plan): min(10, 1 + floor(dupes/2)) → 1★ @0-1, 10★ @18.
+  // Never downgrade: preserved progress (e.g. pre-migration 5★ rows) stays put,
+  // only upgraded once the new formula's level is actually higher.
+  const formulaStar = Math.min(MAX_STAR_LEVEL, 1 + Math.floor(newDupes / 2));
+  const newStarLevel = Math.max(Number(existing.star_level) || 1, formulaStar);
   const starUpgraded = newStarLevel > existing.star_level;
-  const becameShiny = newStarLevel >= 5;
+  const becameShiny = newStarLevel >= SHINY_STAR_LEVEL;
 
   const updatedEntry = await upsertCollectionEntry({
     user_id: userId,
@@ -247,4 +253,52 @@ export async function awardAncientCard(userId, pokemonId) {
     entry: newEntry,
     isAncientCard: true,
   };
+}
+
+/**
+ * DESTRUCTIVE ACTION — Reset ONLY the player's normal card collection.
+ *
+ * Deletes every NORMAL card record (is_power_card = false AND is_ancient_card = false)
+ * for the given user, wiping all star levels, dupes, and shiny flags as if starting
+ * fresh.
+ *
+ * Explicitly does NOT touch:
+ *   - Power Cards / Ancient Cards (Special Collection data) — preserved intact
+ *   - friends / friendships
+ *   - battle history / stats
+ *   - username / profile / any other account data
+ *
+ * This action is IRREVERSIBLE. Callers must confirm with the user beforehand.
+ *
+ * @param {string} userId - Auth user UUID
+ * @returns {Promise<{ success: boolean, deletedCount: number }>}
+ */
+export async function resetNormalCollection(userId) {
+  if (!userId) {
+    throw new Error('userId is required to reset the normal collection');
+  }
+
+  if (!isSupabaseConfigured()) {
+    // Preview / mock mode: spin down the local mock normal-collection store.
+    const key = `${MOCK_COLLECTION_KEY}_${userId}`;
+    const raw = localStorage.getItem(key);
+    const deletedCount = raw ? JSON.parse(raw).length : 0;
+    localStorage.removeItem(key);
+    return { success: true, deletedCount };
+  }
+
+  // Delete ONLY normal card rows — every special card (power/ancient) stays untouched.
+  const { data, error } = await supabase
+    .from('collections')
+    .delete()
+    .eq('user_id', userId)
+    .eq('is_power_card', false)
+    .eq('is_ancient_card', false);
+
+  if (error) {
+    console.error('Error resetting normal collection:', error.message);
+    throw error;
+  }
+
+  return { success: true, deletedCount: Array.isArray(data) ? data.length : 0 };
 }

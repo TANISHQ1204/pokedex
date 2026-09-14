@@ -5,6 +5,7 @@ import { getBadgeStatus } from '../game/badges';
 import badgesList from '../data/badges.json' with { type: 'json' };
 import pokemonList from '../data/pokemon.json' with { type: 'json' };
 import { GymBadgeIcon } from '../components/icons/GameIcons';
+import { MAX_STAR_LEVEL, SHINY_STAR_LEVEL } from '../game/cardLevels.js';
 
 function formatTitle(str) {
   if (!str) return '';
@@ -264,7 +265,7 @@ export default function Badges() {
                 const entry = collectionMap.get(id);
                 const isOwned = Boolean(entry);
                 const starLevel = entry?.star_level || 0;
-                const isShiny = entry?.is_shiny || starLevel >= 5;
+                const isShiny = entry?.is_shiny || starLevel >= SHINY_STAR_LEVEL;
                 const spriteSrc = isOwned ? (isShiny ? p.sprites.shiny : p.sprites.normal) : p.sprites.normal;
 
                 return (
@@ -286,7 +287,7 @@ export default function Badges() {
                       {isOwned ? (
                         <div className="star-rating">
                           {'★'.repeat(starLevel)}
-                          {'☆'.repeat(5 - starLevel)}
+                          {'☆'.repeat(MAX_STAR_LEVEL - starLevel)}
                         </div>
                       ) : (
                         <div className="unowned-badge">Unowned</div>
@@ -323,7 +324,7 @@ export default function Badges() {
                     src={
                       collectionMap.has(selectedPokemon.id) &&
                       (collectionMap.get(selectedPokemon.id)?.is_shiny ||
-                        collectionMap.get(selectedPokemon.id)?.star_level >= 5)
+                        collectionMap.get(selectedPokemon.id)?.star_level >= SHINY_STAR_LEVEL)
                         ? selectedPokemon.sprites.shiny
                         : selectedPokemon.sprites.normal
                     }
@@ -335,7 +336,7 @@ export default function Badges() {
                   {collectionMap.has(selectedPokemon.id) ? (
                     <div className="modal-star-row">
                       {'★'.repeat(collectionMap.get(selectedPokemon.id).star_level)}
-                      {'☆'.repeat(5 - collectionMap.get(selectedPokemon.id).star_level)}
+                      {'☆'.repeat(MAX_STAR_LEVEL - collectionMap.get(selectedPokemon.id).star_level)}
                     </div>
                   ) : (
                     <div style={{ color: '#f87171', fontWeight: 600, fontSize: '0.875rem' }}>

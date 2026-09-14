@@ -5,6 +5,7 @@ import { getTrophyTier } from '../game/trophies';
 import collectionsList from '../data/collections.json' with { type: 'json' };
 import pokemonList from '../data/pokemon.json' with { type: 'json' };
 import { TrophyIcon, SparkleStarIcon } from '../components/icons/GameIcons';
+import { MAX_STAR_LEVEL, SHINY_STAR_LEVEL } from '../game/cardLevels.js';
 
 const COLLECTIONS_PER_PAGE = 24;
 
@@ -75,6 +76,9 @@ export default function Trophies() {
 
   // Global trophy summary stats
   const summary = useMemo(() => {
+    let platinum = 0;
+    let diamond = 0;
+    let master = 0;
     let gold = 0;
     let silver = 0;
     let bronze = 0;
@@ -82,13 +86,16 @@ export default function Trophies() {
 
     collectionsWithTrophies.forEach((col) => {
       const tier = col.trophyInfo.tier;
-      if (tier === 'gold') gold++;
+      if (tier === 'master') master++;
+      else if (tier === 'diamond') diamond++;
+      else if (tier === 'platinum') platinum++;
+      else if (tier === 'gold') gold++;
       else if (tier === 'silver') silver++;
       else if (tier === 'bronze') bronze++;
       else locked++;
     });
 
-    return { gold, silver, bronze, locked, total: collectionsWithTrophies.length };
+    return { master, diamond, platinum, gold, silver, bronze, locked, total: collectionsWithTrophies.length };
   }, [collectionsWithTrophies]);
 
   // Filter & Search logic
@@ -136,12 +143,24 @@ export default function Trophies() {
         <div>
           <h1 style={{ margin: 0, color: '#f8fafc', fontSize: '1.75rem' }}>Pokédex Trophy Hall</h1>
           <p style={{ margin: '0.25rem 0 0 0', color: '#94a3b8', fontSize: '0.875rem' }}>
-            Complete 100% of a collection to unlock cosmetic trophies (Bronze, Silver, Gold)!
+            Complete 100% of a collection to unlock cosmetic trophies. Star up your cards to rise from Bronze → Silver → Gold → Platinum → Diamond → Master (Shiny)!
           </p>
         </div>
 
         {/* Summary Badges Grid */}
         <div className="trophy-summary-bar">
+          <div className="trophy-summary-pill master">
+            <TrophyIcon size={18} tier="master" />
+            <span>Master: {summary.master}</span>
+          </div>
+          <div className="trophy-summary-pill diamond">
+            <TrophyIcon size={18} tier="diamond" />
+            <span>Diamond: {summary.diamond}</span>
+          </div>
+          <div className="trophy-summary-pill platinum">
+            <TrophyIcon size={18} tier="platinum" />
+            <span>Platinum: {summary.platinum}</span>
+          </div>
           <div className="trophy-summary-pill gold">
             <TrophyIcon size={18} tier="gold" />
             <span>Gold: {summary.gold}</span>
@@ -339,7 +358,7 @@ export default function Trophies() {
                 const entry = collectionMap.get(id);
                 const isOwned = Boolean(entry);
                 const starLevel = entry?.star_level || 0;
-                const isShiny = entry?.is_shiny || starLevel >= 5;
+                const isShiny = entry?.is_shiny || starLevel >= SHINY_STAR_LEVEL;
                 const spriteSrc = isOwned ? (isShiny ? p.sprites.shiny : p.sprites.normal) : p.sprites.normal;
 
                 return (
@@ -361,7 +380,7 @@ export default function Trophies() {
                       {isOwned ? (
                         <div className="star-rating">
                           {'★'.repeat(starLevel)}
-                          {'☆'.repeat(5 - starLevel)}
+                          {'☆'.repeat(MAX_STAR_LEVEL - starLevel)}
                         </div>
                       ) : (
                         <div className="unowned-badge">Unowned</div>
@@ -398,7 +417,7 @@ export default function Trophies() {
                     src={
                       collectionMap.has(selectedPokemon.id) &&
                       (collectionMap.get(selectedPokemon.id)?.is_shiny ||
-                        collectionMap.get(selectedPokemon.id)?.star_level >= 5)
+                        collectionMap.get(selectedPokemon.id)?.star_level >= SHINY_STAR_LEVEL)
                         ? selectedPokemon.sprites.shiny
                         : selectedPokemon.sprites.normal
                     }
@@ -410,7 +429,7 @@ export default function Trophies() {
                   {collectionMap.has(selectedPokemon.id) ? (
                     <div className="modal-star-row">
                       {'★'.repeat(collectionMap.get(selectedPokemon.id).star_level)}
-                      {'☆'.repeat(5 - collectionMap.get(selectedPokemon.id).star_level)}
+                      {'☆'.repeat(MAX_STAR_LEVEL - collectionMap.get(selectedPokemon.id).star_level)}
                     </div>
                   ) : (
                     <div style={{ color: '#f87171', fontWeight: 600, fontSize: '0.875rem' }}>

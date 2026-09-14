@@ -24,13 +24,15 @@ import { rollBattleDrop, rollPreviewDrop } from '../game/drops';
 import { getUserCollection, awardCard, awardPowerCard, awardAncientCard } from '../store/collection';
 import { recordBattleResult, recordCardPull } from '../store/stats';
 import { useAuth } from '../context/AuthContext';
-import pokemonList from '../data/pokemon.json' with { type: 'json' };
+import { fullPokemonList, displayName } from '../utils/pokemonCatalog.js';
 import HpBar from '../components/HpBar';
 import BenchRow from '../components/BenchRow';
 import BattleLog from '../components/BattleLog';
 import CardPullReveal from '../components/CardPullReveal';
 import { createMatch } from '../store/matches';
 import { SparkleStarIcon } from '../components/icons/GameIcons';
+import { buildUnlockPool } from '../game/cardLevels.js';
+import learnsets from '../data/learnsets.json' with { type: 'json' };
 
 const SOLO_BATTLE_STORAGE_KEY = 'pokedex_solo_battle_state';
 
@@ -51,6 +53,12 @@ function loadSoloBattleState() {
 
 function clearSoloBattleState() {
   try { localStorage.removeItem(SOLO_BATTLE_STORAGE_KEY); } catch (_) { /* ignore */ }
+}
+
+// Decorator so members' 4-move battle sets are drawn from their unlocked,
+// star-driven learnset pool during CPU battles (see cardLevels.buildUnlockPool).
+function buildUnlockPoolForColl(coll) {
+  return buildUnlockPool(coll, learnsets);
 }
 
 // Map move types to CSS colors for hit-flash overlay
@@ -130,6 +138,38 @@ export default function Battle() {
   const turnsRef = useRef(0);
   const battleRecordedRef = useRef(false);
 
+  // Holds the logged-in player's collection-derived battle data:
+  //   ownedShinyIds — Set<pokemonId> for species whose SHINY the player owns
+  //                   (is_shiny in their normal collection). Used to gate shiny
+  //                   appearances in CPU battles for BOTH sides.
+  //   unlockPool     — Map<pokemonId, move[]> of the player's unlocked moves per
+  //                   species (drives the player's CPU-battle team 4-move picks).
+  const collectionDataRef = useRef({ ownedShinyIds: null, unlockPool: null });
+
+  // Fetch the player's real collection and derive owned-shiny + unlocked-move
+  // data. The CPU-battle shiny rule depends on this. Safe no-op for guest/preview.
+  const loadCollectionData = useCallback(async () => {
+    if (!user?.id) {
+      collectionDataRef.current = { ownedShinyIds: null, unlockPool: null };
+      return;
+    }
+    try {
+      const coll = await getUserCollection(user.id);
+      const ownedShinyIds = new Set(
+        coll
+          .filter((r) => r && !r.is_power_card && !r.is_ancient_card && r.is_shiny)
+          .map((r) => Number(r.pokemon_id))
+      );
+      collectionDataRef.current = {
+        ownedShinyIds,
+        unlockPool: buildUnlockPoolForColl(coll),
+      };
+    } catch (err) {
+      console.error('Error loading collection for CPU battle:', err);
+      collectionDataRef.current = { ownedShinyIds: null, unlockPool: null };
+    }
+  }, [user?.id]);
+
   const persistState = useCallback(() => {
     const ref = battleStateRef.current;
     saveSoloBattleState({
@@ -148,8 +188,14 @@ export default function Battle() {
   }, []);
 
   const startNewBattle = useCallback(() => {
-    const pTeam = generateRandomTeam(null, 6);
-    const cTeam = generateRandomTeam(null, 6);
+    const { ownedShinyIds, unlockPool } = collectionDataRef.current || {};
+    // CPU battles: shiny appearance is gated by the logged-in player's REAL
+    // collection (owned shiny -> 50% slot chance; unowned -> never shiny), for
+    // BOTH the player's team and the CPU team.
+    const playerOptions = { ownedShinyIds: ownedShinyIds || null, unlockPool: unlockPool || null };
+    const cpuOptions = { ownedShinyIds: ownedShinyIds || null };
+    const pTeam = generateRandomTeam(null, 6, playerOptions);
+    const cTeam = generateRandomTeam(null, 6, cpuOptions);
 
     const initPState = { enteredViaFaint: true, hasAttacked: false, activeBuffs: [] };
     const initCState = { enteredViaFaint: true, hasAttacked: false, activeBuffs: [] };
@@ -186,58 +232,69 @@ export default function Battle() {
   }, []);
 
   useEffect(() => {
-    // A full browser refresh (F5 / Ctrl+R) always starts a fresh battle.
-    // Only SPA navigation (changing tabs/routes) should restore an in-progress
-    // battle — an active fight is intentionally preserved across tab switches.
-    let pageWasReloaded = false;
-    try {
-      const nav = window.performance?.getEntriesByType?.('navigation')?.[0];
-      pageWasReloaded = Boolean(nav && nav.type === 'reload');
-    } catch (_) {
-      /* navigation timing unavailable — ignore */
-    }
-    if (pageWasReloaded) {
-      clearSoloBattleState();
-    }
+    // Load the player's collection (owned shiny ids + unlocked moves) for the
+    // CPU-battle shiny rule before deciding saved-vs-fresh battle.
+    let cancelled = false;
+    (async () => {
+      await loadCollectionData();
+      if (cancelled) return;
 
-    const saved = loadSoloBattleState();
-    if (saved && saved.playerTeam?.length && saved.cpuTeam?.length && !saved.winner) {
-      const pIdx = saved.playerActiveIdx ?? 0;
-      const cIdx = saved.cpuActiveIdx ?? 0;
-      const pState = saved.playerActiveState || { enteredViaFaint: true, hasAttacked: false, activeBuffs: [] };
-      const cState = saved.cpuActiveState || { enteredViaFaint: true, hasAttacked: false, activeBuffs: [] };
-      const revSet = new Set(saved.revealedCpuIndices || [0]);
+      // A full browser refresh (F5 / Ctrl+R) always starts a fresh battle.
+      // Only SPA navigation (changing tabs/routes) should restore an in-progress
+      // battle — an active fight is intentionally preserved across tab switches.
+      let pageWasReloaded = false;
+      try {
+        const nav = window.performance?.getEntriesByType?.('navigation')?.[0];
+        pageWasReloaded = Boolean(nav && nav.type === 'reload');
+      } catch (_) {
+        /* navigation timing unavailable — ignore */
+      }
+      if (pageWasReloaded) {
+        clearSoloBattleState();
+      }
 
-      setPlayerTeam(saved.playerTeam);
-      setCpuTeam(saved.cpuTeam);
-      setPlayerActiveIdx(pIdx);
-      setCpuActiveIdx(cIdx);
-      setRevealedCpuIndices(revSet);
-      setPlayerActiveState(pState);
-      setCpuActiveState(cState);
-      setLogs(saved.logs || []);
-      setWinner(null);
-      setAwardedDrop(saved.awardedDrop || null);
-      setIsBusy(false);
+      const saved = loadSoloBattleState();
+      if (saved && saved.playerTeam?.length && saved.cpuTeam?.length && !saved.winner) {
+        const pIdx = saved.playerActiveIdx ?? 0;
+        const cIdx = saved.cpuActiveIdx ?? 0;
+        const pState = saved.playerActiveState || { enteredViaFaint: true, hasAttacked: false, activeBuffs: [] };
+        const cState = saved.cpuActiveState || { enteredViaFaint: true, hasAttacked: false, activeBuffs: [] };
+        const revSet = new Set(saved.revealedCpuIndices || [0]);
 
-      battleStateRef.current = {
-        playerTeam: saved.playerTeam,
-        cpuTeam: saved.cpuTeam,
-        playerIdx: pIdx,
-        cpuIdx: cIdx,
-        playerActiveState: pState,
-        cpuActiveState: cState,
-      };
-      revealedCpuIndicesRef.current = revSet;
-      logsRef.current = saved.logs || [];
-      winnerRef.current = null;
-      awardedDropRef.current = saved.awardedDrop || null;
-      turnsRef.current = saved.turns || 0;
-      battleRecordedRef.current = false;
-    } else {
-      startNewBattle();
-    }
-  }, [startNewBattle]);
+        setPlayerTeam(saved.playerTeam);
+        setCpuTeam(saved.cpuTeam);
+        setPlayerActiveIdx(pIdx);
+        setCpuActiveIdx(cIdx);
+        setRevealedCpuIndices(revSet);
+        setPlayerActiveState(pState);
+        setCpuActiveState(cState);
+        setLogs(saved.logs || []);
+        setWinner(null);
+        setAwardedDrop(saved.awardedDrop || null);
+        setIsBusy(false);
+
+        battleStateRef.current = {
+          playerTeam: saved.playerTeam,
+          cpuTeam: saved.cpuTeam,
+          playerIdx: pIdx,
+          cpuIdx: cIdx,
+          playerActiveState: pState,
+          cpuActiveState: cState,
+        };
+        revealedCpuIndicesRef.current = revSet;
+        logsRef.current = saved.logs || [];
+        winnerRef.current = null;
+        awardedDropRef.current = saved.awardedDrop || null;
+        turnsRef.current = saved.turns || 0;
+        battleRecordedRef.current = false;
+      } else {
+        startNewBattle();
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [startNewBattle, loadCollectionData]);
 
   const addLog = (text, options = {}) => {
     setLogs((prev) => {
@@ -836,7 +893,7 @@ export default function Battle() {
           try {
             if (user?.id) {
               const userColl = await getUserCollection(user.id);
-              const drop = rollBattleDrop(userColl, pokemonList);
+              const drop = rollBattleDrop(userColl, fullPokemonList);
 
               if (drop.collectionComplete) {
                 addLog('🏆 COLLECTION COMPLETE! Special card drop rate boosted to 80%!', { isSuperEffective: true });
@@ -845,18 +902,30 @@ export default function Battle() {
               if (drop.type === 'power') {
                 const awardRes = await awardPowerCard(user.id, drop.pokemon.id);
                 dropState = { dropType: 'power', pokemon: drop.pokemon, ...awardRes };
-                addLog(`⚡ POWER CARD DROP! You earned ${drop.pokemon.name.toUpperCase()} Power Card!`, { isSuperEffective: true });
+                addLog(`⚡ POWER CARD DROP! You earned ${displayName(drop.pokemon).toUpperCase()} Power Card!`, { isSuperEffective: true });
               } else if (drop.type === 'ancient') {
                 const awardRes = await awardAncientCard(user.id, drop.pokemon.id);
                 dropState = { dropType: 'ancient', pokemon: drop.pokemon, ...awardRes };
-                addLog(`🏛️ ANCIENT CARD DROP! You earned ${drop.pokemon.name.toUpperCase()} Ancient Card!`, { isSuperEffective: true });
+                addLog(`🏛️ ANCIENT CARD DROP! You earned ${displayName(drop.pokemon).toUpperCase()} Ancient Card!`, { isSuperEffective: true });
               } else {
                 const awardRes = await awardCard(user.id, drop.pokemon.id);
                 dropState = { dropType: 'normal', pokemon: drop.pokemon, ...awardRes };
-                addLog(`🎁 You earned a card drop: ${drop.pokemon.name.toUpperCase()}!`, { isSuperEffective: true });
+
+                // Compute newly unlocked move when star increased (for the reveal callout).
+                if (awardRes.starUpgraded) {
+                  const pkmnId = drop.pokemon.id;
+                  const learnset = (learnsets || {})[pkmnId] || (learnsets || {})[String(pkmnId)] || [];
+                  if (learnset.length > 0) {
+                    const prevStar = Math.max(1, (dropState.entry?.star_level || 2) - 1);
+                    const prevCount = Math.min(learnset.length, prevStar + 3);
+                    if (prevCount < learnset.length) dropState.unlockedMove = learnset[prevCount];
+                  }
+                }
+
+                addLog(`🎁 You earned a card drop: ${displayName(drop.pokemon).toUpperCase()}!`, { isSuperEffective: true });
               }
             } else {
-              const drop = rollPreviewDrop(pokemonList);
+              const drop = rollPreviewDrop(fullPokemonList);
               dropState = {
                 dropType: drop.type,
                 pokemon: drop.pokemon,
@@ -866,7 +935,7 @@ export default function Battle() {
             }
           } catch (err) {
             console.error('Error awarding card drop from database:', err);
-            const fallbackPkmn = pokemonList[Math.floor(Math.random() * pokemonList.length)];
+            const fallbackPkmn = fullPokemonList[Math.floor(Math.random() * fullPokemonList.length)];
             dropState = {
               dropType: 'normal',
               pokemon: fallbackPkmn,

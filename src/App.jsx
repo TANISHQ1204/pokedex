@@ -157,6 +157,9 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+        {/* HIDDEN (not removed): Special Collection UI is currently hidden from nav/home.
+            The route and all Power/Ancient card code + data remain intact and functional
+            under the hood. Re-enable by restoring the Navbar link and Home hero button. */}
         <Route
           path="/special-collection"
           element={

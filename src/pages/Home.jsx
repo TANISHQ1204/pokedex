@@ -7,8 +7,9 @@ import { getBadgeStatus } from '../game/badges';
 import { TYPE_CHART } from '../game/battle';
 import collectionsList from '../data/collections.json' with { type: 'json' };
 import badgesList from '../data/badges.json' with { type: 'json' };
-import pokemonList from '../data/pokemon.json' with { type: 'json' };
+import { getPokemonById, fullPokemonList } from '../utils/pokemonCatalog.js';
 import { isNormalRecord } from '../utils/cardTypes';
+import { MAX_STAR_LEVEL, SHINY_STAR_LEVEL } from '../game/cardLevels.js';
 import { fetchRecentPulls, fetchBattleHistory, computeBattleRecord, summarizePulls, formatTimeAgo, mergeCollectionPulls } from '../store/stats';
 import PokemonDetailModal from '../components/PokemonDetailModal';
 import {
@@ -99,17 +100,17 @@ export default function Home() {
   const pullSummary = useMemo(() => summarizePulls(activity.pulls), [activity.pulls]);
   const lastPullPkmn = useMemo(() => {
     if (!pullSummary.recent) return null;
-    return pokemonList.find((p) => Number(p.id) === Number(pullSummary.recent.pokemon_id)) || null;
+    return getPokemonById(pullSummary.recent.pokemon_id) || null;
   }, [pullSummary]);
 
   // Compute Dashboard Stats
   const stats = useMemo(() => {
     const totalOwned = collectionMap.size;
-    const completionPercent = Math.round((totalOwned / pokemonList.length) * 100);
+    const completionPercent = Math.round((totalOwned / fullPokemonList.length) * 100);
 
     let maxedShinyCount = 0;
     collectionMap.forEach((entry) => {
-      if (entry.is_shiny || entry.star_level >= 5) {
+      if (entry.is_shiny || entry.star_level >= SHINY_STAR_LEVEL) {
         maxedShinyCount++;
       }
     });
@@ -159,7 +160,7 @@ export default function Home() {
     mergedPulls.forEach((pull) => {
       const id = Number(pull.pokemon_id);
       if (!id || seen.has(id)) return;
-      const pkmn = pokemonList.find((p) => Number(p.id) === id);
+      const pkmn = getPokemonById(id);
       if (!pkmn) return;
       seen.add(id);
       cards.push({
@@ -190,13 +191,6 @@ export default function Home() {
           <div className="hero-actions">
             <Link to="/battle" className="hero-btn primary">
               <SwordsIcon size={20} /> Battle Arena
-            </Link>
-            <Link
-              to="/special-collection"
-              className="hero-btn primary"
-              style={{ background: 'linear-gradient(90deg, #ec4899, #8b5cf6)', border: 'none' }}
-            >
-              ⚡ Power Cards
             </Link>
             <Link to="/collection" className="hero-btn secondary">
               <CardsIcon size={20} /> Card Collection
@@ -347,7 +341,7 @@ export default function Home() {
           <div className="showcase-grid">
             {showcaseCards.map(({ pkmn, pull, cardType, entry }) => {
               const starLevel = entry?.star_level || Number(pull.star_level) || 0;
-              const isShiny = Boolean((entry?.is_shiny) || pull.is_shiny) || starLevel >= 5;
+              const isShiny = Boolean((entry?.is_shiny) || pull.is_shiny) || starLevel >= SHINY_STAR_LEVEL;
               const spriteSrc = isShiny ? pkmn.sprites.shiny : pkmn.sprites.normal;
               const isSpecial = cardType === 'power' || cardType === 'ancient';
               const typeLabel = cardType === 'power' ? '⚡ Power' : cardType === 'ancient' ? '🏛️ Ancient' : 'Normal';
@@ -375,8 +369,8 @@ export default function Home() {
                     </div>
                     {starLevel > 0 && (
                       <div className="star-rating">
-                        {'★'.repeat(Math.max(1, Math.min(5, starLevel)))}
-                        {'☆'.repeat(Math.max(0, 5 - Math.min(5, starLevel)))}
+                        {'★'.repeat(Math.max(1, Math.min(MAX_STAR_LEVEL, starLevel)))}
+                        {'☆'.repeat(Math.max(0, MAX_STAR_LEVEL - Math.min(MAX_STAR_LEVEL, starLevel)))}
                       </div>
                     )}
                     <div className="showcase-obtained">{formatTimeAgo(pull.created_at)}</div>

@@ -84,13 +84,16 @@ export function getCollectionProgress(collection, playerCollection) {
 
 /**
  * Determines trophy tier based on collection progress and average star level.
- * 
- * Tier Rules:
+ *
+ * Tier Rules (extended for the 10-star system):
  * - Locked until 100% of collection is owned.
- * - Bronze: 100% owned, avg star level 1 - 2.9
- * - Silver: 100% owned, avg star level 3 - 4.9
- * - Gold: 100% owned, avg star level 5
- * 
+ * - Bronze:  avg star level 1 - 2.9
+ * - Silver:  avg star level 3 - 4.9
+ * - Gold:    avg star level 5 - 6.9
+ * - Platinum: avg star level 7 - 8.9
+ * - Diamond:  avg star level 9
+ * - Master:   avg star level 10 (every card maxed → shiny mastery)
+ *
  * @param {Object} collection - Collection object
  * @param {Array|Map} playerCollection - User's collection records
  * @returns {Object} { tier, tierName, icon, color, progress }
@@ -108,7 +111,35 @@ export function getTrophyTier(collection, playerCollection) {
     };
   }
 
-  if (progress.avgStarLevel >= 5) {
+  const avg = progress.avgStarLevel;
+  if (avg >= 10) {
+    return {
+      tier: 'master',
+      tierName: 'Master Trophy (Shiny)',
+      icon: '👑',
+      color: '#f472b6',
+      progress,
+    };
+  }
+  if (avg >= 9) {
+    return {
+      tier: 'diamond',
+      tierName: 'Diamond Trophy',
+      icon: '💎',
+      color: '#a5f3fc',
+      progress,
+    };
+  }
+  if (avg >= 7) {
+    return {
+      tier: 'platinum',
+      tierName: 'Platinum Trophy',
+      icon: '🏅',
+      color: '#e2e8f0',
+      progress,
+    };
+  }
+  if (avg >= 5) {
     return {
       tier: 'gold',
       tierName: 'Gold Trophy',
@@ -118,7 +149,7 @@ export function getTrophyTier(collection, playerCollection) {
     };
   }
 
-  if (progress.avgStarLevel >= 3) {
+  if (avg >= 3) {
     return {
       tier: 'silver',
       tierName: 'Silver Trophy',

@@ -1,4 +1,5 @@
 import defaultPokemonList from '../data/pokemon.json' with { type: 'json' };
+import { MAX_STAR_LEVEL } from './cardLevels.js';
 
 /**
  * Unified battle win drop resolver — Either/Or model.
@@ -9,7 +10,7 @@ import defaultPokemonList from '../data/pokemon.json' with { type: 'json' };
  * Base rates:
  *   Power Card: 5%    |    Ancient Card: 3%    |    Normal: ~92.15%
  *
- * Completion boost — when ALL normal cards are maxed (star_level >= 5):
+ * Completion boost — when ALL normal cards are maxed (star_level >= MAX_STAR_LEVEL):
  *   Power Card: 40%   |    Ancient Card: 40%   |    Normal: ~24%
  *
  * Drop resolution per win:
@@ -85,7 +86,7 @@ export function rollBattleDrop(userCollection = [], customList = null) {
 
 /**
  * Checks if the user's normal card collection is fully completed.
- * Completion = every Pokemon in the list has a normal card entry at star_level >= 5.
+ * Completion = every Pokemon in the list has a normal card entry at star_level >= MAX_STAR_LEVEL.
  * Power cards and ancient cards are excluded from this check.
  *
  * @param {Array} userCollection
@@ -97,7 +98,7 @@ function isNormalCollectionComplete(userCollection, list) {
 
   const maxedIds = new Set(
     userCollection
-      .filter((r) => r && !r.is_power_card && !r.isPowerCard && !r.is_ancient_card && !r.isAncientCard && r.star_level >= 5)
+      .filter((r) => r && !r.is_power_card && !r.isPowerCard && !r.is_ancient_card && !r.isAncientCard && r.star_level >= MAX_STAR_LEVEL)
       .map((r) => Number(r.pokemon_id))
   );
 
@@ -106,7 +107,7 @@ function isNormalCollectionComplete(userCollection, list) {
 
 /**
  * Rolls a normal card drop from the pool.
- * Excludes Pokemon where the user has reached star_level >= 5 (fully maxed).
+ * Excludes Pokemon where the user has reached star_level >= MAX_STAR_LEVEL (fully maxed).
  * Fallback to full pool if all cards are maxed.
  *
  * @param {Array} userCollection
@@ -116,7 +117,7 @@ function isNormalCollectionComplete(userCollection, list) {
 function rollNormalCard(userCollection, list) {
   const maxedIds = new Set(
     userCollection
-      .filter((r) => r && !r.is_power_card && !r.isPowerCard && !r.is_ancient_card && !r.isAncientCard && r.star_level >= 5)
+      .filter((r) => r && !r.is_power_card && !r.isPowerCard && !r.is_ancient_card && !r.isAncientCard && r.star_level >= MAX_STAR_LEVEL)
       .map((r) => Number(r.pokemon_id))
   );
 

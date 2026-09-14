@@ -22,6 +22,7 @@
  */
 
 import { cardTypeOf } from './cardTypes';
+import { MAX_STAR_LEVEL } from '../game/cardLevels.js';
 
 const DAY_MS = 86400000;
 const WEEK_MS = 7 * DAY_MS;
@@ -240,7 +241,7 @@ export function mergeCollectionPulls(collection = [], pulls = []) {
         user_id: entry.user_id,
         pokemon_id: Number(entry.pokemon_id),
         card_type: type,
-        star_level: Math.max(1, Math.min(5, 1 + pullIndex)),
+        star_level: Math.max(1, Math.min(MAX_STAR_LEVEL, 1 + pullIndex)),
         is_shiny: i === total - 1 ? Boolean(entry.is_shiny) : false,
         was_new: i === 0,
         created_at: new Date(baseMs - pullIndex * WEEK_MS).toISOString(),

@@ -3,6 +3,7 @@ import PowerCard from './PowerCard';
 import AncientCard from './AncientCard';
 import PokemonDetailModal from './PokemonDetailModal';
 import { glowBaseFor } from '../utils/glow';
+import { MAX_STAR_LEVEL, starTierInfo } from '../game/cardLevels.js';
 
 export default function CardPullReveal({ awardedDrop, onContinue, onPlayAgain }) {
   const [stage, setStage] = useState('anticipating');
@@ -21,8 +22,9 @@ export default function CardPullReveal({ awardedDrop, onContinue, onPlayAgain })
   const isAncientCard = dropType === 'ancient';
   const isSpecial = isPowerCard || isAncientCard;
 
-  const starLevel = Math.max(1, Math.min(5, entry.star_level || 1));
+  const starLevel = Math.max(1, Math.min(MAX_STAR_LEVEL, entry.star_level || 1));
   const dupesCount = entry.dupes_collected || 0;
+  const unlockedMove = awardedDrop?.unlockedMove || null;
 
   const [displayedSprite, setDisplayedSprite] = useState(pokemon?.sprites?.normal);
   const [isShinyUnlocked, setIsShinyUnlocked] = useState(false);
@@ -243,6 +245,20 @@ export default function CardPullReveal({ awardedDrop, onContinue, onPlayAgain })
             {badgeText && (
               <div className="card-badge-shiny" style={badgeStyle}>
                 {badgeText}
+              </div>
+            )}
+
+            {unlockedMove && !isSpecial && (
+              <div className={`move-unlock-chip type-${unlockedMove.type || 'normal'}`}>
+                <span style={{ fontSize: '0.7rem', letterSpacing: '1px', textTransform: 'uppercase', fontWeight: 700 }}>
+                  ✨ New Move Unlocked! ✨
+                </span>
+                <span style={{ fontSize: '1rem', fontWeight: 800, marginTop: '0.15rem' }}>
+                  {unlockedMove.name}
+                </span>
+                <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
+                  {unlockedMove.power > 0 ? `Power ${unlockedMove.power}` : unlockedMove.healPercent ? `Heals ${Math.round(unlockedMove.healPercent * 100)}% HP` : 'Status'} • {unlockedMove.type}
+                </span>
               </div>
             )}
 

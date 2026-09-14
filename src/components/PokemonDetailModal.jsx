@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { MAX_STAR_LEVEL, SHINY_STAR_LEVEL, unlockedMoveCount } from '../game/cardLevels.js';
+import learnsets from '../data/learnsets.json' with { type: 'json' };
 
 function formatTitle(str) {
   if (!str) return '';
@@ -22,11 +24,15 @@ export default function PokemonDetailModal({
 }) {
   const isOwned = Boolean(entry);
   const starLevel = entry?.star_level || 0;
-  const [previewShiny, setPreviewShiny] = useState(isOwned && (entry?.is_shiny || starLevel >= 5));
+  const [previewShiny, setPreviewShiny] = useState(isOwned && (entry?.is_shiny || starLevel >= SHINY_STAR_LEVEL));
 
   if (!pokemon) return null;
 
   const chip = CARD_TYPE_CHIP[cardType] || CARD_TYPE_CHIP.normal;
+  const learnset = (learnsets || {})[pokemon.id] || (learnsets || {})[String(pokemon.id)] || null;
+  const isNormalOwned = isOwned && cardType === 'normal';
+  const unlockedCount = isNormalOwned && learnset ? unlockedMoveCount(starLevel) : (learnset?.length ?? pokemon.moves?.length ?? 4);
+  const displayMoves = learnset || pokemon.moves || [];
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -105,11 +111,16 @@ export default function PokemonDetailModal({
                   <>
                     <div className="modal-star-row">
                       {'★'.repeat(entry.star_level)}
-                      {'☆'.repeat(5 - entry.star_level)}
+                      {'☆'.repeat(MAX_STAR_LEVEL - entry.star_level)}
                     </div>
                     <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '0.25rem' }}>
                       Duplicates Collected: {entry.dupes_collected || 0}
                     </div>
+                    {!entry.is_shiny && starLevel >= SHINY_STAR_LEVEL && (
+                      <div style={{ fontSize: '0.8rem', color: '#fbbf24', marginTop: '0.25rem', fontWeight: 700 }}>
+                        ✨ Maxed — Shiny Unlocked!
+                      </div>
+                    )}
                   </>
                 )
               ) : (
@@ -180,13 +191,13 @@ export default function PokemonDetailModal({
               </div>
             </div>
 
-            {/* 4-Move Moveset */}
+            {/* 4-Move Moveset + Learnset Progression */}
             <div>
               <span style={{ fontSize: '0.75rem', color: '#94a3b8', display: 'block', marginBottom: '0.5rem' }}>
-                BATTLE MOVESET
+                BATTLE MOVESET {isNormalOwned && learnset ? `(${unlockedCount} of ${learnset.length} moves unlocked)` : ''}
               </span>
               <div className="modal-moves-grid">
-                {pokemon.moves?.map((m, mIdx) => (
+                {displayMoves.slice(0, unlockedCount).map((m, mIdx) => (
                   <div key={mIdx} className="modal-move-card">
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <span style={{ fontWeight: 700, fontSize: '0.85rem', color: '#f8fafc' }}>{m.name}</span>
@@ -202,6 +213,36 @@ export default function PokemonDetailModal({
                 ))}
               </div>
             </div>
+
+            {learnset && (
+              <div style={{ marginTop: '1.25rem' }}>
+                <span style={{ fontSize: '0.75rem', color: '#94a3b8', display: 'block', marginBottom: '0.5rem' }}>
+                  LEARNSET PROGRESSION {isNormalOwned ? '· One more move per star level' : ''}
+                </span>
+                <div className="modal-moves-grid">
+                  {learnset.map((m, mIdx) => {
+                    const isUnlocked = mIdx < unlockedCount;
+                    const requiredStar = mIdx >= 4 ? mIdx - 2 : 1;
+                    return (
+                      <div key={mIdx} className={`modal-move-card ${isUnlocked ? '' : 'modal-move-locked'}`} style={!isUnlocked ? { opacity: 0.55 } : undefined}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ fontWeight: 700, fontSize: '0.85rem', color: isUnlocked ? '#f8fafc' : '#64748b' }}>
+                            {isUnlocked ? '' : '🔒 '}{m.name}
+                          </span>
+                          <span className={`pokemon-type-badge type-${m.type}`}>{m.type}</span>
+                        </div>
+                        <div style={{ fontSize: '0.75rem', color: '#cbd5e1', marginTop: '0.2rem' }}>
+                          <span>Cat: {m.category}</span> | <span>Pwr: {m.power || '--'}</span> | <span>PP: {m.pp}/{m.maxPp}</span>
+                        </div>
+                        <div style={{ fontSize: '0.7rem', color: '#94a3b8', marginTop: '0.25rem', fontStyle: 'italic' }}>
+                          {isUnlocked ? m.effect : `Unlocks at Star ${requiredStar}`}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

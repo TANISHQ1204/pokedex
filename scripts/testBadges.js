@@ -49,3 +49,52 @@ if (status3.isUnlocked) {
 } else {
   console.error('❌ Failed! Should be unlocked.');
 }
+
+const kantoMasteryBadge = badges.find((b) => b.id === 'badge_master_kanto');
+
+if (!kantoMasteryBadge) {
+  console.error('❌ Failed! Star-mastery Kanto badge missing from badges.json.');
+  process.exit(1);
+}
+
+// Test 4: owned but under 10★ -> Locked
+const ownedStar1Collection = kantoMasteryBadge.pokemonIds.map((id) => ({
+  pokemon_id: id,
+  star_level: 1,
+}));
+const status4 = getBadgeStatus(kantoMasteryBadge, ownedStar1Collection);
+console.log('Test 4 (owned @ 1★): Kanto Mastery =', status4.isUnlocked ? 'Unlocked' : 'Locked', `(${status4.masteredCount}/${status4.totalCount}) - Expected: Locked`);
+if (!status4.isUnlocked) {
+  console.log('✅ Success! Star-mastery badge stays locked below 10★.');
+} else {
+  console.error('❌ Failed! Should be locked.');
+}
+
+// Test 5: 50% at 10★ -> Locked
+const halfMastered = kantoMasteryBadge.pokemonIds.map((id, idx) => ({
+  pokemon_id: id,
+  star_level: idx % 2 === 0 ? 10 : 1,
+}));
+const status5 = getBadgeStatus(kantoMasteryBadge, halfMastered);
+console.log('Test 5 (50% @ 10★): Kanto Mastery =', status5.isUnlocked ? 'Unlocked' : 'Locked', `(${status5.masteredCount}/${status5.totalCount}) - Expected: Locked`);
+if (!status5.isUnlocked) {
+  console.log('✅ Success! Partial star mastery stays locked.');
+} else {
+  console.error('❌ Failed! Should be locked.');
+}
+
+// Test 6: 100% at 10★ -> Unlocked
+const allMastered = kantoMasteryBadge.pokemonIds.map((id) => ({
+  pokemon_id: id,
+  star_level: 10,
+}));
+const status6 = getBadgeStatus(kantoMasteryBadge, allMastered);
+console.log('Test 6 (100% @ 10★): Kanto Mastery =', status6.isUnlocked ? 'Unlocked' : 'Locked', `(${status6.masteredCount}/${status6.totalCount}) - Expected: Unlocked`);
+if (status6.isUnlocked) {
+  console.log('✅ Success! Full star mastery unlocks badge.');
+} else {
+  console.error('❌ Failed! Should be unlocked.');
+}
+
+const shinyMasterBadge = badges.find((b) => b.id === 'badge_shiny_master');
+console.log('Shiny Master Badge covers', shinyMasterBadge?.pokemonIds.length ?? 0, 'species across all regions.');

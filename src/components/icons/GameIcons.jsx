@@ -85,6 +85,18 @@ export function TrophyIcon({ size = 24, tier = 'gold', className = '' }) {
     mainGradStart = '#b45309';
     mainGradEnd = '#fed7aa';
     accentColor = '#78350f';
+  } else if (tier === 'platinum') {
+    mainGradStart = '#cbd5e1';
+    mainGradEnd = '#f8fafc';
+    accentColor = '#64748b';
+  } else if (tier === 'diamond') {
+    mainGradStart = '#22d3ee';
+    mainGradEnd = '#ecfeff';
+    accentColor = '#0e7490';
+  } else if (tier === 'master') {
+    mainGradStart = '#ec4899';
+    mainGradEnd = '#fbcfe8';
+    accentColor = '#9d174d';
   } else if (tier === 'locked') {
     mainGradStart = '#334155';
     mainGradEnd = '#64748b';
