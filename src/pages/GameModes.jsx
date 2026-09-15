@@ -262,6 +262,76 @@ export default function GameModes() {
           </button>
         </div>
 
+        {/* Mode: Deal or No Deal */}
+        <div
+          className="card"
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            padding: '2rem 1.5rem',
+            border: '2px solid #16a34a',
+            background: 'linear-gradient(180deg, #065f46 0%, #0f172a 100%)',
+            boxShadow: '0 12px 24px rgba(0, 0, 0, 0.6), 0 0 15px rgba(34, 197, 94, 0.3)',
+          }}
+        >
+          <div>
+            <div
+              style={{
+                display: 'inline-flex',
+                padding: '0.75rem',
+                borderRadius: '50%',
+                backgroundColor: '#16a34a',
+                color: '#d1fae5',
+                marginBottom: '1rem',
+              }}
+            >
+              <PokeballIcon size={32} />
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+              <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#f8fafc', margin: 0 }}>
+                Deal or No Deal
+              </h2>
+              <span
+                style={{
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  padding: '0.2rem 0.5rem',
+                  borderRadius: '0.25rem',
+                  backgroundColor: '#16a34a',
+                  color: '#a7f3d0',
+                }}
+              >
+                NEW
+              </span>
+            </div>
+
+            <p style={{ color: '#cbd5e1', fontSize: '0.925rem', lineHeight: 1.5, marginBottom: '1.5rem' }}>
+              A local party Game Show draft. 6 rounds of themed mystery Pokéballs (Generation, Color, or
+              Legendary/Mythical). Claim one, then decide — Deal, or swap it for a different closed ball and burn
+              your first pick. Build a 6-Pokémon team and win the draft-style summary.
+            </p>
+          </div>
+
+          <button
+            onClick={() => navigate('/deal-or-no-deal')}
+            style={{
+              width: '100%',
+              padding: '0.75rem',
+              borderRadius: '0.375rem',
+              border: 'none',
+              backgroundColor: '#16a34a',
+              color: '#ffffff',
+              fontWeight: 800,
+              fontSize: '0.95rem',
+              cursor: 'pointer',
+            }}
+          >
+            💼 Start Deal or No Deal
+          </button>
+        </div>
+
         {/* Mode 3: Trainer Friends & Invites */}
         <div
           className="card"
