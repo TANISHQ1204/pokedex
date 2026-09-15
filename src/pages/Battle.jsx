@@ -21,7 +21,7 @@ import {
   applyStatChange,
 } from '../game/battle';
 import { rollBattleDrop, rollPreviewDrop } from '../game/drops';
-import { getUserCollection, awardCard, awardPowerCard, awardAncientCard } from '../store/collection';
+import { getUserCollection, awardCard } from '../store/collection';
 import { recordBattleResult, recordCardPull } from '../store/stats';
 import { useAuth } from '../context/AuthContext';
 import { fullPokemonList, displayName } from '../utils/pokemonCatalog.js';
@@ -192,8 +192,8 @@ export default function Battle() {
     // CPU battles: shiny appearance is gated by the logged-in player's REAL
     // collection (owned shiny -> 50% slot chance; unowned -> never shiny), for
     // BOTH the player's team and the CPU team.
-    const playerOptions = { ownedShinyIds: ownedShinyIds || null, unlockPool: unlockPool || null };
-    const cpuOptions = { ownedShinyIds: ownedShinyIds || null };
+    const playerOptions = { ownedShinyIds: ownedShinyIds || null, unlockPool: unlockPool || null, includeForms: true };
+    const cpuOptions = { ownedShinyIds: ownedShinyIds || null, includeForms: true };
     const pTeam = generateRandomTeam(null, 6, playerOptions);
     const cTeam = generateRandomTeam(null, 6, cpuOptions);
 
@@ -895,35 +895,21 @@ export default function Battle() {
               const userColl = await getUserCollection(user.id);
               const drop = rollBattleDrop(userColl, fullPokemonList);
 
-              if (drop.collectionComplete) {
-                addLog('🏆 COLLECTION COMPLETE! Special card drop rate boosted to 80%!', { isSuperEffective: true });
-              }
+              const awardRes = await awardCard(user.id, drop.pokemon.id);
+              dropState = { dropType: 'normal', pokemon: drop.pokemon, ...awardRes };
 
-              if (drop.type === 'power') {
-                const awardRes = await awardPowerCard(user.id, drop.pokemon.id);
-                dropState = { dropType: 'power', pokemon: drop.pokemon, ...awardRes };
-                addLog(`⚡ POWER CARD DROP! You earned ${displayName(drop.pokemon).toUpperCase()} Power Card!`, { isSuperEffective: true });
-              } else if (drop.type === 'ancient') {
-                const awardRes = await awardAncientCard(user.id, drop.pokemon.id);
-                dropState = { dropType: 'ancient', pokemon: drop.pokemon, ...awardRes };
-                addLog(`🏛️ ANCIENT CARD DROP! You earned ${displayName(drop.pokemon).toUpperCase()} Ancient Card!`, { isSuperEffective: true });
-              } else {
-                const awardRes = await awardCard(user.id, drop.pokemon.id);
-                dropState = { dropType: 'normal', pokemon: drop.pokemon, ...awardRes };
-
-                // Compute newly unlocked move when star increased (for the reveal callout).
-                if (awardRes.starUpgraded) {
-                  const pkmnId = drop.pokemon.id;
-                  const learnset = (learnsets || {})[pkmnId] || (learnsets || {})[String(pkmnId)] || [];
-                  if (learnset.length > 0) {
-                    const prevStar = Math.max(1, (dropState.entry?.star_level || 2) - 1);
-                    const prevCount = Math.min(learnset.length, prevStar + 3);
-                    if (prevCount < learnset.length) dropState.unlockedMove = learnset[prevCount];
-                  }
+              // Compute newly unlocked move when star increased (for the reveal callout).
+              if (awardRes.starUpgraded) {
+                const pkmnId = drop.pokemon.id;
+                const learnset = (learnsets || {})[pkmnId] || (learnsets || {})[String(pkmnId)] || [];
+                if (learnset.length > 0) {
+                  const prevStar = Math.max(1, (dropState.entry?.star_level || 2) - 1);
+                  const prevCount = Math.min(learnset.length, prevStar + 3);
+                  if (prevCount < learnset.length) dropState.unlockedMove = learnset[prevCount];
                 }
-
-                addLog(`🎁 You earned a card drop: ${displayName(drop.pokemon).toUpperCase()}!`, { isSuperEffective: true });
               }
+
+              addLog(`🎁 You earned a card drop: ${displayName(drop.pokemon).toUpperCase()}!`, { isSuperEffective: true });
             } else {
               const drop = rollPreviewDrop(fullPokemonList);
               dropState = {

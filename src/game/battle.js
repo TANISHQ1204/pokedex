@@ -1,4 +1,13 @@
 import defaultPokemonList from '../data/pokemon.json' with { type: 'json' };
+import defaultFormsList from '../data/forms.json' with { type: 'json' };
+
+// Alternate forms use ids in the 10001+ range and carry a `kind: 'form'` marker
+// on most (but not all) records. All forms are routed by id threshold.
+function isAltFormTemplate(t) {
+  if (!t) return false;
+  if (t.kind === 'form') return true;
+  return Number(t.id) >= 10001;
+}
 
 export const STRUGGLE_MOVE = {
   id: 'struggle',
@@ -1096,6 +1105,10 @@ export function applyShinyStatBoost(baseStats = {}) {
  *     not in the map -> defaults to the template's base moves.
  *   - When null (CPU opponent side & PvP/friend battles): random 4 from the
  *     template's full moveset.
+ *
+ * Alternate forms (ids 10001+) carry no moves of their own, so their battle set
+ * falls back to the BASE species moveset (resolved via dexNo): first the player's
+ * unlocked pool for that base species, then the base species' full moveset.
  */
 function selectBattleMoves(template, options = {}) {
   const unlockPool = options.unlockPool;
@@ -1103,7 +1116,26 @@ function selectBattleMoves(template, options = {}) {
   if (unlockPool instanceof Map) {
     pool = unlockPool.get(Number(template.id)) || null;
   }
-  const source = pool && pool.length > 0 ? pool : (template.moves || []);
+
+  let source = pool && pool.length > 0 ? pool : (template.moves || []);
+
+  // Alternate form with no moveset -> resolve its base species (dexNo).
+  if ((!source || source.length === 0) && template.dexNo) {
+    const baseId = Number(template.dexNo);
+    if (unlockPool instanceof Map) {
+      const basePool = unlockPool.get(baseId) || null;
+      if (basePool && basePool.length > 0) {
+        source = basePool;
+      }
+    }
+    if ((!source || source.length === 0) && baseId !== Number(template.id)) {
+      const base = defaultPokemonList.find((p) => Number(p.id) === baseId);
+      if (base && base.moves && base.moves.length > 0) {
+        source = base.moves;
+      }
+    }
+  }
+
   const available = source.filter((m) => m && typeof m === 'object');
   if (!available.length) return [];
 
@@ -1136,6 +1168,11 @@ function selectBattleMoves(template, options = {}) {
  *   - No ownedShinyIds (PvP / friend battles) — pure random ~2.5% per slot,
  *     fully independent of any collection (unchanged legacy behavior).
  *
+ * FORMS: options.includeForms (boolean) — when true, alternate forms
+ * (src/data/forms.json, ids 10001+) join the base species in the pool. CPU
+ * battles enable this. Form slots draw their moveset from their base species
+ * (see selectBattleMoves). PvP/friend battles stay species-only by default.
+ *
  * MOVE SELECTION: options.unlockPool (Map<pokemonId, move[]> | null) gates the
  * player's CPU-battle team to their unlocked moves; CPU opponent + PvP sides
  * use the full moveset. See selectBattleMoves.
@@ -1147,8 +1184,11 @@ export function generateRandomTeam(customList = null, count = 6, options = {}) {
   const safeOptions = options || {};
   const baseList = customList && Array.isArray(customList) && customList.length > 0 ? customList : defaultPokemonList;
 
+  // Alternate forms joined into the pool when requested (CPU battles).
+  const combined = safeOptions.includeForms ? [...baseList, ...defaultFormsList] : baseList;
+
   // ALL Pokemon are eligible regardless of evolution stage (no final-evo filter).
-  const pool = baseList.length > 0 ? baseList : defaultPokemonList;
+  const pool = combined.length > 0 ? combined : defaultPokemonList;
 
   // Fisher-Yates partial shuffle: pick `count` unique Pokemon uniformly at random
   const picks = Math.min(count, pool.length);
@@ -1188,6 +1228,7 @@ export function generateRandomTeam(customList = null, count = 6, options = {}) {
 
     team.push({
       ...JSON.parse(JSON.stringify(template)),
+      name: isAltFormTemplate(template) && template.display ? template.display : template.name,
       moves,
       isShiny,
       statBoost: isShiny ? SHINY_STAT_BOOST : 1.0,

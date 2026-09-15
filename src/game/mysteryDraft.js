@@ -260,9 +260,10 @@ export function draftQueue(pokemonList, forms, speciesMeta, maxGen, count = 12, 
   }
   return shuffled
     .slice(0, count)
-    .map((p) =>
-      p.kind ? enrichFormEntry(p, random() < SHINY_CHANCE) : enrichEntry(p, speciesMeta, random() < SHINY_CHANCE)
-    );
+    .map((p) => {
+      const isForm = p.kind === 'form' || Number(p.id) >= 10001;
+      return isForm ? enrichFormEntry(p, random() < SHINY_CHANCE) : enrichEntry(p, speciesMeta, random() < SHINY_CHANCE);
+    });
 }
 
 export function createSession({ playerNames, budget, queue, firstPlayerId = 0, blind = false }) {
