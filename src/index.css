@@ -1310,6 +1310,116 @@ body {
   border-color: #38bdf8;
 }
 
+/* Star-level breakdown on the Collection page */
+.collection-tiers {
+  background: rgba(30, 41, 59, 0.8);
+  border: 1px solid #334155;
+  border-radius: 0.75rem;
+  padding: 0.85rem 1.25rem;
+  margin-bottom: 1.1rem;
+}
+
+.tier-bar {
+  display: flex;
+  gap: 2px;
+  height: 34px;
+  align-items: flex-end;
+}
+
+.tier-segment {
+  height: 100%;
+  border-radius: 4px 4px 0 0;
+  border: 1px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 2px;
+  overflow: hidden;
+  transition: opacity 0.15s ease;
+}
+
+.tier-segment:hover {
+  opacity: 1 !important;
+  filter: brightness(1.15);
+}
+
+.tier-segment-count {
+  font-size: 0.58rem;
+  font-weight: 900;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.tier-segment-count em {
+  font-style: normal;
+  font-size: 0.7rem;
+  color: #f8fafc;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+}
+
+.tier-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.9rem;
+  margin-top: 0.6rem;
+  font-size: 0.68rem;
+  color: #94a3b8;
+}
+
+.tier-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-weight: 600;
+  cursor: default;
+}
+
+.tier-legend i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.tier-legend b {
+  color: #e2e8f0;
+}
+
+.tier-legend em {
+  font-style: normal;
+  color: #64748b;
+}
+
+/* Generation shortcut buttons now carry owned/total counts */
+.gen-badge-btn {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.15;
+  gap: 0.1rem;
+}
+
+.gen-badge-btn .gen-badge-title {
+  color: inherit;
+  font-weight: 700;
+}
+
+.gen-badge-btn .gen-badge-count {
+  font-size: 0.62rem;
+  font-weight: 800;
+  color: #fbbf24;
+  opacity: 0.85;
+}
+
+.gen-badge-btn.active .gen-badge-count {
+  color: #fef9c3;
+}
+
 .collection-filter-bar {
   display: flex;
   gap: 0.75rem;

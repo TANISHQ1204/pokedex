@@ -7,6 +7,7 @@ import {
   pickBall,
   dealKeep,
   dealSwap,
+  advanceRound,
   stepActor,
   THEME_CATEGORIES,
 } from '../game/dealOrNoDeal';
@@ -126,8 +127,9 @@ function SetupScreen({ initial, onStart }) {
         <h2 style={{ margin: 0, fontSize: '1.5rem', color: '#f8fafc' }}>Deal or No Deal Setup</h2>
         <p style={{ margin: '0.4rem 0 0 0', color: '#94a3b8', fontSize: '0.9rem' }}>
           The arbitrator runs this screen. 6 rounds × 6 closed Pokéballs, every set sharing one theme —
-          a Generation, a Color, or Legendary/Mythical. Players take turns claiming a mystery ball, then each
-          gets ONE deal: keep what you opened, or swap it for a different closed ball (your first pick is burned).
+          a Generation, a Color, or Legendary/Mythical. Base species, alternate forms, legendaries &amp; mythicals all
+          have an equal chance, and no Pokémon repeats across all 6 rounds. Players take turns claiming a mystery ball,
+          then each gets ONE deal: keep what you opened, or swap it for a different closed ball (your first pick is burned).
           Round order flips each round (A,B,B,A then B,A,A,B). Build a 6-Pokémon team and win the draft-style summary!
         </p>
       </div>
@@ -161,7 +163,7 @@ function SetupScreen({ initial, onStart }) {
 
       <div style={{ marginBottom: '1.25rem' }}>
         <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#94a3b8', marginBottom: '0.5rem' }}>
-          Maximum Generation <span style={{ color: '#475569' }}>(only Gen 1 through this are eligible for "Generation" theme rounds — ~15% of balls are shiny)</span>
+          Maximum Generation <span style={{ color: '#475569' }}>(no Pokémon from later generations appear in any round, whatever the theme — ~15% of balls are shiny)</span>
         </div>
         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
           {MAX_GENS.map((g) => (
@@ -299,9 +301,10 @@ export default function DealOrNoDeal() {
             playLabel="Play Again — New Deal"
             intro={
               <>
-                {ROUNDS} rounds × {BALLS_PER_SET} themed mystery balls. Each Pokemon scores its BST modified by a
-                transparent stack — <strong style={{ color: '#f87272' }}>×1.5</strong> Legendary/Mythical and{' '}
-                <strong style={{ color: '#fbbf24' }}>×1.2</strong> shiny — and the highest total team score wins.
+                {ROUNDS} rounds × {BALLS_PER_SET} themed mystery balls — 36 unique Pokémon, none repeated. Each Pokemon scores its BST modified by a
+                transparent stack — <strong style={{ color: '#f87272' }}>×1.5</strong> Legendary/Mythical,{' '}
+                <strong style={{ color: '#fbbf24' }}>×1.2</strong> shiny,{' '}
+                <strong style={{ color: '#a78bfa' }}>×1.1</strong> alternate form — and the highest total team score wins.
               </>
             }
           />
@@ -328,9 +331,10 @@ export default function DealOrNoDeal() {
   );
 }
 
-function BallTile({ ball, index, clickable, onClick, size = 'md', ownerName }) {
+function BallTile({ ball, index, clickable, onClick, size = 'md', ownerName, revealClosed = false }) {
   const dim = size === 'lg' ? 64 : 46;
-  if (ball.state === 'closed') {
+
+  if (ball.state === 'closed' && !revealClosed) {
     return (
       <button
         type="button"
@@ -372,6 +376,28 @@ function BallTile({ ball, index, clickable, onClick, size = 'md', ownerName }) {
           </span>
         )}
       </button>
+    );
+  }
+
+  // Revealed-but-unclaimed ball (round complete) — shows what was left behind.
+  if (ball.state === 'closed' && revealClosed) {
+    return (
+      <div
+        title={`#${String(ball.entry.dexNo || ball.entry.id).padStart(3, '0')} ${ball.entry.display || ball.entry.name} · BST ${ball.entry.bst ?? baseStatTotal(ball.entry)}${ball.entry.variant === 'shiny' ? ' · SHINY' : ''} — left on the shelf`}
+        style={{
+          width: dim,
+          height: dim,
+          borderRadius: '50%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          border: ball.entry.variant === 'shiny' ? '2px dashed #fbbf24' : '2px dashed #475569',
+          background: 'rgba(15, 23, 42, 0.6)',
+          opacity: 0.8,
+        }}
+      >
+        <img src={ball.entry.sprite} alt={ball.entry.name} style={{ width: dim - 12, height: dim - 12, objectFit: 'contain', opacity: 0.7 }} />
+      </div>
     );
   }
   if (ball.state === 'burned') {
@@ -476,9 +502,10 @@ function PlayerDraftPanel({ player, session, active }) {
 
 function PlayingView({ session, setSession, onExit }) {
   const [swapMode, setSwapMode] = useState(false);
+  const isRoundComplete = session.status === 'round_complete';
   const actorId = stepActor(session);
   const actor = actorId != null ? session.players[actorId] : null;
-  const pickPhase = session.stepPos < 2;
+  const pickPhase = session.stepPos < 2 && !isRoundComplete;
   const round = currentRound(session);
   const playerMap = { [session.players[0].id]: session.players[0].name, [session.players[1].id]: session.players[1].name };
 
@@ -492,6 +519,7 @@ function PlayingView({ session, setSession, onExit }) {
     setSession(dealSwap(session, i));
     setSwapMode(false);
   };
+  const handleAdvanceRound = () => setSession(advanceRound(session));
 
   const handleBallClick = (i) => {
     if (pickPhase) {
@@ -592,8 +620,8 @@ function PlayingView({ session, setSession, onExit }) {
       {/* Ball board */}
       <div className="card" style={{ marginTop: 0, border: pickPhase ? '2px solid #22c55e' : swapMode ? '2px solid #f59e0b' : '1px solid #334155' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem', flexWrap: 'wrap', gap: '0.5rem' }}>
-          <div style={{ fontSize: '0.7rem', fontWeight: 800, color: pickPhase ? '#4ade80' : swapMode ? '#fbbf24' : '#94a3b8', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-            {pickPhase ? `🔒 Mystery Pokéballs — all ${BALLS_PER_SET} share the theme` : swapMode ? '🔀 No Deal — pick a closed ball to swap into' : 'Revealed — decide your deal'}
+          <div style={{ fontSize: '0.7rem', fontWeight: 800, color: isRoundComplete ? '#4ade80' : pickPhase ? '#4ade80' : swapMode ? '#fbbf24' : '#94a3b8', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+            {isRoundComplete ? `✅ Round ${session.round} complete — ${BALLS_PER_SET} balls resolved` : pickPhase ? `🔒 Mystery Pokéballs — all ${BALLS_PER_SET} share the theme` : swapMode ? '🔀 No Deal — pick a closed ball to swap into' : 'Revealed — decide your deal'}
           </div>
           <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748b' }}>
             {pickPhase && actor ? `${actor.name} picks first this round` : ''}
@@ -609,11 +637,12 @@ function PlayingView({ session, setSession, onExit }) {
               clickable={clickableBall(i)}
               onClick={handleBallClick}
               ownerName={ball.ownerId != null ? playerMap[ball.ownerId] : undefined}
+              revealClosed={isRoundComplete}
             />
           ))}
         </div>
 
-        {!pickPhase && actor && actorPending && (
+        {!pickPhase && !isRoundComplete && actor && actorPending && (
           <div
             style={{
               marginTop: '1rem',
@@ -678,7 +707,43 @@ function PlayingView({ session, setSession, onExit }) {
           </div>
         )}
 
-        {!pickPhase && round && (
+        {isRoundComplete && (
+          <div style={{ marginTop: '1rem', padding: '0.9rem 1rem', borderRadius: '0.6rem', background: 'rgba(34, 197, 94, 0.08)', border: '1px solid #16a34a' }}>
+            <div style={{ fontSize: '0.7rem', fontWeight: 800, color: '#4ade80', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '0.5rem' }}>
+              Round {session.round} Complete — Review the board
+            </div>
+            <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
+              {session.players.map((p) => (
+                <div key={p.id} style={{ flex: 1, minWidth: 160 }}>
+                  <div style={{ fontSize: '0.72rem', fontWeight: 700, color: '#94a3b8', marginBottom: '0.25rem' }}>
+                    {p.name}'s pick this round:
+                  </div>
+                  <div style={{ fontSize: '0.82rem', color: '#f8fafc', fontWeight: 800 }}>
+                    {p.lastAction || '—'}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <button
+              onClick={handleAdvanceRound}
+              style={{
+                width: '100%',
+                padding: '0.75rem',
+                borderRadius: '0.5rem',
+                border: 'none',
+                background: session.round >= ROUNDS ? 'linear-gradient(90deg, #f59e0b, #d97706)' : 'linear-gradient(90deg, #22c55e, #16a34a)',
+                color: '#ffffff',
+                fontWeight: 900,
+                fontSize: '0.95rem',
+                cursor: 'pointer',
+              }}
+            >
+              {session.round >= ROUNDS ? '🏁 See Results' : `Next Round → (Round ${session.round + 1} / ${ROUNDS})`}
+            </button>
+          </div>
+        )}
+
+        {!pickPhase && !isRoundComplete && round && (
           <div style={{ marginTop: '0.75rem', fontSize: '0.75rem', color: '#64748b', fontWeight: 700, textAlign: 'center' }}>
             Round theme: every ball here is a {session.themeLabel} — {categoryLabel(session.themeCategory)}
           </div>

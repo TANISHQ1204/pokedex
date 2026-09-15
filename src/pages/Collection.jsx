@@ -4,7 +4,7 @@ import { getUserCollection } from '../store/collection';
 import { fullPokemonList, displayName, isAltForm } from '../utils/pokemonCatalog.js';
 import { glowBaseFor } from '../utils/glow';
 import PokemonDetailModal from '../components/PokemonDetailModal';
-import { MAX_STAR_LEVEL, SHINY_STAR_LEVEL, starTierInfo } from '../game/cardLevels.js';
+import { MAX_STAR_LEVEL, SHINY_STAR_LEVEL, STAR_TIERS, starTierInfo } from '../game/cardLevels.js';
 
 const ITEMS_PER_PAGE = 48;
 
@@ -42,6 +42,20 @@ const GENERATIONS = [
   { label: 'Gen 9 (Paldea)', value: '9', range: [906, 1025] },
   { label: 'Alt Forms', value: 'forms', range: [10001, 11000] },
 ];
+
+// One distinct color per star tier, matching the rarity-card visual theme.
+const STAR_TIER_COLORS = {
+  1: '#94a3b8', // Common
+  2: '#4ade80', // Uncommon
+  3: '#38bdf8', // Rare
+  4: '#a78bfa', // Epic
+  5: '#f472b6', // Elite
+  6: '#fbbf24', // Radiant
+  7: '#f59e0b', // Golden
+  8: '#22d3ee', // Prismatic
+  9: '#34d399', // Aurora
+  10: '#e879f9', // Shiny Master
+};
 
 function formatTitle(str) {
   if (!str) return '';
@@ -161,6 +175,25 @@ export default function Collection() {
   const totalCount = fullPokemonList.length;
   const completionPercentage = Math.round((ownedCount / totalCount) * 100);
 
+  // Star-tier breakdown: how many owned cards sit at each of the 10 levels.
+  const tierStats = STAR_TIERS.map((t) => {
+    const count = [...collectionMap.values()].filter(
+      (e) => Math.max(1, Math.min(MAX_STAR_LEVEL, Number(e.star_level) || 1)) === t.star
+    ).length;
+    return { ...t, count };
+  });
+  const maxTierCount = Math.max(1, ...tierStats.map((t) => t.count));
+  const ownedTierCards = tierStats.reduce((acc, t) => acc + t.count, 0);
+  const maxLevelCount = tierStats.find((t) => t.star === MAX_STAR_LEVEL)?.count || 0;
+
+  // Per-generation completion stats (uses the same id ranges as the filters).
+  const perGenStats = GENERATIONS.map((gen) => {
+    const [minId, maxId] = gen.range;
+    const total = fullPokemonList.filter((p) => p.id >= minId && p.id <= maxId).length;
+    const owned = [...collectionMap.keys()].filter((id) => id >= minId && id <= maxId).length;
+    return { ...gen, total, owned };
+  });
+
   const handleCardClick = (p) => {
     setSelectedPokemon(p);
   };
@@ -172,7 +205,7 @@ export default function Collection() {
         <div>
           <h1 style={{ margin: 0, color: '#f8fafc', fontSize: '1.75rem' }}>National Dex Card Collection</h1>
           <p style={{ margin: '0.25rem 0 0 0', color: '#94a3b8', fontSize: '0.875rem' }}>
-            Collect and upgrade cards across all 9 Pokémon Generations!
+            Collect and upgrade cards across all 9 Pokémon Generations + alternate forms!
           </p>
         </div>
 
@@ -192,15 +225,60 @@ export default function Collection() {
         </div>
       </div>
 
+      {/* STAR-LEVEL BREAKDOWN — all levels up to Shiny Master */}
+      <div className="collection-tiers">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem', flexWrap: 'wrap', gap: '0.4rem' }}>
+          <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#e2e8f0', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+            ⭐ Card Levels — {ownedTierCards} of {ownedCount} owned
+          </span>
+          <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#e879f9' }}>
+            👑 {maxLevelCount} fully maxed ({STAR_TIERS[MAX_STAR_LEVEL - 1].label})
+          </span>
+        </div>
+        <div className="tier-bar">
+          {tierStats.map((t) => (
+            <div
+              key={t.star}
+              className="tier-segment"
+              style={{
+                flexGrow: t.count || 1,
+                minWidth: t.count > 0 ? Math.max(8, (t.count / maxTierCount) * 24) : 0,
+                background: `linear-gradient(180deg, ${STAR_TIER_COLORS[t.star]}cc, ${STAR_TIER_COLORS[t.star]}99)`,
+                borderColor: STAR_TIER_COLORS[t.star],
+                opacity: t.count > 0 ? 1 : 0.25,
+              }}
+              title={`${t.label}: ${t.count} card${t.count === 1 ? '' : 's'}`}
+            >
+              {t.count > 0 && (
+                <span className="tier-segment-count" style={{ color: STAR_TIER_COLORS[t.star] }}>
+                  {'★'.repeat(t.star)}
+                  <em>{t.count}</em>
+                </span>
+              )}
+            </div>
+          ))}
+        </div>
+        <div className="tier-legend">
+          {tierStats.map((t) => (
+            <span key={t.star} title={`${t.label} — ${t.count} card${t.count === 1 ? '' : 's'}`}>
+              <i style={{ background: STAR_TIER_COLORS[t.star] }} />
+              ★<b>{t.star}</b> {t.label} <em>({t.count})</em>
+            </span>
+          ))}
+        </div>
+      </div>
+
       {/* QUICK GENERATION SHORTCUT BUTTONS */}
       <div className="gen-shortcuts">
-        {GENERATIONS.map((gen) => (
+        {perGenStats.map((gen) => (
           <button
             key={gen.value}
             className={`gen-badge-btn ${genFilter === gen.value ? 'active' : ''}`}
             onClick={() => setGenFilter(gen.value)}
+            title={`${gen.label} — ${gen.owned}/${gen.total} collected`}
           >
-            {gen.label}
+            {gen.label === 'All Gens' ? gen.label : <span className="gen-badge-title">{gen.label}</span>}
+            <span className="gen-badge-count">{gen.owned}/{gen.total}</span>
           </button>
         ))}
       </div>
