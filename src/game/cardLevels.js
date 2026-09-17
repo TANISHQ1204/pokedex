@@ -92,3 +92,26 @@ export function starTierInfo(starLevel) {
   const star = Math.max(1, Math.min(MAX_STAR_LEVEL, Number(starLevel) || 1));
   return STAR_TIERS.find((t) => t.star === star) || STAR_TIERS[0];
 }
+
+/**
+ * One distinct color per star tier, matching the rarity-card visual theme.
+ * Shared by the collection, detail modal, reveal card, and battle surfaces so
+ * star visuals stay consistent app-wide.
+ */
+export const STAR_TIER_COLORS = {
+  1: '#94a3b8', // Common
+  2: '#4ade80', // Uncommon
+  3: '#38bdf8', // Rare
+  4: '#a78bfa', // Epic
+  5: '#f472b6', // Elite
+  6: '#fbbf24', // Radiant
+  7: '#f59e0b', // Golden
+  8: '#22d3ee', // Prismatic
+  9: '#34d399', // Aurora
+  10: '#e879f9', // Shiny Master
+};
+
+export function starTierColor(starLevel) {
+  const star = Math.max(1, Math.min(MAX_STAR_LEVEL, Number(starLevel) || 1));
+  return STAR_TIER_COLORS[star] || '#94a3b8';
+}

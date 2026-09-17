@@ -4,7 +4,7 @@ import { getUserCollection } from '../store/collection';
 import { fullPokemonList, displayName, isAltForm } from '../utils/pokemonCatalog.js';
 import { glowBaseFor } from '../utils/glow';
 import PokemonDetailModal from '../components/PokemonDetailModal';
-import { MAX_STAR_LEVEL, SHINY_STAR_LEVEL, STAR_TIERS, starTierInfo } from '../game/cardLevels.js';
+import { MAX_STAR_LEVEL, SHINY_STAR_LEVEL, STAR_TIERS, STAR_TIER_COLORS, starTierInfo } from '../game/cardLevels.js';
 
 const ITEMS_PER_PAGE = 48;
 
@@ -42,20 +42,6 @@ const GENERATIONS = [
   { label: 'Gen 9 (Paldea)', value: '9', range: [906, 1025] },
   { label: 'Alt Forms', value: 'forms', range: [10001, 11000] },
 ];
-
-// One distinct color per star tier, matching the rarity-card visual theme.
-const STAR_TIER_COLORS = {
-  1: '#94a3b8', // Common
-  2: '#4ade80', // Uncommon
-  3: '#38bdf8', // Rare
-  4: '#a78bfa', // Epic
-  5: '#f472b6', // Elite
-  6: '#fbbf24', // Radiant
-  7: '#f59e0b', // Golden
-  8: '#22d3ee', // Prismatic
-  9: '#34d399', // Aurora
-  10: '#e879f9', // Shiny Master
-};
 
 function formatTitle(str) {
   if (!str) return '';

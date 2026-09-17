@@ -266,11 +266,12 @@ export function draftQueue(pokemonList, forms, speciesMeta, maxGen, count = 12, 
     });
 }
 
-export function createSession({ playerNames, budget, queue, firstPlayerId = 0, blind = false }) {
+export function createSession({ playerNames, budget, queue, firstPlayerId = 0, blind = false, genLimit = 9 }) {
   return {
     queue,
     queueIndex: 0,
     blind,
+    genLimit,
     players: playerNames.map((name, i) => ({
       id: i,
       name,

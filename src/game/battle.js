@@ -1,5 +1,6 @@
 import defaultPokemonList from '../data/pokemon.json' with { type: 'json' };
 import defaultFormsList from '../data/forms.json' with { type: 'json' };
+import { computePokemonStats, scaleMovePower } from './balance.js';
 
 // Alternate forms use ids in the 10001+ range and carry a `kind: 'form'` marker
 // on most (but not all) records. All forms are routed by id threshold.
@@ -1216,12 +1217,16 @@ export function generateRandomTeam(customList = null, count = 6, options = {}) {
       isShiny = Math.random() < SHINY_BATTLE_CHANCE;
     }
 
-    // Apply the 12% stat boost for shiny slots for this battle instance only.
-    const stats = isShiny ? applyShinyStatBoost(template.stats) : template.stats;
+    // Lore-tuned stats: HP scales with the Pokemon's lore tier on top of the
+    // +20% HP boost already baked into the data; shiny slots get +12% (consistent
+    // with the permanent shiny stat boost shown on collection cards/modals).
+    const stats = computePokemonStats(template, { isShiny });
     const maxHp = stats.hp;
 
+    // Move power is lore-scaled so weak moves keep a floor and strong Pokemon hit
+    // harder (see scaleMovePower). PP/cloning handled below.
     const moves = selectBattleMoves(template, safeOptions).map((m) => ({
-      ...m,
+      ...scaleMovePower(m, template),
       currentPp: m.pp || 10,
       maxPp: m.pp || 10,
     }));

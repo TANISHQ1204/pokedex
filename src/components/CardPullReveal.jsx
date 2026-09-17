@@ -3,7 +3,8 @@ import PowerCard from './PowerCard';
 import AncientCard from './AncientCard';
 import PokemonDetailModal from './PokemonDetailModal';
 import { glowBaseFor } from '../utils/glow';
-import { MAX_STAR_LEVEL, starTierInfo } from '../game/cardLevels.js';
+import { spriteCdnUrl } from '../utils/sprites';
+import { MAX_STAR_LEVEL, starTierInfo, starTierColor } from '../game/cardLevels.js';
 
 export default function CardPullReveal({ awardedDrop, onContinue, onPlayAgain }) {
   const [stage, setStage] = useState('anticipating');
@@ -27,6 +28,7 @@ export default function CardPullReveal({ awardedDrop, onContinue, onPlayAgain })
   const unlockedMove = awardedDrop?.unlockedMove || null;
 
   const [displayedSprite, setDisplayedSprite] = useState(pokemon?.sprites?.normal);
+  const [spriteBroken, setSpriteBroken] = useState(false);
   const [isShinyUnlocked, setIsShinyUnlocked] = useState(false);
   const [isShinyTransforming, setIsShinyTransforming] = useState(false);
   const [isStarBursting, setIsStarBursting] = useState(false);
@@ -35,6 +37,7 @@ export default function CardPullReveal({ awardedDrop, onContinue, onPlayAgain })
     if (!pokemon) return;
 
     setStage('anticipating');
+    setSpriteBroken(false);
 
     if (!becameShiny && entry.is_shiny) {
       setDisplayedSprite(pokemon.sprites.shiny);
@@ -207,9 +210,10 @@ export default function CardPullReveal({ awardedDrop, onContinue, onPlayAgain })
 
               <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
                 <img
-                  src={displayedSprite}
+                  src={spriteBroken ? spriteCdnUrl(pokemon.dexNo || pokemon.id, isShinyUnlocked) : displayedSprite}
                   alt={pokemon.name}
                   className={isShinyTransforming ? 'shiny-sprite-transform' : ''}
+                  onError={() => { if (!spriteBroken) setSpriteBroken(true); }}
                   style={{
                     width: '140px', height: '140px', objectFit: 'contain',
                     filter: 'drop-shadow(0 10px 15px rgba(0, 0, 0, 0.5))',
@@ -219,18 +223,19 @@ export default function CardPullReveal({ awardedDrop, onContinue, onPlayAgain })
               </div>
 
               <div style={{ marginTop: 'auto', textAlign: 'center', width: '100%' }}>
-                <div style={{ fontSize: '1.35rem', color: '#fbbf24', letterSpacing: '2px', margin: '0.2rem 0' }}>
+                <div style={{ fontSize: '1.35rem', color: starTierColor(starLevel), letterSpacing: '2px', margin: '0.2rem 0' }}>
                   {Array.from({ length: starLevel }).map((_, sIdx) => {
                     const isNewestStar = isStarBursting && sIdx === starLevel - 1;
                     return (
                       <span key={sIdx} className={isNewestStar ? 'star-upgrade-burst' : ''} style={{ display: 'inline-block', margin: '0 1px' }}>
-                        ⭐
+                        ★
                       </span>
                     );
                   })}
                 </div>
                 <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
-                  ID #{pokemon.id.toString().padStart(3, '0')}
+                  ID #{String(pokemon.dexNo || pokemon.id).padStart(3, '0')}
+                  {(pokemon.kind === 'form' || Number(pokemon.id) >= 10001) && pokemon.label ? ` ◆ ${pokemon.label}` : ''}
                 </div>
               </div>
             </div>
@@ -266,7 +271,7 @@ export default function CardPullReveal({ awardedDrop, onContinue, onPlayAgain })
 
             <div style={{ color: '#cbd5e1', fontSize: '1rem', textAlign: 'center' }}>
               <strong style={{ color: '#f8fafc', textTransform: 'capitalize' }}>{pokemon.name}</strong>
-              {!isSpecial && <> • {'⭐'.repeat(starLevel)}</>}
+              {!isSpecial && <> • {'★'.repeat(starLevel)} <span style={{ color: starTierColor(starLevel), fontSize: '0.8rem', fontWeight: 800 }}>{starTierInfo(starLevel).label} tier</span></>}
               {!isSpecial && (
                 <div style={{ color: '#94a3b8', fontSize: '0.85rem', marginTop: '0.25rem' }}>
                   Total Duplicates Collected: <strong>{dupesCount}</strong>

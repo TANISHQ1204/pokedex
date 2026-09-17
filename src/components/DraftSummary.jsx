@@ -13,6 +13,7 @@ import {
   SHINY_MULTIPLIER,
   FORM_MULTIPLIER,
 } from '../game/mysteryDraft.js';
+import PokemonImage from './PokemonImage';
 
 const ATTR_COLORS = {
   name: '#38bdf8',
@@ -153,7 +154,7 @@ export default function DraftSummary({ players, title = '🏁 Game Complete', in
                   </div>
                   {score.perPokemon.map(({ entry, mult, score: pts }) => (
                     <div key={`${entry.id}-${entry.variant}`} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.25rem 0', borderBottom: '1px solid #1e293b', fontSize: '0.82rem' }}>
-                      <img src={entry.sprite} alt={entry.name} style={{ width: 28, height: 28, objectFit: 'contain', flexShrink: 0 }} />
+                      <PokemonImage pokemon={entry} alt={entry.name} style={{ width: 28, height: 28, objectFit: 'contain', flexShrink: 0 }} />
                       <span style={{ color: '#f8fafc', fontWeight: 800, flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         {entryLabel(entry)}
                       </span>
@@ -189,7 +190,7 @@ export default function DraftSummary({ players, title = '🏁 Game Complete', in
                           position: 'relative',
                         }}
                       >
-                        <img src={entry.sprite} alt={entry.name} style={{ width: 52, height: 52, objectFit: 'contain' }} />
+                        <PokemonImage pokemon={entry.pokemon || entry} alt={entry.name} style={{ width: 52, height: 52, objectFit: 'contain' }} />
                         <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#f8fafc' }}>
                           {entryLabel(entry)}
                         </div>

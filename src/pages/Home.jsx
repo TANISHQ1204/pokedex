@@ -12,6 +12,7 @@ import { isNormalRecord } from '../utils/cardTypes';
 import { MAX_STAR_LEVEL, SHINY_STAR_LEVEL } from '../game/cardLevels.js';
 import { fetchRecentPulls, fetchBattleHistory, computeBattleRecord, summarizePulls, formatTimeAgo, mergeCollectionPulls } from '../store/stats';
 import PokemonDetailModal from '../components/PokemonDetailModal';
+import PokemonImage from '../components/PokemonImage';
 import {
   SwordsIcon,
   CardsIcon,
@@ -293,6 +294,7 @@ export default function Home() {
               <img
                 src={lastPullPkmn.sprites.normal}
                 alt={formatTitle(lastPullPkmn.name)}
+                onError={(e) => { e.currentTarget.style.display = 'none'; }}
                 width={36}
                 height={36}
                 style={{ objectFit: 'contain', imageRendering: 'pixelated', background: '#0f172a', borderRadius: '0.4rem', padding: '0.1rem 0.2rem' }}
@@ -342,7 +344,6 @@ export default function Home() {
             {showcaseCards.map(({ pkmn, pull, cardType, entry }) => {
               const starLevel = entry?.star_level || Number(pull.star_level) || 0;
               const isShiny = Boolean((entry?.is_shiny) || pull.is_shiny) || starLevel >= SHINY_STAR_LEVEL;
-              const spriteSrc = isShiny ? pkmn.sprites.shiny : pkmn.sprites.normal;
               const isSpecial = cardType === 'power' || cardType === 'ancient';
               const typeLabel = cardType === 'power' ? '⚡ Power' : cardType === 'ancient' ? '🏛️ Ancient' : 'Normal';
 
@@ -355,7 +356,7 @@ export default function Home() {
                 >
                   <div className="card-top-id">#{String(pkmn.id).padStart(4, '0')}</div>
                   <div className="showcase-card-image">
-                    <img src={spriteSrc} alt={formatTitle(pkmn.name)} />
+                    <PokemonImage pokemon={pkmn} isShiny={isShiny} alt={formatTitle(pkmn.name)} />
                     {isShiny && (
                       <div className="shiny-sparkle-badge">
                         <SparkleStarIcon size={12} /> Shiny

@@ -13,6 +13,7 @@ import {
 } from '../game/dealOrNoDeal';
 import { baseStatTotal } from '../game/mysteryDraft';
 import DraftSummary from '../components/DraftSummary';
+import PokemonImage from '../components/PokemonImage';
 import { PokeballIcon } from '../components/icons/GameIcons';
 
 const MAX_GENS = [1, 2, 3, 4, 5, 6, 7, 8, 9];
@@ -396,7 +397,7 @@ function BallTile({ ball, index, clickable, onClick, size = 'md', ownerName, rev
           opacity: 0.8,
         }}
       >
-        <img src={ball.entry.sprite} alt={ball.entry.name} style={{ width: dim - 12, height: dim - 12, objectFit: 'contain', opacity: 0.7 }} />
+        <PokemonImage pokemon={ball.entry} alt={ball.entry.name} style={{ width: dim - 12, height: dim - 12, objectFit: 'contain', opacity: 0.7 }} />
       </div>
     );
   }
@@ -439,7 +440,62 @@ function BallTile({ ball, index, clickable, onClick, size = 'md', ownerName, rev
         boxShadow: shiny ? '0 0 12px rgba(245, 158, 11, 0.6)' : 'none',
       }}
     >
-      <img src={ball.entry.sprite} alt={ball.entry.name} style={{ width: dim - 12, height: dim - 12, objectFit: 'contain' }} />
+      <PokemonImage pokemon={ball.entry} alt={ball.entry.name} style={{ width: dim - 12, height: dim - 12, objectFit: 'contain' }} />
+    </div>
+  );
+}
+
+function BallInfoChip({ ball }) {
+  const name = ball.entry.display || ball.entry.name;
+  return (
+    <span
+      title={`#${String(ball.entry.dexNo || ball.entry.id).padStart(3, '0')} ${name}${ball.entry.variant === 'shiny' ? ' · SHINY' : ''}`}
+      style={{
+        padding: '0.35rem 0.7rem',
+        borderRadius: '2rem',
+        background: 'rgba(15, 23, 42, 0.7)',
+        border: ball.entry.variant === 'shiny' ? '1px dashed #fbbf24' : '1px dashed #475569',
+        color: ball.entry.variant === 'shiny' ? '#fde68a' : '#cbd5e1',
+        fontSize: '0.8rem',
+        fontWeight: 700,
+        lineHeight: 1,
+        whiteSpace: 'nowrap',
+      }}
+    >
+      #{String(ball.entry.dexNo || ball.entry.id).padStart(3, '0')} {name}
+      {ball.entry.variant === 'shiny' && ' ✨'}
+      {ball.entry.rarer && ' ⭐'}
+    </span>
+  );
+}
+
+function UnchosenList({ balls }) {
+  const leftover = balls.filter((b) => b.state === 'closed');
+  const burned = balls.filter((b) => b.state === 'burned');
+  if (leftover.length === 0 && burned.length === 0) return null;
+
+  return (
+    <div style={{ marginBottom: '0.75rem' }}>
+      {leftover.length > 0 && (
+        <div style={{ marginBottom: '0.4rem' }}>
+          <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#fbbf24', letterSpacing: '0.04em', marginBottom: '0.35rem' }}>
+            Not chosen this round — left on the shelf:
+          </div>
+          <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+            {leftover.map((b, i) => <BallInfoChip key={`shelf-${b.entry.id}-${i}`} ball={b} />)}
+          </div>
+        </div>
+      )}
+      {burned.length > 0 && (
+        <div style={{ marginBottom: '0.4rem' }}>
+          <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#f87171', letterSpacing: '0.04em', marginBottom: '0.35rem' }}>
+            Burned in swaps:
+          </div>
+          <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', opacity: 0.75 }}>
+            {burned.map((b, i) => <BallInfoChip key={`burned-${b.entry.id}-${i}`} ball={b} />)}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -451,7 +507,7 @@ function PlayerDraftPanel({ player, session, active }) {
       style={{
         marginTop: 0,
         flex: 1,
-        minWidth: 240,
+        minWidth: 'min(240px, 100%)',
         border: active ? '2px solid #38bdf8' : '1px solid #334155',
         boxShadow: active ? '0 0 18px rgba(56, 189, 248, 0.25)' : 'none',
       }}
@@ -492,7 +548,7 @@ function PlayerDraftPanel({ player, session, active }) {
               overflow: 'hidden',
             }}
           >
-            <img src={entry.sprite} alt={entry.name} style={{ width: 24, height: 24, objectFit: 'contain' }} />
+            <PokemonImage pokemon={entry} alt={entry.name} style={{ width: 24, height: 24, objectFit: 'contain' }} />
           </span>
         ))}
       </div>
@@ -554,6 +610,22 @@ function PlayingView({ session, setSession, onExit }) {
             }}
           >
             Theme: {session.themeLabel} — {categoryLabel(session.themeCategory)}
+          </span>
+          <span
+            style={{
+              marginLeft: '0.5rem',
+              fontSize: '0.68rem',
+              fontWeight: 800,
+              letterSpacing: '0.04em',
+              textTransform: 'uppercase',
+              color: '#38bdf8',
+              background: 'rgba(56, 189, 248, 0.12)',
+              border: '1px solid rgba(56, 189, 248, 0.4)',
+              padding: '0.15rem 0.55rem',
+              borderRadius: '2rem',
+            }}
+          >
+            Gen {session.maxGen ?? 9} pool
           </span>
         </div>
         <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
@@ -724,6 +796,7 @@ function PlayingView({ session, setSession, onExit }) {
                 </div>
               ))}
             </div>
+            <UnchosenList balls={session.balls} />
             <button
               onClick={handleAdvanceRound}
               style={{

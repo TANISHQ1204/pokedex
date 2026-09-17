@@ -17,6 +17,7 @@ import {
   FORM_MULTIPLIER,
 } from '../game/mysteryDraft';
 import DraftSummary from '../components/DraftSummary';
+import PokemonImage from '../components/PokemonImage';
 
 class DraftErrorBoundary extends Component {
   constructor(props) {
@@ -40,7 +41,7 @@ class DraftErrorBoundary extends Component {
             margin: '2rem auto',
           }}
         >
-          <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>âš ï¸</div>
+          <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>⚠️</div>
           <h2 style={{ color: '#f8fafc', margin: '0 0 0.5rem 0', fontSize: '1.2rem' }}>
             Something went wrong
           </h2>
@@ -79,7 +80,7 @@ const DRAFT_STORAGE_KEY = 'pokedex_mystery_draft_state';
 function saveDraftState(data) {
   try {
     localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(data));
-  } catch (_) { /* quota exceeded or private mode â€” ignore */ }
+  } catch (_) { /* quota exceeded or private mode — ignore */ }
 }
 
 function loadDraftState() {
@@ -131,7 +132,7 @@ function AttributeChip({ attrId, used, active, onClick, size = 'md' }) {
         transition: 'all 0.15s ease',
       }}
     >
-      {used ? 'âœ•' : 'â—†'} {attr.label}
+      {used ? '✕' : '◆'} {attr.label}
     </span>
   );
   return chip;
@@ -146,7 +147,7 @@ function PlayerPanel({ player, highlight, subtitle, blind }) {
         border: highlight ? '2px solid #38bdf8' : '1px solid #334155',
         boxShadow: highlight ? '0 0 18px rgba(56, 189, 248, 0.25)' : 'none',
         flex: 1,
-        minWidth: 240,
+        minWidth: 'min(240px, 100%)',
         display: 'flex',
         flexDirection: 'column',
         gap: '0.6rem',
@@ -191,13 +192,13 @@ function PlayerPanel({ player, highlight, subtitle, blind }) {
 
 <div>
           <div style={{ fontSize: '0.7rem', color: '#94a3b8', fontWeight: 700 }}>
-            WON ({player.won.length}/{MAX_TEAM_SIZE}) {player.won.length > 0 && `â€¢ Spent $${player.startBudget - player.budget}`}
+            WON ({player.won.length}/{MAX_TEAM_SIZE}) {player.won.length > 0 && `• Spent $${player.startBudget - player.budget}`}
           </div>
           <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap', marginTop: '0.3rem', minHeight: 30 }}>
           {player.won.map((entry, i) => (
             <span
               key={`${entry.id}-${i}`}
-              title={blind ? 'Mystery Pokemon â€” revealed at the end' : `#${entry.dexNo || entry.id} ${entry.display || entry.name} Â· BST ${entry.bst ?? baseStatTotal(entry)}${entry.variant === 'shiny' ? ' (shiny)' : ''}`}
+              title={blind ? 'Mystery Pokemon — revealed at the end' : `#${entry.dexNo || entry.id} ${entry.display || entry.name} · BST ${entry.bst ?? baseStatTotal(entry)}${entry.variant === 'shiny' ? ' (shiny)' : ''}`}
               style={{
                 width: 34,
                 height: 34,
@@ -211,7 +212,7 @@ function PlayerPanel({ player, highlight, subtitle, blind }) {
                 fontSize: '0.95rem',
               }}
             >
-              {blind ? 'â“' : <img src={entry.sprite} alt={entry.name} style={{ width: 28, height: 28, objectFit: 'contain' }} />}
+              {blind ? '❓' : <PokemonImage pokemon={entry} alt={entry.name} style={{ width: 28, height: 28, objectFit: 'contain' }} />}
             </span>
           ))}
           {player.won.length === 0 && (
@@ -244,7 +245,7 @@ function ReferencePanel({ entry }) {
           fontFamily: 'inherit',
         }}
       >
-        <span>ðŸ•µï¸ Arbitrator Reference â€” {open ? 'hide' : 'view'}</span>
+        <span>🕵️ Arbitrator Reference — {open ? 'hide' : 'view'}</span>
         <span
           style={{
             background: '#450a0a',
@@ -276,7 +277,7 @@ function ReferencePanel({ entry }) {
               flexShrink: 0,
             }}
           >
-            <img src={entry.sprite} alt={entry.name} style={{ width: 84, height: 84, objectFit: 'contain' }} />
+            <PokemonImage pokemon={entry} alt={entry.name} style={{ width: 84, height: 84, objectFit: 'contain' }} />
           </div>
           <div style={{ flex: 1, minWidth: 220 }}>
             <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', marginBottom: '0.4rem' }}>
@@ -291,7 +292,7 @@ function ReferencePanel({ entry }) {
                     borderRadius: '1rem',
                   }}
                 >
-                  â˜… SHINY
+                  ★ SHINY
                 </span>
               )}
               {entry.rarer && (
@@ -361,14 +362,14 @@ function SetupScreen({ initial, onStart }) {
     <div className="card" style={{ maxWidth: 720, margin: '0 auto' }}>
       <div style={{ marginBottom: '1.25rem' }}>
         <div style={{ fontSize: '0.7rem', fontWeight: 800, color: '#38bdf8', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '0.25rem' }}>
-          Local Party Game â€¢ No saves, no database
+          Local Party Game • No saves, no database
         </div>
         <h2 style={{ margin: 0, fontSize: '1.5rem', color: '#f8fafc' }}>Mystery Draft Setup</h2>
         <p style={{ margin: '0.4rem 0 0 0', color: '#94a3b8', fontSize: '0.9rem' }}>
-          The arbitrator runs this screen. Randomly queue 12 mystery Pokemon â€” base forms, alternate forms (
-          Alolan, Galarian, Hisuian, Paldean), Mega Evolutions &amp; Gigantamax all included â€” legendaries &amp; mythicals
+          The arbitrator runs this screen. Randomly queue 12 mystery Pokemon — base forms, alternate forms (
+          Alolan, Galarian, Hisuian, Paldean), Mega Evolutions &amp; Gigantamax all included — legendaries &amp; mythicals
           with equal weight, and ~15% of drafts are shiny. Players alternate revealing ONE attribute clue each,
-          then verbally bid their budget â€” each team cap at 6 Pokemon and $0 (free) bids are allowed. Enable ðŸ”’
+          then verbally bid their budget — each team cap at 6 Pokemon and $0 (free) bids are allowed. Enable 🔒
           Blind Mode to keep every identity hidden until the final reveal.
         </p>
       </div>
@@ -417,7 +418,7 @@ function SetupScreen({ initial, onStart }) {
 
       <div style={{ marginBottom: '1.25rem' }}>
         <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#94a3b8', marginBottom: '0.5rem' }}>
-          Maximum Generation <span style={{ color: '#475569' }}>(only Pokemon from Gen 1 through this are eligible â€” legendaries included normally, ~15% shiny)</span>
+          Maximum Generation <span style={{ color: '#475569' }}>(only Pokemon from Gen 1 through this are eligible — legendaries included normally, ~15% shiny)</span>
         </div>
         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
           {MAX_GENS.map((g) => (
@@ -477,7 +478,7 @@ function SetupScreen({ initial, onStart }) {
             background: blind ? 'rgba(245, 158, 11, 0.2)' : '#0f172a',
           }}
         >
-          {blind ? 'ðŸ™ˆ' : 'ðŸ‘ï¸'}
+          {blind ? '🙈' : '👁️'}
         </div>
         <div style={{ flex: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
@@ -498,7 +499,7 @@ function SetupScreen({ initial, onStart }) {
             </span>
           </div>
           <div style={{ fontSize: '0.82rem', color: blind ? '#fcd34d' : '#94a3b8', marginTop: '0.2rem', lineHeight: '1.35' }}>
-            Nobody sees the Pokemon â€” including the arbitrator â€” until the final summary.
+            Nobody sees the Pokemon — including the arbitrator — until the final summary.
             Reveals, auctions, and budgets play exactly the same; only the identity is hidden.
           </div>
         </div>
@@ -506,7 +507,7 @@ function SetupScreen({ initial, onStart }) {
 
       {error && (
         <div style={{ color: '#fca5a5', fontSize: '0.85rem', marginBottom: '0.75rem', fontWeight: 700 }}>
-          âš ï¸ {error}
+          ⚠️ {error}
         </div>
       )}
 
@@ -525,7 +526,7 @@ function SetupScreen({ initial, onStart }) {
           boxShadow: '0 6px 14px rgba(2, 132, 199, 0.35)',
         }}
       >
-        ðŸŽ² Draft 12 Mystery PokÃ©mon & Start Game
+        🎲 Draft 12 Mystery Pokémon & Start Game
       </button>
     </div>
   );
@@ -553,10 +554,10 @@ function BidPanel({ state, onSettle }) {
         Auction Time
       </div>
       <h3 style={{ margin: '0 0 0.35rem 0', color: '#f8fafc', fontSize: '1.15rem' }}>
-        Players call out bids verbally â€” the arbitrator records the result.
+        Players call out bids verbally — the arbitrator records the result.
       </h3>
       <p style={{ margin: '0 0 1rem 0', color: '#94a3b8', fontSize: '0.85rem' }}>
-        The revealed clue is above. Teams cap at {MAX_TEAM_SIZE} Pokemon â€” a full team can no longer win.
+        The revealed clue is above. Teams cap at {MAX_TEAM_SIZE} Pokemon — a full team can no longer win.
         Free $0 bids are allowed and every winning bid is deducted from that player's budget.
       </p>
 
@@ -571,7 +572,7 @@ function BidPanel({ state, onSettle }) {
               disabled={full}
               style={{
                 flex: 1,
-                minWidth: 200,
+                minWidth: 'min(200px, 100%)',
                 padding: '0.75rem',
                 borderRadius: '0.5rem',
                 cursor: full ? 'not-allowed' : 'pointer',
@@ -583,10 +584,10 @@ function BidPanel({ state, onSettle }) {
                 textAlign: 'left',
               }}
             >
-              <div>{p.name} {full && 'Â· Team full'}</div>
+              <div>{p.name} {full && '· Team full'}</div>
               <div style={{ fontSize: '0.75rem', color: full ? '#f87171' : p.budget <= 0 ? '#ef4444' : '#94a3b8' }}>
                 {full
-                  ? `Team ${p.won.length}/${MAX_TEAM_SIZE} â€” cannot win more Pokemon`
+                  ? `Team ${p.won.length}/${MAX_TEAM_SIZE} — cannot win more Pokemon`
                   : `Can bid up to $${p.budget}`}
               </div>
             </button>
@@ -640,18 +641,18 @@ function BidPanel({ state, onSettle }) {
             cursor: 'pointer',
           }}
         >
-          No Sale â€” skip
+          No Sale — skip
         </button>
       </div>
 
       {!validAmount && (
         <div style={{ color: '#fca5a5', fontSize: '0.82rem', fontWeight: 700 }}>
-          âš ï¸ Bid must be a whole number.
+          ⚠️ Bid must be a whole number.
         </div>
       )}
       {validAmount && winner && parsed > winner.budget && (
         <div style={{ color: '#fca5a5', fontSize: '0.82rem', fontWeight: 700 }}>
-          âš ï¸ {winner.name} only has ${winner.budget} left. Lower the bid or pick the other player.
+          ⚠️ {winner.name} only has ${winner.budget} left. Lower the bid or pick the other player.
         </div>
       )}
     </div>
@@ -661,7 +662,7 @@ function BidPanel({ state, onSettle }) {
 function ResultBanner({ result, playerMap, blind }) {
   if (!result || !result.entry) return null;
   const label = result.noSale
-    ? 'No sale â€” nobody claimed it.'
+    ? 'No sale — nobody claimed it.'
     : blind
       ? `${playerMap[result.winnerId]} won a mystery Pokemon for $${result.amount}`
       : `${playerMap[result.winnerId]} won #${String(result.entry.dexNo || result.entry.id).padStart(3, '0')} ${result.entry.display || result.entry.name} for $${result.amount}`;
@@ -678,7 +679,7 @@ function ResultBanner({ result, playerMap, blind }) {
         marginBottom: '0.75rem',
       }}
     >
-      {result.noSale ? 'âˆ… ' : 'ðŸ† '}
+      {result.noSale ? '∅ ' : '🏆 '}
       {label}
     </div>
   );
@@ -692,7 +693,7 @@ export default function MysteryDraft() {
   const handleStart = ({ nameA, nameB, budget, maxGen, blind }) => {
     setLastSetup({ nameA, nameB, budget, maxGen, blind });
     const queue = draftQueue(pokemonList, formsList, speciesMeta, maxGen, 12);
-    setSession(createSession({ playerNames: [nameA, nameB], budget, queue, blind }));
+    setSession(createSession({ playerNames: [nameA, nameB], budget, queue, blind, genLimit: maxGen }));
     setPhase('playing');
   };
 
@@ -711,7 +712,7 @@ export default function MysteryDraft() {
       const nav = window.performance?.getEntriesByType?.('navigation')?.[0];
       pageWasReloaded = Boolean(nav && nav.type === 'reload');
     } catch (_) {
-      /* navigation timing unavailable â€” ignore */
+      /* navigation timing unavailable — ignore */
     }
     if (pageWasReloaded) {
       clearDraftState();
@@ -768,17 +769,20 @@ export default function MysteryDraft() {
         {showSummary && (
           <DraftSummary
             players={session.players}
-            title="ðŸ Auction Complete"
+            title="🏁 Auction Complete"
             blind={session.blind}
             onPlayAgain={handlePlayAgain}
-            playLabel="Play Again â€” New Draft"
+            playLabel="Play Again — New Draft"
             intro={
               <>
                 {session.queue.length} mystery Pokemon were on the block. Each Pokemon scores its BST modified by a
-                transparent stack â€” <strong style={{ color: '#f87272' }}>Ã—{RARE_MULTIPLIER}</strong> Legendary/Mythical,{' '}
-                <strong style={{ color: '#fbbf24' }}>Ã—{SHINY_MULTIPLIER}</strong> shiny,{' '}
-                <strong style={{ color: '#a78bfa' }}>Ã—{FORM_MULTIPLIER}</strong> alternate form â€” and the highest total
+                transparent stack — <strong style={{ color: '#f87272' }}>×{RARE_MULTIPLIER}</strong> Legendary/Mythical,{' '}
+                <strong style={{ color: '#fbbf24' }}>×{SHINY_MULTIPLIER}</strong> shiny,{' '}
+                <strong style={{ color: '#a78bfa' }}>×{FORM_MULTIPLIER}</strong> alternate form — and the highest total
                 team score wins. Budget is informational only.
+                {session.genLimit && session.genLimit < 9 && (
+                  <span style={{ color: '#38bdf8' }}> Draft pool was limited to Generations 1–{session.genLimit}.</span>
+                )}
               </>
             }
           />
@@ -798,7 +802,7 @@ export default function MysteryDraft() {
             fontSize: '0.85rem',
           }}
         >
-          âš ï¸ {session.error}
+          ⚠️ {session.error}
         </div>
       )}
     </div>
@@ -810,7 +814,7 @@ function PlayingView({ session, setSession, onExit }) {
   if (session.status === 'summary' || session.queueIndex >= session.queue.length) {
     return (
       <div className="card" style={{ marginTop: 0, textAlign: 'center' }}>
-        <p style={{ color: '#94a3b8', fontWeight: 700 }}>All auctions are complete â€” loading summary...</p>
+        <p style={{ color: '#94a3b8', fontWeight: 700 }}>All auctions are complete — loading summary...</p>
       </div>
     );
   }
@@ -833,12 +837,29 @@ function PlayingView({ session, setSession, onExit }) {
     <>
       {/* Progress header */}
       <div className="card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', marginTop: 0, marginBottom: '0.75rem', flexWrap: 'wrap' }}>
-        <div style={{ fontWeight: 900, fontSize: '1.1rem', color: '#f8fafc' }}>
-          Mystery Pokemon{' '}
-          <span style={{ color: '#38bdf8' }}>
-            {session.queueIndex + 1}
+        <div style={{ fontWeight: 900, fontSize: '1.1rem', color: '#f8fafc', display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
+          <span>
+            Mystery Pokemon{' '}
+            <span style={{ color: '#38bdf8' }}>
+              {session.queueIndex + 1}
+            </span>
+            / {session.queue.length}
           </span>
-          / {session.queue.length}
+          <span
+            style={{
+              fontSize: '0.68rem',
+              fontWeight: 800,
+              textTransform: 'uppercase',
+              letterSpacing: '0.06em',
+              color: '#38bdf8',
+              background: 'rgba(56, 189, 248, 0.12)',
+              border: '1px solid rgba(56, 189, 248, 0.4)',
+              padding: '0.15rem 0.55rem',
+              borderRadius: '1rem',
+            }}
+          >
+            Gen {session.genLimit ?? 9} pool
+          </span>
         </div>
         <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
           {session.queue.map((entry, i) => {
@@ -854,7 +875,7 @@ function PlayingView({ session, setSession, onExit }) {
                   : `${winnerId.name} won #${entry.dexNo || entry.id} ${entry.display || entry.name}`;
               } else {
                 bg = '#7f1d1d';
-                title = blind ? 'No sale â€” mystery Pokemon' : `No sale â€” #${entry.dexNo || entry.id} ${entry.display || entry.name}`;
+                title = blind ? 'No sale — mystery Pokemon' : `No sale — #${entry.dexNo || entry.id} ${entry.display || entry.name}`;
               }
             }
             return (
@@ -886,7 +907,7 @@ function PlayingView({ session, setSession, onExit }) {
             fontSize: '0.85rem',
           }}
         >
-          â¹ End Session
+          ⏹ End Session
         </button>
       </div>
 
@@ -899,7 +920,7 @@ function PlayingView({ session, setSession, onExit }) {
             key={p.id}
             player={p}
             highlight={actor && actor.playerId === p.id}
-            subtitle={actor && actor.playerId === p.id ? 'ðŸŽ¯ Your turn to reveal' : ''}
+            subtitle={actor && actor.playerId === p.id ? '🎯 Your turn to reveal' : ''}
             blind={session.blind}
           />
         ))}
@@ -920,9 +941,9 @@ function PlayingView({ session, setSession, onExit }) {
               marginBottom: '0.75rem',
             }}
           >
-            <span style={{ fontSize: '1rem' }}>ðŸ”</span>
+            <span style={{ fontSize: '1rem' }}>🔍</span>
             <span style={{ color: '#e0f2fe', fontWeight: 800, fontSize: '0.9rem' }}>
-              {activePlayer.name}'s turn â€” reveal ONE clue for this Pokemon, then it goes to auction
+              {activePlayer.name}'s turn — reveal ONE clue for this Pokemon, then it goes to auction
             </span>
           </div>
 
@@ -952,7 +973,7 @@ function PlayingView({ session, setSession, onExit }) {
       ) : session.status === 'reveal' && !actor ? (
         <div className="card" style={{ marginTop: 0 }}>
           <p style={{ margin: 0, color: '#cbd5e1', fontWeight: 700 }}>
-            No attributes remain â€” reveal phase complete.
+            No attributes remain — reveal phase complete.
           </p>
           <button
             onClick={() => setSession({ ...session, status: 'bid' })}
@@ -967,7 +988,7 @@ function PlayingView({ session, setSession, onExit }) {
               cursor: 'pointer',
             }}
           >
-            Continue to Auction â†’
+            Continue to Auction →
           </button>
         </div>
       ) : (
@@ -979,7 +1000,7 @@ function PlayingView({ session, setSession, onExit }) {
         </>
       )}
 
-      {/* Arbitrator-only memo â€” swapped for a lock notice in blind mode */}
+      {/* Arbitrator-only memo — swapped for a lock notice in blind mode */}
       <div style={{ marginTop: '1rem' }}>
         {blind ? (
           <div
@@ -994,10 +1015,10 @@ function PlayingView({ session, setSession, onExit }) {
               color: '#fcd34d',
             }}
           >
-            <span style={{ fontSize: '1.4rem' }}>ðŸ™ˆ</span>
+            <span style={{ fontSize: '1.4rem' }}>🙈</span>
             <div>
               <div style={{ fontWeight: 900, fontSize: '0.92rem' }}>
-                Blind mode active â€” even the arbitrator is in the dark
+                Blind mode active — even the arbitrator is in the dark
               </div>
               <div style={{ fontSize: '0.82rem', color: '#b45309', marginTop: '0.15rem' }}>
                 Every Pokemon stays hidden until the final summary. Bid on the clues alone!

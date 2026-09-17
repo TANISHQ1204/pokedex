@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { MAX_STAR_LEVEL, SHINY_STAR_LEVEL, unlockedMoveCount } from '../game/cardLevels.js';
+import { MAX_STAR_LEVEL, SHINY_STAR_LEVEL, unlockedMoveCount, starTierColor, starTierInfo } from '../game/cardLevels.js';
+import { computePokemonStats, tierName } from '../game/balance.js';
+import PokemonImage from './PokemonImage';
 import learnsets from '../data/learnsets.json' with { type: 'json' };
 
 function formatTitle(str) {
@@ -29,6 +31,9 @@ export default function PokemonDetailModal({
   if (!pokemon) return null;
 
   const chip = CARD_TYPE_CHIP[cardType] || CARD_TYPE_CHIP.normal;
+  const isForm = pokemon.kind === 'form' || Number(pokemon.id) >= 10001;
+  const loreStats =
+    computePokemonStats(pokemon, { isShiny: Boolean(previewShiny && isOwned) }) || pokemon.stats;
   const learnset = (learnsets || {})[pokemon.id] || (learnsets || {})[String(pokemon.id)] || null;
   const isNormalOwned = isOwned && cardType === 'normal';
   const unlockedCount = isNormalOwned && learnset ? unlockedMoveCount(starLevel) : (learnset?.length ?? pokemon.moves?.length ?? 4);
@@ -40,7 +45,10 @@ export default function PokemonDetailModal({
         {/* Modal Header */}
         <div className="modal-header">
           <div>
-            <span className="modal-dex-id">#{String(pokemon.id).padStart(4, '0')}</span>
+            <span className="modal-dex-id">
+              #{String(pokemon.dexNo || pokemon.id).padStart(4, '0')}
+              {isForm && pokemon.label && <span className="form-badge-mark">◆ {pokemon.label}</span>}
+            </span>
             {cardType !== 'normal' && (
               <span
                 style={{
@@ -67,8 +75,9 @@ export default function PokemonDetailModal({
           {/* Left Column: Image & Ownership status */}
           <div className="modal-left">
             <div className="modal-image-card">
-              <img
-                src={previewShiny && isOwned ? pokemon.sprites.shiny : pokemon.sprites.normal}
+              <PokemonImage
+                pokemon={pokemon}
+                isShiny={Boolean(previewShiny && isOwned)}
                 alt={pokemon.name}
                 className={isOwned ? '' : 'modal-silhouette'}
               />
@@ -109,11 +118,14 @@ export default function PokemonDetailModal({
                   </>
                 ) : (
                   <>
-                    <div className="modal-star-row">
+                    <div className="modal-star-row" style={{ color: starTierColor(entry.star_level) }}>
                       {'★'.repeat(entry.star_level)}
                       {'☆'.repeat(MAX_STAR_LEVEL - entry.star_level)}
                     </div>
-                    <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '0.25rem' }}>
+                    <div style={{ fontSize: '0.72rem', color: starTierColor(entry.star_level), marginTop: '0.1rem', fontWeight: 800, letterSpacing: '0.04em' }}>
+                      {starTierInfo(entry.star_level).label} TIER
+                    </div>
+                    <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '0.15rem' }}>
                       Duplicates Collected: {entry.dupes_collected || 0}
                     </div>
                     {!entry.is_shiny && starLevel >= SHINY_STAR_LEVEL && (
@@ -163,16 +175,20 @@ export default function PokemonDetailModal({
             {/* Base Stats */}
             <div style={{ marginBottom: '1.25rem' }}>
               <span style={{ fontSize: '0.75rem', color: '#94a3b8', display: 'block', marginBottom: '0.5rem' }}>
-                BASE STATS
+                BATTLE STATS{' '}
+                <span style={{ color: '#38bdf8', fontWeight: 800 }}>({tierName(loreStats.tier)} tier)</span>
+                {Boolean(previewShiny && isOwned) && (
+                  <span style={{ color: '#fbbf24', fontWeight: 800 }}> ✨ +12% Shiny</span>
+                )}
               </span>
               <div className="stat-bars-container">
                 {[
-                  { label: 'HP', val: pokemon.stats.hp, max: 250, color: '#22c55e' },
-                  { label: 'ATK', val: pokemon.stats.attack, max: 190, color: '#ef4444' },
-                  { label: 'DEF', val: pokemon.stats.defense, max: 230, color: '#3b82f6' },
-                  { label: 'SP.ATK', val: pokemon.stats.specialAttack, max: 194, color: '#a855f7' },
-                  { label: 'SP.DEF', val: pokemon.stats.specialDefense, max: 230, color: '#06b6d4' },
-                  { label: 'SPD', val: pokemon.stats.speed, max: 200, color: '#eab308' },
+                  { label: 'HP', val: loreStats.hp, max: 250, color: '#22c55e' },
+                  { label: 'ATK', val: loreStats.attack, max: 190, color: '#ef4444' },
+                  { label: 'DEF', val: loreStats.defense, max: 230, color: '#3b82f6' },
+                  { label: 'SP.ATK', val: loreStats.specialAttack, max: 194, color: '#a855f7' },
+                  { label: 'SP.DEF', val: loreStats.specialDefense, max: 230, color: '#06b6d4' },
+                  { label: 'SPD', val: loreStats.speed, max: 200, color: '#eab308' },
                 ].map((stat) => (
                   <div key={stat.label} className="stat-row">
                     <span className="stat-label">{stat.label}</span>

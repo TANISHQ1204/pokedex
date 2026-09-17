@@ -31,6 +31,8 @@ import BattleLog from '../components/BattleLog';
 import CardPullReveal from '../components/CardPullReveal';
 import { createMatch } from '../store/matches';
 import { SparkleStarIcon } from '../components/icons/GameIcons';
+import PokemonImage from '../components/PokemonImage';
+import BattleSummary from '../components/BattleSummary';
 import { buildUnlockPool } from '../game/cardLevels.js';
 import learnsets from '../data/learnsets.json' with { type: 'json' };
 
@@ -109,6 +111,7 @@ export default function Battle() {
   const [logs, setLogs] = useState([]);
   const [isBusy, setIsBusy] = useState(false);
   const [winner, setWinner] = useState(null); // 'player' | 'cpu' | null
+  const [summaryDismissed, setSummaryDismissed] = useState(false); // battle report read before pull/rematch
   const [awardedDrop, setAwardedDrop] = useState(null); // { pokemon, isNew, entry, starUpgraded, becameShiny }
 
   // Animation states
@@ -210,6 +213,7 @@ export default function Battle() {
 
     setLogs([{ text: 'A wild 6v6 Trainer Battle has begun! Select a move or click a benched Pokémon to switch.' }]);
     setWinner(null);
+    setSummaryDismissed(false);
     setAwardedDrop(null);
     setIsBusy(false);
 
@@ -1096,8 +1100,9 @@ export default function Battle() {
                   ${cpuActive.status === 'sleep' ? 'status-overlay-slp' : ''}
                 `}
               >
-                <img
-                  src={cpuActive.isShiny ? cpuActive.sprites.shiny : cpuActive.sprites.normal}
+                <PokemonImage
+                  pokemon={cpuActive}
+                  isShiny={Boolean(cpuActive.isShiny)}
                   alt={cpuActive.name}
                 />
               </div>
@@ -1140,8 +1145,9 @@ export default function Battle() {
                   ${playerActive.status === 'sleep' ? 'status-overlay-slp' : ''}
                 `}
               >
-                <img
-                  src={playerActive.isShiny ? playerActive.sprites.shiny : playerActive.sprites.normal}
+                <PokemonImage
+                  pokemon={playerActive}
+                  isShiny={Boolean(playerActive.isShiny)}
                   alt={playerActive.name}
                 />
               </div>
@@ -1299,8 +1305,18 @@ export default function Battle() {
         <BattleLog logs={logs} />
       </div>
 
+      {/* BATTLE REPORT (shown first on both win and loss) */}
+      {winner && !summaryDismissed && (
+        <BattleSummary
+          playerTeam={playerTeam}
+          cpuTeam={cpuTeam}
+          result={winner}
+          onContinue={() => setSummaryDismissed(true)}
+        />
+      )}
+
       {/* DEDICATED CARD PULL REVEAL SCREEN (VICTORY) */}
-      {winner === 'player' && (
+      {winner === 'player' && summaryDismissed && (
         <CardPullReveal
           awardedDrop={awardedDrop}
           onContinue={() => navigate('/home')}
@@ -1309,7 +1325,7 @@ export default function Battle() {
       )}
 
       {/* DEFEAT MODAL BANNER */}
-      {winner === 'cpu' && (
+      {winner === 'cpu' && summaryDismissed && (
         <div
           style={{
             position: 'fixed',
