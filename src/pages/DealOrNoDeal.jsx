@@ -11,12 +11,10 @@ import {
   stepActor,
   THEME_CATEGORIES,
 } from '../game/dealOrNoDeal';
-import { baseStatTotal } from '../game/mysteryDraft';
+import { baseStatTotal, ALL_GENS } from '../game/mysteryDraft';
 import DraftSummary from '../components/DraftSummary';
 import PokemonImage from '../components/PokemonImage';
 import { PokeballIcon } from '../components/icons/GameIcons';
-
-const MAX_GENS = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
 const DEAL_STORAGE_KEY = 'pokedex_deal_or_no_deal_state';
 
@@ -101,8 +99,19 @@ class DealErrorBoundary extends Component {
 function SetupScreen({ initial, onStart }) {
   const [nameA, setNameA] = useState(initial?.nameA || '');
   const [nameB, setNameB] = useState(initial?.nameB || '');
-  const [maxGen, setMaxGen] = useState(initial?.maxGen ?? 9);
+  const [selectedGens, setSelectedGens] = useState(initial?.gens?.length ? [...initial.gens].sort((a, b) => a - b) : [...ALL_GENS]);
   const [error, setError] = useState('');
+
+  const isAllGens = selectedGens.length === ALL_GENS.length;
+
+  const toggleGen = (g) => {
+    setSelectedGens((prev) => {
+      const next = prev.includes(g)
+        ? prev.filter((x) => x !== g)
+        : [...prev, g].sort((a, b) => a - b);
+      return next.length === 0 ? [...ALL_GENS] : next;
+    });
+  };
 
   const handleStart = () => {
     const a = nameA.trim();
@@ -116,7 +125,7 @@ function SetupScreen({ initial, onStart }) {
       return;
     }
     setError('');
-    onStart({ nameA: a, nameB: b, maxGen });
+    onStart({ nameA: a, nameB: b, gens: selectedGens });
   };
 
   return (
@@ -164,27 +173,50 @@ function SetupScreen({ initial, onStart }) {
 
       <div style={{ marginBottom: '1.25rem' }}>
         <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#94a3b8', marginBottom: '0.5rem' }}>
-          Maximum Generation <span style={{ color: '#475569' }}>(no Pokémon from later generations appear in any round, whatever the theme — ~15% of balls are shiny)</span>
+          Generations to Include <span style={{ color: '#475569' }}>(toggle each; only Pokemon from the selected generations appear in any round, whatever the theme — ~15% of balls are shiny)</span>
         </div>
         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-          {MAX_GENS.map((g) => (
-            <button
-              key={g}
-              onClick={() => setMaxGen(g)}
-              style={{
-                padding: '0.5rem 0.9rem',
-                borderRadius: '0.5rem',
-                cursor: 'pointer',
-                border: maxGen === g ? '2px solid #38bdf8' : '1px solid #334155',
-                background: maxGen === g ? '#0284c7' : '#1e293b',
-                color: maxGen === g ? '#ffffff' : '#94a3b8',
-                fontWeight: 800,
-                fontSize: '0.9rem',
-              }}
-            >
-              Gen {g}
-            </button>
-          ))}
+          <button
+            onClick={() => setSelectedGens([...ALL_GENS])}
+            style={{
+              padding: '0.5rem 0.9rem',
+              borderRadius: '0.5rem',
+              cursor: 'pointer',
+              border: isAllGens ? '2px solid #38bdf8' : '1px solid #334155',
+              background: isAllGens ? '#0284c7' : '#1e293b',
+              color: isAllGens ? '#ffffff' : '#94a3b8',
+              fontWeight: 800,
+              fontSize: '0.9rem',
+            }}
+          >
+            All
+          </button>
+          {ALL_GENS.map((g) => {
+            const on = selectedGens.includes(g);
+            return (
+              <button
+                key={g}
+                onClick={() => toggleGen(g)}
+                style={{
+                  padding: '0.5rem 0.9rem',
+                  borderRadius: '0.5rem',
+                  cursor: 'pointer',
+                  border: on ? '2px solid #38bdf8' : '1px solid #334155',
+                  background: on ? '#0284c7' : '#1e293b',
+                  color: on ? '#ffffff' : '#94a3b8',
+                  fontWeight: 800,
+                  fontSize: '0.9rem',
+                }}
+              >
+                Gen {g}
+              </button>
+            );
+          })}
+        </div>
+        <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 700, marginTop: '0.4rem' }}>
+          {isAllGens
+            ? 'Every generation included (Gen 1–9).'
+            : `Selected: Generation${selectedGens.length > 1 ? 's' : ''} ${selectedGens.join(', ')}.`}
         </div>
       </div>
 
@@ -220,9 +252,9 @@ export default function DealOrNoDeal() {
   const [lastSetup, setLastSetup] = useState(null);
   const [session, setSession] = useState(null);
 
-  const handleStart = ({ nameA, nameB, maxGen }) => {
-    setLastSetup({ nameA, nameB, maxGen });
-    setSession(createSession({ playerNames: [nameA, nameB], maxGen }));
+  const handleStart = ({ nameA, nameB, gens }) => {
+    setLastSetup({ nameA, nameB, gens });
+    setSession(createSession({ playerNames: [nameA, nameB], gens }));
     setPhase('playing');
   };
 
@@ -625,7 +657,9 @@ function PlayingView({ session, setSession, onExit }) {
               borderRadius: '2rem',
             }}
           >
-            Gen {session.maxGen ?? 9} pool
+            {session.gens && session.gens.length < ALL_GENS.length
+              ? `Gens ${session.gens.join(', ')} pool`
+              : 'Gen 1–9 pool'}
           </span>
         </div>
         <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>

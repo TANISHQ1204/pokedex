@@ -67,9 +67,28 @@ export function entryGeneration(entry, speciesMeta) {
   return meta && Number.isInteger(meta.gen) ? meta.gen : Math.ceil(entry.id / 151);
 }
 
-export function getEligiblePool(pokemonList, forms, speciesMeta, maxGen) {
-  const bases = pokemonList.filter((p) => entryGeneration(p, speciesMeta) <= maxGen);
-  const formPool = (forms || []).filter((f) => f.generation <= maxGen);
+export const ALL_GENS = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+
+/** Normalize a gens argument into a Set of allowed generations.
+ *  Accepts an array of generation numbers, or a single number (treated as a
+ *  max-generation cap for backward compatibility). Empty/invalid falls back
+ *  to every generation. */
+export function normalizeGens(gens) {
+  if (Array.isArray(gens)) {
+    const set = new Set(gens.map((g) => Number(g)).filter((g) => g >= 1 && g <= ALL_GENS.length));
+    return set.size ? set : new Set(ALL_GENS);
+  }
+  const max = Number(gens);
+  if (Number.isFinite(max) && max >= 1) {
+    return new Set(ALL_GENS.filter((g) => g <= max));
+  }
+  return new Set(ALL_GENS);
+}
+
+export function getEligiblePool(pokemonList, forms, speciesMeta, gens = ALL_GENS) {
+  const allowed = normalizeGens(gens);
+  const bases = pokemonList.filter((p) => allowed.has(entryGeneration(p, speciesMeta)));
+  const formPool = (forms || []).filter((f) => allowed.has(f.generation));
   return [...bases, ...formPool];
 }
 
@@ -251,8 +270,8 @@ function secureRandom() {
   return buf[0] / (0xffffffff + 1);
 }
 
-export function draftQueue(pokemonList, forms, speciesMeta, maxGen, count = 12, random = secureRandom) {
-  const pool = getEligiblePool(pokemonList, forms, speciesMeta, maxGen);
+export function draftQueue(pokemonList, forms, speciesMeta, gens = ALL_GENS, count = 12, random = secureRandom) {
+  const pool = getEligiblePool(pokemonList, forms, speciesMeta, gens);
   const shuffled = [...pool];
   for (let i = shuffled.length - 1; i > 0; i--) {
     const j = Math.floor(random() * (i + 1));
@@ -266,12 +285,13 @@ export function draftQueue(pokemonList, forms, speciesMeta, maxGen, count = 12, 
     });
 }
 
-export function createSession({ playerNames, budget, queue, firstPlayerId = 0, blind = false, genLimit = 9 }) {
+export function createSession({ playerNames, budget, queue, firstPlayerId = 0, blind = false, gens = ALL_GENS }) {
+  const includedGens = [...normalizeGens(gens)].sort((a, b) => a - b);
   return {
     queue,
     queueIndex: 0,
     blind,
-    genLimit,
+    gens: includedGens,
     players: playerNames.map((name, i) => ({
       id: i,
       name,

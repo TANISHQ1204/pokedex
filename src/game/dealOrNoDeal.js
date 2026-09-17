@@ -15,7 +15,7 @@
 import defaultPokemonList from '../data/pokemon.json' with { type: 'json' };
 import formsList from '../data/forms.json' with { type: 'json' };
 import speciesMeta from '../data/speciesMeta.json' with { type: 'json' };
-import { enrichEntry, enrichFormEntry, entryGeneration, SHINY_CHANCE } from './mysteryDraft.js';
+import { enrichEntry, enrichFormEntry, entryGeneration, normalizeGens, ALL_GENS, SHINY_CHANCE } from './mysteryDraft.js';
 
 export const ROUNDS = 6;
 export const BALLS_PER_SET = 6;
@@ -78,12 +78,14 @@ function shuffle(arr, rng) {
 }
 
 /**
- * Merge base species + alternate forms into a single pool, filtered by maxGen.
- * Every Pokemon has equal uniform random chance — no weighting.
+ * Merge base species + alternate forms into a single pool, filtered to the
+ * allowed generation set. Every Pokemon has equal uniform random chance — no
+ * weighting. Falsy gens means all generations are allowed.
  */
-function buildEligiblePool(maxGen) {
-  const bases = defaultPokemonList.filter((p) => getGen(p) <= maxGen);
-  const forms = formsList.filter((f) => getGen(f) <= maxGen);
+function buildEligiblePool(gens = ALL_GENS) {
+  const allowed = normalizeGens(gens);
+  const bases = defaultPokemonList.filter((p) => allowed.has(getGen(p)));
+  const forms = formsList.filter((f) => allowed.has(getGen(f)));
   return [...bases, ...forms];
 }
 
@@ -153,8 +155,9 @@ function buildThemedRound({ category, pool, usedIds, rng }) {
  * session (and the whole playing state) stays plain JSON-serializable.
  * No Pokemon repeats across all 6 rounds (36 unique total).
  */
-export function createSession({ playerNames, maxGen = 9, rng = defaultRng }) {
-  const pool = buildEligiblePool(maxGen);
+export function createSession({ playerNames, gens = ALL_GENS, rng = defaultRng }) {
+  const pool = buildEligiblePool(gens);
+  const includedGens = [...normalizeGens(gens)].sort((a, b) => a - b);
   const usedIds = new Set();
   const categories = THEME_CATEGORIES.map((c) => c.id);
 
@@ -171,7 +174,7 @@ export function createSession({ playerNames, maxGen = 9, rng = defaultRng }) {
   const first = rounds[0];
   return {
     rounds,
-    maxGen,
+    gens: includedGens,
     round: 1,
     stepPos: 0,
     themeCategory: first.category,

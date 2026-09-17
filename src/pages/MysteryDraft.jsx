@@ -5,6 +5,7 @@ import formsList from '../data/forms.json' with { type: 'json' };
 import {
   ATTRIBUTES,
   MAX_TEAM_SIZE,
+  ALL_GENS,
   createSession,
   draftQueue,
   getAttributeValue,
@@ -72,8 +73,6 @@ class DraftErrorBoundary extends Component {
     return this.props.children;
   }
 }
-
-const MAX_GENS = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
 const DRAFT_STORAGE_KEY = 'pokedex_mystery_draft_state';
 
@@ -334,9 +333,20 @@ function SetupScreen({ initial, onStart }) {
   const [nameA, setNameA] = useState(initial?.nameA || '');
   const [nameB, setNameB] = useState(initial?.nameB || '');
   const [budget, setBudget] = useState(initial ? String(initial.budget) : '1000');
-  const [maxGen, setMaxGen] = useState(initial?.maxGen ?? 9);
+  const [selectedGens, setSelectedGens] = useState(initial?.gens?.length ? [...initial.gens].sort((a, b) => a - b) : [...ALL_GENS]);
   const [blind, setBlind] = useState(initial?.blind ?? false);
   const [error, setError] = useState('');
+
+  const isAllGens = selectedGens.length === ALL_GENS.length;
+
+  const toggleGen = (g) => {
+    setSelectedGens((prev) => {
+      const next = prev.includes(g)
+        ? prev.filter((x) => x !== g)
+        : [...prev, g].sort((a, b) => a - b);
+      return next.length === 0 ? [...ALL_GENS] : next;
+    });
+  };
 
   const handleStart = () => {
     const a = nameA.trim();
@@ -355,7 +365,7 @@ function SetupScreen({ initial, onStart }) {
       return;
     }
     setError('');
-    onStart({ nameA: a, nameB: b, budget: bud, maxGen, blind });
+    onStart({ nameA: a, nameB: b, budget: bud, gens: selectedGens, blind });
   };
 
   return (
@@ -418,27 +428,50 @@ function SetupScreen({ initial, onStart }) {
 
       <div style={{ marginBottom: '1.25rem' }}>
         <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#94a3b8', marginBottom: '0.5rem' }}>
-          Maximum Generation <span style={{ color: '#475569' }}>(only Pokemon from Gen 1 through this are eligible — legendaries included normally, ~15% shiny)</span>
+          Generations to Include <span style={{ color: '#475569' }}>(toggle each; only Pokemon from the selected generations appear — legendaries included normally, ~15% shiny)</span>
         </div>
         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-          {MAX_GENS.map((g) => (
-            <button
-              key={g}
-              onClick={() => setMaxGen(g)}
-              style={{
-                padding: '0.5rem 0.9rem',
-                borderRadius: '0.5rem',
-                cursor: 'pointer',
-                border: maxGen === g ? '2px solid #38bdf8' : '1px solid #334155',
-                background: maxGen === g ? '#0284c7' : '#1e293b',
-                color: maxGen === g ? '#ffffff' : '#94a3b8',
-                fontWeight: 800,
-                fontSize: '0.9rem',
-              }}
-            >
-              Gen {g}
-            </button>
-          ))}
+          <button
+            onClick={() => setSelectedGens([...ALL_GENS])}
+            style={{
+              padding: '0.5rem 0.9rem',
+              borderRadius: '0.5rem',
+              cursor: 'pointer',
+              border: isAllGens ? '2px solid #38bdf8' : '1px solid #334155',
+              background: isAllGens ? '#0284c7' : '#1e293b',
+              color: isAllGens ? '#ffffff' : '#94a3b8',
+              fontWeight: 800,
+              fontSize: '0.9rem',
+            }}
+          >
+            All
+          </button>
+          {ALL_GENS.map((g) => {
+            const on = selectedGens.includes(g);
+            return (
+              <button
+                key={g}
+                onClick={() => toggleGen(g)}
+                style={{
+                  padding: '0.5rem 0.9rem',
+                  borderRadius: '0.5rem',
+                  cursor: 'pointer',
+                  border: on ? '2px solid #38bdf8' : '1px solid #334155',
+                  background: on ? '#0284c7' : '#1e293b',
+                  color: on ? '#ffffff' : '#94a3b8',
+                  fontWeight: 800,
+                  fontSize: '0.9rem',
+                }}
+              >
+                Gen {g}
+              </button>
+            );
+          })}
+        </div>
+        <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 700, marginTop: '0.4rem' }}>
+          {isAllGens
+            ? 'Every generation included (Gen 1–9).'
+            : `Selected: Generation${selectedGens.length > 1 ? 's' : ''} ${selectedGens.join(', ')}.`}
         </div>
       </div>
 
@@ -690,10 +723,10 @@ export default function MysteryDraft() {
   const [lastSetup, setLastSetup] = useState(null);
   const [session, setSession] = useState(null);
 
-  const handleStart = ({ nameA, nameB, budget, maxGen, blind }) => {
-    setLastSetup({ nameA, nameB, budget, maxGen, blind });
-    const queue = draftQueue(pokemonList, formsList, speciesMeta, maxGen, 12);
-    setSession(createSession({ playerNames: [nameA, nameB], budget, queue, blind, genLimit: maxGen }));
+  const handleStart = ({ nameA, nameB, budget, gens, blind }) => {
+    setLastSetup({ nameA, nameB, budget, gens, blind });
+    const queue = draftQueue(pokemonList, formsList, speciesMeta, gens, 12);
+    setSession(createSession({ playerNames: [nameA, nameB], budget, queue, blind, gens }));
     setPhase('playing');
   };
 
@@ -780,8 +813,8 @@ export default function MysteryDraft() {
                 <strong style={{ color: '#fbbf24' }}>×{SHINY_MULTIPLIER}</strong> shiny,{' '}
                 <strong style={{ color: '#a78bfa' }}>×{FORM_MULTIPLIER}</strong> alternate form — and the highest total
                 team score wins. Budget is informational only.
-                {session.genLimit && session.genLimit < 9 && (
-                  <span style={{ color: '#38bdf8' }}> Draft pool was limited to Generations 1–{session.genLimit}.</span>
+                {session.gens && session.gens.length < ALL_GENS.length && (
+                  <span style={{ color: '#38bdf8' }}> Draft pool was limited to Generations {session.gens.join(', ')}.</span>
                 )}
               </>
             }
@@ -858,7 +891,9 @@ function PlayingView({ session, setSession, onExit }) {
               borderRadius: '1rem',
             }}
           >
-            Gen {session.genLimit ?? 9} pool
+            {session.gens && session.gens.length < ALL_GENS.length
+              ? `Gens ${session.gens.join(', ')} pool`
+              : 'Gen 1–9 pool'}
           </span>
         </div>
         <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
