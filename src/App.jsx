@@ -17,6 +17,7 @@ import JoinMatch from './pages/JoinMatch';
 import GameModes from './pages/GameModes';
 import MysteryDraft from './pages/MysteryDraft';
 import DealOrNoDeal from './pages/DealOrNoDeal';
+import DexBattle from './pages/DexBattle';
 import Stats from './pages/Stats';
 
 import MatchInviteBanner from './components/MatchInviteBanner';
@@ -155,6 +156,14 @@ export default function App() {
           element={
             <ProtectedRoute>
               <DealOrNoDeal />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dex-battle"
+          element={
+            <ProtectedRoute>
+              <DexBattle />
             </ProtectedRoute>
           }
         />

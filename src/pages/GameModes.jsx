@@ -332,6 +332,76 @@ export default function GameModes() {
           </button>
         </div>
 
+        {/* Mode: Dex Battle */}
+        <div
+          className="card"
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            padding: '2rem 1.5rem',
+            border: '2px solid #ea580c',
+            background: 'linear-gradient(180deg, #7c2d12 0%, #0f172a 100%)',
+            boxShadow: '0 12px 24px rgba(0, 0, 0, 0.6), 0 0 15px rgba(249, 115, 22, 0.3)',
+          }}
+        >
+          <div>
+            <div
+              style={{
+                display: 'inline-flex',
+                padding: '0.75rem',
+                borderRadius: '50%',
+                backgroundColor: '#ea580c',
+                color: '#fff7ed',
+                marginBottom: '1rem',
+              }}
+            >
+              <PokeballIcon size={32} />
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+              <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#f8fafc', margin: 0 }}>
+                Dex Battle
+              </h2>
+              <span
+                style={{
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  padding: '0.2rem 0.5rem',
+                  borderRadius: '0.25rem',
+                  backgroundColor: '#16a34a',
+                  color: '#a7f3d0',
+                }}
+              >
+                NEW
+              </span>
+            </div>
+
+            <p style={{ color: '#cbd5e1', fontSize: '0.925rem', lineHeight: 1.5, marginBottom: '1.5rem' }}>
+              A local party memory race. A secret Pokémon's dex number is shown — both players race, no turns,
+              to type the Pokémon name. Closest dex wins it (shiny or alternate form rolled at award time).
+              First to 6, the remaining bench goes to the other player.
+            </p>
+          </div>
+
+          <button
+            onClick={() => navigate('/dex-battle')}
+            style={{
+              width: '100%',
+              padding: '0.75rem',
+              borderRadius: '0.375rem',
+              border: 'none',
+              backgroundColor: '#ea580c',
+              color: '#ffffff',
+              fontWeight: 800,
+              fontSize: '0.95rem',
+              cursor: 'pointer',
+            }}
+          >
+            🔢 Start Dex Battle
+          </button>
+        </div>
+
         {/* Mode 3: Trainer Friends & Invites */}
         <div
           className="card"
