@@ -117,7 +117,7 @@ export default function BattleSummary({ playerTeam, cpuTeam, result = 'player', 
             { label: 'Quad damage', n: overview.quad, color: '#059669' },
             { label: 'Resisted', n: overview.resist, color: '#f59e0b' },
             { label: 'No effect', n: overview.immune, color: '#ef4444' },
-            { label: 'Neutral', n: overview.neutral, color: '#64748b' },
+            { label: 'Neutral', n: overview.neutral, color: '#94a3b8' },
           ].map((s) => (
             <span
               key={s.label}
@@ -198,7 +198,7 @@ export default function BattleSummary({ playerTeam, cpuTeam, result = 'player', 
               ))}
               {pTeam.length === 0 && (
                 <tr>
-                  <td colSpan={Math.max(2, cTeam.length + 1)} style={{ color: '#64748b', fontSize: '0.8rem', padding: '0.5rem' }}>
+                  <td colSpan={Math.max(2, cTeam.length + 1)} style={{ color: '#94a3b8', fontSize: '0.8rem', padding: '0.5rem' }}>
                     No battle data to report.
                   </td>
                 </tr>

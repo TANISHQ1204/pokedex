@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { supabase, isSupabaseConfigured } from '../store/supabaseClient';
+import { supabase } from '../store/supabaseClient';
 import { challengeFriend } from '../store/matches';
-import { UsersFriendsIcon, PokeballIcon } from '../components/icons/GameIcons';
+import { UsersFriendsIcon, SwordsIcon, SparkleStarIcon } from '../components/icons/GameIcons';
+
+const MOCK_STORAGE_KEY = 'pokedex_mock_friendships';
 
 export default function Friends() {
   const { user, profile, onlineUserIds, isConfigured } = useAuth();
@@ -20,11 +22,12 @@ export default function Friends() {
   const [loadingLists, setLoadingLists] = useState(true);
   const [actionError, setActionError] = useState('');
   const [actionSuccess, setActionSuccess] = useState('');
+  const [challengingId, setChallengingId] = useState(null);
 
-  // Challenge Friend Handler
   const handleChallengeFriend = async (friend) => {
     if (!user?.id) return;
     setActionError('');
+    setChallengingId(friend.friendshipId);
     try {
       const newMatch = await challengeFriend({
         challengerId: user.id,
@@ -35,24 +38,24 @@ export default function Friends() {
     } catch (err) {
       console.error('Challenge error:', err);
       setActionError(err.message || 'Failed to send battle challenge.');
+    } finally {
+      setChallengingId(null);
     }
   };
 
-
-  // Local storage mock key for non-configured preview mode
-  const MOCK_STORAGE_KEY = 'pokedex_mock_friendships';
-
   const loadData = useCallback(async () => {
-    if (!user) return;
+    if (!user) {
+      setLoadingLists(false);
+      return;
+    }
     setLoadingLists(true);
     setActionError('');
 
     if (!isConfigured) {
-      // Mock storage for preview mode
       const raw = localStorage.getItem(MOCK_STORAGE_KEY);
       const list = raw ? JSON.parse(raw) : [
         { id: 'mock-1', user_id: 'mock-user-2', friend_id: user.id, status: 'pending', sender_username: 'misty_water' },
-        { id: 'mock-2', user_id: user.id, friend_id: 'mock-user-3', status: 'accepted', friend_username: 'brock_rock' }
+        { id: 'mock-2', user_id: user.id, friend_id: 'mock-user-3', status: 'accepted', friend_username: 'brock_rock' },
       ];
       setAllMyFriendships(list);
 
@@ -78,7 +81,6 @@ export default function Friends() {
     }
 
     try {
-      // Fetch all friendship records where logged in user is sender or receiver
       const { data: friendships, error: fetchErr } = await supabase
         .from('friendships')
         .select('*')
@@ -88,7 +90,6 @@ export default function Friends() {
 
       setAllMyFriendships(friendships || []);
 
-      // 1. Pending incoming requests (friend_id === user.id)
       const incomingRows = (friendships || []).filter((f) => f.friend_id === user.id && f.status === 'pending');
       if (incomingRows.length > 0) {
         const senderIds = incomingRows.map((f) => f.user_id);
@@ -113,7 +114,6 @@ export default function Friends() {
         setPendingRequests([]);
       }
 
-      // 2. Accepted friends list
       const acceptedRows = (friendships || []).filter(
         (f) => (f.user_id === user.id || f.friend_id === user.id) && f.status === 'accepted'
       );
@@ -148,13 +148,12 @@ export default function Friends() {
     } finally {
       setLoadingLists(false);
     }
-  }, [user, isConfigured]);
+  }, [user, isConfigured, MOCK_STORAGE_KEY]);
 
   useEffect(() => {
     loadData();
   }, [loadData]);
 
-  // Search logic
   const handleSearch = async (e) => {
     e.preventDefault();
     const query = searchTerm.trim();
@@ -167,15 +166,12 @@ export default function Friends() {
     setSearchError('');
 
     if (!isConfigured) {
-      // Mock search for preview
       setTimeout(() => {
         if (query.toLowerCase() === profile?.username?.toLowerCase()) {
           setSearchResults([]);
-          setSearchError("You cannot add yourself as a friend.");
+          setSearchError('You cannot add yourself as a friend.');
         } else {
-          setSearchResults([
-            { user_id: 'mock-user-4', username: query },
-          ]);
+          setSearchResults([{ user_id: 'mock-user-4', username: query }]);
         }
         setIsSearching(false);
       }, 300);
@@ -206,7 +202,6 @@ export default function Friends() {
     }
   };
 
-  // Helper to determine relationship state with a target user
   const getRelationship = (targetUserId) => {
     const row = allMyFriendships.find(
       (f) => (f.user_id === user.id && f.friend_id === targetUserId) ||
@@ -218,7 +213,6 @@ export default function Friends() {
     return { type: 'pending_received', id: row.id };
   };
 
-  // Actions
   const sendFriendRequest = async (targetUser) => {
     setActionError('');
     setActionSuccess('');
@@ -234,7 +228,7 @@ export default function Friends() {
       const updated = [...allMyFriendships, mockRow];
       localStorage.setItem(MOCK_STORAGE_KEY, JSON.stringify(updated));
       setAllMyFriendships(updated);
-      setActionSuccess(`Friend request sent to @${targetUser.username}!`);
+      setActionSuccess(`Friend request sent to @${targetUser.username}.`);
       return;
     }
 
@@ -249,7 +243,7 @@ export default function Friends() {
 
       if (error) throw error;
 
-      setActionSuccess(`Friend request sent to @${targetUser.username}!`);
+      setActionSuccess(`Friend request sent to @${targetUser.username}.`);
       await loadData();
     } catch (err) {
       console.error('Failed to send request:', err);
@@ -264,7 +258,7 @@ export default function Friends() {
     if (!isConfigured) {
       const updated = allMyFriendships.map((f) => (f.id === friendshipId ? { ...f, status: 'accepted' } : f));
       localStorage.setItem(MOCK_STORAGE_KEY, JSON.stringify(updated));
-      setActionSuccess(`You are now friends with @${username}!`);
+      setActionSuccess(`You are now friends with @${username}.`);
       await loadData();
       return;
     }
@@ -277,7 +271,7 @@ export default function Friends() {
 
       if (error) throw error;
 
-      setActionSuccess(`You are now friends with @${username}!`);
+      setActionSuccess(`You are now friends with @${username}.`);
       await loadData();
     } catch (err) {
       console.error('Accept error:', err);
@@ -329,264 +323,139 @@ export default function Friends() {
     }
   };
 
+  const onlineCount = friendsList.filter((friend) => Boolean(onlineUserIds && onlineUserIds[friend.userId])).length;
+
   return (
-    <div className="page-container">
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
-        <UsersFriendsIcon size={32} />
-        <h1 style={{ color: '#f8fafc', margin: 0 }}>Trainer Friends</h1>
-      </div>
+    <div className="page-container home-page batch-page friends-page">
+      <section className="ui-page-hero">
+        <div className="ui-page-hero-copy">
+          <span className="home-eyebrow"><UsersFriendsIcon size={18} /> Trainer Network</span>
+          <h1>Build your battle circle.</h1>
+          <p>
+            Find trainers, accept requests, see who is online, and challenge friends to a live 6v6 match.
+          </p>
+          <div className="home-hero-meta">
+            <span><span className="home-status-dot" /> {onlineCount} online now</span>
+            <span>{friendsList.length} friends</span>
+            <span>{pendingRequests.length} pending</span>
+          </div>
+        </div>
+        <div className="ui-hero-stat-card">
+          <span className="ui-stat-eyebrow">Your network</span>
+          <strong>{friendsList.length}</strong>
+          <p className="ui-stat-meta">{onlineCount} friend{onlineCount === 1 ? '' : 's'} online right now.</p>
+          {!isConfigured && <small>Preview mode uses local sample friends.</small>}
+        </div>
+      </section>
 
       {actionError && (
-        <div
-          style={{
-            marginBottom: '1rem',
-            padding: '0.75rem 1rem',
-            backgroundColor: '#450a0a',
-            border: '1px solid #b91c1c',
-            borderRadius: '0.5rem',
-            color: '#fca5a5',
-          }}
-        >
-          ⚠️ {actionError}
+        <div className="ui-alert is-error" role="alert">
+          <span>{actionError}</span>
+          <button type="button" className="ui-text-btn" onClick={() => setActionError('')}>Dismiss</button>
         </div>
       )}
 
       {actionSuccess && (
-        <div
-          style={{
-            marginBottom: '1rem',
-            padding: '0.75rem 1rem',
-            backgroundColor: '#064e3b',
-            border: '1px solid #059669',
-            borderRadius: '0.5rem',
-            color: '#a7f3d0',
-          }}
-        >
-          ✓ {actionSuccess}
+        <div className="ui-alert is-success" role="status">
+          <span>{actionSuccess}</span>
+          <button type="button" className="ui-text-btn" onClick={() => setActionSuccess('')}>Dismiss</button>
         </div>
       )}
 
-      {/* 1. Search Bar Section */}
-      <div className="card" style={{ marginBottom: '2rem' }}>
-        <h2 style={{ fontSize: '1.25rem', margin: '0 0 1rem 0', color: '#f8fafc' }}>
-          Find Trainers
-        </h2>
-        <form onSubmit={handleSearch} style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem' }}>
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search by username..."
-            style={{
-              flex: 1,
-              padding: '0.625rem 0.875rem',
-              borderRadius: '0.375rem',
-              border: '1px solid #475569',
-              backgroundColor: '#0f172a',
-              color: '#f8fafc',
-              fontSize: '0.95rem',
-              outline: 'none',
-            }}
-          />
-          <button
-            type="submit"
-            disabled={isSearching}
-            style={{
-              padding: '0.625rem 1.25rem',
-              borderRadius: '0.375rem',
-              border: 'none',
-              backgroundColor: '#0284c7',
-              color: '#ffffff',
-              fontWeight: 700,
-              cursor: 'pointer',
-            }}
-          >
-            {isSearching ? 'Searching...' : 'Search'}
+      <section className="ui-panel friends-search-panel" aria-labelledby="find-trainers-title">
+        <div className="ui-section-head">
+          <div>
+            <span className="home-eyebrow">Search</span>
+            <h2 id="find-trainers-title">Find trainers</h2>
+            <p>Search by username to send a friend request.</p>
+          </div>
+        </div>
+
+        <form className="friends-search-form" onSubmit={handleSearch}>
+          <label className="ui-field ui-search-field">
+            <span className="ui-field-label">Trainer username</span>
+            <input
+              type="search"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search by username..."
+              className="search-input"
+            />
+          </label>
+          <button type="submit" className="ui-btn primary" disabled={isSearching}>
+            {isSearching ? 'Searching...' : 'Search trainers'}
           </button>
         </form>
 
-        {searchError && <p style={{ color: '#94a3b8', fontSize: '0.9rem', margin: '0.5rem 0 0 0' }}>{searchError}</p>}
+        {searchError && <p className="friends-search-error">{searchError}</p>}
 
         {searchResults.length > 0 && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '1rem' }}>
+          <div className="friends-result-list">
             {searchResults.map((resUser) => {
               const rel = getRelationship(resUser.user_id);
               return (
-                <div
-                  key={resUser.user_id}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: '0.75rem 1rem',
-                    backgroundColor: '#0f172a',
-                    border: '1px solid #334155',
-                    borderRadius: '0.5rem',
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                    <div
-                      style={{
-                        width: '36px',
-                        height: '36px',
-                        borderRadius: '50%',
-                        backgroundColor: '#0284c7',
-                        color: '#fff',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontWeight: 700,
-                      }}
-                    >
-                      {resUser.username.charAt(0).toUpperCase()}
+                <div key={resUser.user_id} className="friends-result-row">
+                  <div className="friends-person">
+                    <span className="friends-avatar">{resUser.username.charAt(0).toUpperCase()}</span>
+                    <div>
+                      <strong>@{resUser.username}</strong>
+                      <span>Trainer</span>
                     </div>
-                    <span style={{ fontWeight: 600, color: '#f8fafc', fontSize: '1rem' }}>
-                      @{resUser.username}
-                    </span>
                   </div>
 
-                  <div>
+                  <div className="friends-row-actions">
                     {rel.type === 'none' && (
-                      <button
-                        onClick={() => sendFriendRequest(resUser)}
-                        style={{
-                          padding: '0.4rem 0.85rem',
-                          borderRadius: '0.375rem',
-                          border: 'none',
-                          backgroundColor: '#16a34a',
-                          color: '#fff',
-                          fontWeight: 600,
-                          fontSize: '0.85rem',
-                          cursor: 'pointer',
-                        }}
-                      >
-                        + Add Friend
+                      <button type="button" className="ui-btn primary is-small" onClick={() => sendFriendRequest(resUser)}>
+                        Add friend
                       </button>
                     )}
-                    {rel.type === 'pending_sent' && (
-                      <span
-                        style={{
-                          padding: '0.4rem 0.85rem',
-                          borderRadius: '0.375rem',
-                          backgroundColor: '#1e293b',
-                          color: '#94a3b8',
-                          fontSize: '0.85rem',
-                          fontWeight: 600,
-                          border: '1px solid #334155',
-                        }}
-                      >
-                        Request Sent
-                      </span>
-                    )}
-                    {rel.type === 'pending_received' && (
-                      <span
-                        style={{
-                          padding: '0.4rem 0.85rem',
-                          borderRadius: '0.375rem',
-                          backgroundColor: '#0284c7',
-                          color: '#fff',
-                          fontSize: '0.85rem',
-                          fontWeight: 600,
-                        }}
-                      >
-                        Pending Request
-                      </span>
-                    )}
-                    {rel.type === 'accepted' && (
-                      <span
-                        style={{
-                          padding: '0.4rem 0.85rem',
-                          borderRadius: '0.375rem',
-                          backgroundColor: '#065f46',
-                          color: '#a7f3d0',
-                          fontSize: '0.85rem',
-                          fontWeight: 600,
-                        }}
-                      >
-                        Friends ✓
-                      </span>
-                    )}
+                    {rel.type === 'pending_sent' && <span className="ui-badge">Request sent</span>}
+                    {rel.type === 'pending_received' && <span className="ui-badge is-blue">Pending request</span>}
+                    {rel.type === 'accepted' && <span className="ui-badge is-success">Friends</span>}
                   </div>
                 </div>
               );
             })}
           </div>
         )}
-      </div>
+      </section>
 
-      {/* 2. Pending Requests Section */}
-      <div className="card" style={{ marginBottom: '2rem' }}>
-        <h2 style={{ fontSize: '1.25rem', margin: '0 0 1rem 0', color: '#f8fafc' }}>
-          Pending Requests ({pendingRequests.length})
-        </h2>
+      <section className="ui-panel friends-requests-panel" aria-labelledby="friend-requests-title">
+        <div className="ui-section-head">
+          <div>
+            <span className="home-eyebrow">Inbox</span>
+            <h2 id="friend-requests-title">Pending requests</h2>
+          </div>
+          <span className="ui-badge">{pendingRequests.length} waiting</span>
+        </div>
 
         {loadingLists ? (
-          <p style={{ color: '#94a3b8' }}>Loading requests...</p>
+          <div className="ui-state is-compact" role="status">
+            <span className="ui-spinner" aria-hidden="true" />
+            <p>Loading requests...</p>
+          </div>
         ) : pendingRequests.length === 0 ? (
-          <p style={{ color: '#64748b', fontSize: '0.95rem' }}>No incoming friend requests.</p>
+          <div className="ui-state is-compact">
+            <UsersFriendsIcon size={30} />
+            <h3>No incoming requests</h3>
+            <p>When someone adds you, their request appears here.</p>
+          </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          <div className="friends-result-list">
             {pendingRequests.map((req) => (
-              <div
-                key={req.friendshipId}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: '0.75rem 1rem',
-                  backgroundColor: '#0f172a',
-                  border: '1px solid #334155',
-                  borderRadius: '0.5rem',
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  <div
-                    style={{
-                      width: '36px',
-                      height: '36px',
-                      borderRadius: '50%',
-                      backgroundColor: '#3b82f6',
-                      color: '#fff',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontWeight: 700,
-                    }}
-                  >
-                    {req.username.charAt(0).toUpperCase()}
+              <div key={req.friendshipId} className="friends-result-row">
+                <div className="friends-person">
+                  <span className="friends-avatar is-pending">{req.username.charAt(0).toUpperCase()}</span>
+                  <div>
+                    <strong>@{req.username}</strong>
+                    <span>Wants to be friends</span>
                   </div>
-                  <span style={{ fontWeight: 600, color: '#f8fafc' }}>@{req.username}</span>
                 </div>
-
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <button
-                    onClick={() => acceptRequest(req.friendshipId, req.username)}
-                    style={{
-                      padding: '0.4rem 0.85rem',
-                      borderRadius: '0.375rem',
-                      border: 'none',
-                      backgroundColor: '#16a34a',
-                      color: '#fff',
-                      fontWeight: 600,
-                      fontSize: '0.85rem',
-                      cursor: 'pointer',
-                    }}
-                  >
+                <div className="friends-row-actions">
+                  <button type="button" className="ui-btn primary is-small" onClick={() => acceptRequest(req.friendshipId, req.username)}>
                     Accept
                   </button>
-                  <button
-                    onClick={() => declineRequest(req.friendshipId)}
-                    style={{
-                      padding: '0.4rem 0.85rem',
-                      borderRadius: '0.375rem',
-                      border: 'none',
-                      backgroundColor: '#dc2626',
-                      color: '#fff',
-                      fontWeight: 600,
-                      fontSize: '0.85rem',
-                      cursor: 'pointer',
-                    }}
-                  >
+                  <button type="button" className="ui-btn is-small" onClick={() => declineRequest(req.friendshipId)}>
                     Decline
                   </button>
                 </div>
@@ -594,133 +463,75 @@ export default function Friends() {
             ))}
           </div>
         )}
-      </div>
+      </section>
 
-      {/* 3. Friends List Section */}
-      <div className="card">
-        <h2 style={{ fontSize: '1.25rem', margin: '0 0 1rem 0', color: '#f8fafc' }}>
-          Your Friends ({friendsList.length})
-        </h2>
+      <section className="ui-panel friends-list-panel" aria-labelledby="friends-list-title">
+        <div className="ui-section-head">
+          <div>
+            <span className="home-eyebrow">Roster</span>
+            <h2 id="friends-list-title">Your friends</h2>
+          </div>
+          <span className="ui-badge is-success">{onlineCount} online</span>
+        </div>
 
         {loadingLists ? (
-          <p style={{ color: '#94a3b8' }}>Loading friends...</p>
+          <div className="ui-state is-compact" role="status">
+            <span className="ui-spinner" aria-hidden="true" />
+            <p>Loading friends...</p>
+          </div>
         ) : friendsList.length === 0 ? (
-          <p style={{ color: '#64748b', fontSize: '0.95rem' }}>You have no added friends yet. Use the search bar above to find trainers!</p>
+          <div className="ui-state is-compact">
+            <UsersFriendsIcon size={30} />
+            <h3>No friends added yet</h3>
+            <p>Use the search above to find trainers and send your first request.</p>
+          </div>
         ) : (
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
-              gap: '1rem',
-            }}
-          >
+          <div className="friends-grid">
             {friendsList.map((friend) => {
               const isOnline = Boolean(onlineUserIds && onlineUserIds[friend.userId]);
               return (
-                <div
-                  key={friend.friendshipId}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: '0.875rem 1rem',
-                    backgroundColor: '#0f172a',
-                    border: '1px solid #334155',
-                    borderRadius: '0.5rem',
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                    <div style={{ position: 'relative' }}>
-                      <div
-                        style={{
-                          width: '40px',
-                          height: '40px',
-                          borderRadius: '50%',
-                          backgroundColor: '#0284c7',
-                          color: '#fff',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontWeight: 700,
-                          border: '2px solid #38bdf8',
-                        }}
-                      >
-                        {friend.username.charAt(0).toUpperCase()}
-                      </div>
-                      <span
-                        style={{
-                          position: 'absolute',
-                          bottom: 0,
-                          right: 0,
-                          width: '10px',
-                          height: '10px',
-                          borderRadius: '50%',
-                          backgroundColor: isOnline ? '#22c55e' : '#64748b',
-                          border: '2px solid #0f172a',
-                          boxShadow: isOnline ? '0 0 8px #22c55e' : 'none',
-                        }}
-                      />
-                    </div>
+                <article key={friend.friendshipId} className="friends-card">
+                  <div className="friends-person">
+                    <span className={`friends-avatar ${isOnline ? 'is-online' : ''}`}>
+                      {friend.username.charAt(0).toUpperCase()}
+                      <span className={`friends-presence ${isOnline ? 'is-online' : ''}`} aria-hidden="true" />
+                    </span>
                     <div>
-                      <div style={{ fontWeight: 700, color: '#f8fafc', fontSize: '0.95rem' }}>
-                        @{friend.username}
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginTop: '0.1rem' }}>
-                        <span style={{ fontSize: '0.75rem', color: isOnline ? '#4ade80' : '#94a3b8', fontWeight: 600 }}>
-                          {isOnline ? 'Online' : 'Offline'}
-                        </span>
-                      </div>
+                      <strong>@{friend.username}</strong>
+                      <span className={isOnline ? 'is-online-text' : ''}>{isOnline ? 'Online now' : 'Offline'}</span>
                     </div>
                   </div>
 
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <div className="friends-card-actions">
                     <button
+                      type="button"
+                      className="ui-btn danger is-small"
                       onClick={() => handleChallengeFriend(friend)}
-                      title="Challenge to 6v6 Battle"
-                      style={{
-                        padding: '0.35rem 0.65rem',
-                        borderRadius: '0.375rem',
-                        border: 'none',
-                        backgroundColor: '#dc2626',
-                        color: '#ffffff',
-                        fontSize: '0.8rem',
-                        fontWeight: 700,
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.25rem',
-                        boxShadow: '0 0 10px rgba(220, 38, 38, 0.4)',
-                        transition: 'transform 0.15s ease',
-                      }}
+                      disabled={challengingId === friend.friendshipId}
                     >
-                      ⚔️ Challenge
+                      <SwordsIcon size={16} />
+                      {challengingId === friend.friendshipId ? 'Starting...' : 'Challenge'}
                     </button>
                     <button
+                      type="button"
+                      className="ui-btn ghost is-small"
                       onClick={() => removeFriend(friend.friendshipId, friend.username)}
-                      title="Remove friend"
-                      style={{
-                        background: 'none',
-                        border: 'none',
-                        color: '#64748b',
-                        cursor: 'pointer',
-                        fontSize: '1.1rem',
-                        padding: '0.2rem 0.4rem',
-                        borderRadius: '0.25rem',
-                      }}
-                      onMouseEnter={(e) => (e.target.style.color = '#ef4444')}
-                      onMouseLeave={(e) => (e.target.style.color = '#64748b')}
                     >
-                      ✕
+                      Remove
                     </button>
                   </div>
-                </div>
+                </article>
               );
             })}
-
-
           </div>
         )}
-      </div>
+
+        {!isConfigured && (
+          <p className="friends-preview-note">
+            <SparkleStarIcon size={16} /> Preview mode: friend requests and online status use local sample data.
+          </p>
+        )}
+      </section>
     </div>
   );
 }

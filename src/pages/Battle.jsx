@@ -30,7 +30,7 @@ import BenchRow from '../components/BenchRow';
 import BattleLog from '../components/BattleLog';
 import CardPullReveal from '../components/CardPullReveal';
 import { createMatch } from '../store/matches';
-import { SparkleStarIcon } from '../components/icons/GameIcons';
+import { SparkleStarIcon, SwordsIcon, GamepadIcon } from '../components/icons/GameIcons';
 import PokemonImage from '../components/PokemonImage';
 import BattleSummary from '../components/BattleSummary';
 import { buildUnlockPool } from '../game/cardLevels.js';
@@ -1006,30 +1006,26 @@ export default function Battle() {
   };
 
   return (
-    <div className="page-container">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
-        <div>
-          <h1 style={{ margin: 0, fontSize: '1.5rem', color: '#f8fafc' }}>CPU Battle Arena (Solo)</h1>
-          <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>Practice vs AI Trainers</span>
+    <div className="page-container home-page batch-page battle-page">
+      <section className="ui-page-hero is-compact battle-page-hero">
+        <div className="ui-page-hero-copy">
+          <span className="home-eyebrow"><SwordsIcon size={18} /> CPU Battle Arena</span>
+          <h1>Solo training arena.</h1>
+          <p>Test your team against AI trainers. Every win can earn a card for your collection.</p>
+          <div className="home-hero-meta">
+            <span><span className="home-status-dot" /> Solo practice</span>
+            <span>6v6 battles</span>
+            <span>Card rewards enabled</span>
+          </div>
         </div>
-        <button
-          onClick={() => navigate('/game-modes')}
-          style={{
-            padding: '0.5rem 1rem',
-            backgroundColor: '#0284c7',
-            color: '#ffffff',
-            border: 'none',
-            borderRadius: '0.375rem',
-            cursor: 'pointer',
-            fontSize: '0.875rem',
-            fontWeight: 700,
-          }}
-        >
-          🎮 Multiplayer Game Modes
-        </button>
-      </div>
-
-
+        <div className="ui-hero-stat-card">
+          <span className="ui-stat-eyebrow">Need a rival?</span>
+          <p className="ui-stat-meta">Create a shareable lobby or challenge a trainer directly.</p>
+          <button type="button" className="ui-btn primary" onClick={() => navigate('/game-modes')}>
+            <GamepadIcon size={18} /> Multiplayer modes
+          </button>
+        </div>
+      </section>
 
       <div className={`battle-container ${superShake ? 'super-shake' : ''} ${ohkoFlash ? 'ohko-shake' : ''}`}>
         {/* OHKO Dramatic Flash Screen Overlay */}

@@ -144,7 +144,7 @@ export default function DraftSummary({ players, title = '🏁 Game Complete', in
               </div>
 
               {player.won.length === 0 ? (
-                <div style={{ color: '#64748b', fontStyle: 'italic', fontSize: '0.85rem', marginBottom: '0.75rem' }}>
+                <div style={{ color: '#94a3b8', fontStyle: 'italic', fontSize: '0.85rem', marginBottom: '0.75rem' }}>
                   Won nothing this session.
                 </div>
               ) : (
@@ -171,7 +171,7 @@ export default function DraftSummary({ players, title = '🏁 Game Complete', in
                 POKEMON WON ({player.won.length}/{MAX_TEAM_SIZE})
               </div>
               {player.won.length === 0 ? (
-                <div style={{ color: '#64748b', fontStyle: 'italic', fontSize: '0.85rem' }}>Won nothing this session.</div>
+                <div style={{ color: '#94a3b8', fontStyle: 'italic', fontSize: '0.85rem' }}>Won nothing this session.</div>
               ) : (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '0.5rem' }}>
                   {player.won.map((entry, i) => {
@@ -208,7 +208,7 @@ export default function DraftSummary({ players, title = '🏁 Game Complete', in
                             <div style={{ marginTop: '0.15rem', fontSize: '0.6rem', fontWeight: 700, color: '#94a3b8' }}>
                               <span style={{ color: ATTR_COLORS[entry.hint.attributeId] || '#38bdf8', textTransform: 'uppercase' }}>{attr.label}:</span>{' '}
                               {getAttributeValue(entry, entry.hint.attributeId)}
-                              {revealer && <span style={{ color: '#64748b' }}> · {revealer.name}</span>}
+                              {revealer && <span style={{ color: '#94a3b8' }}> · {revealer.name}</span>}
                             </div>
                           );
                         })()}
@@ -236,7 +236,7 @@ export default function DraftSummary({ players, title = '🏁 Game Complete', in
                   </div>
                   <div style={{ display: 'flex', gap: '0.3rem', flexWrap: 'wrap' }}>
                     {score.types.length === 0 ? (
-                      <span style={{ color: '#64748b', fontStyle: 'italic', fontSize: '0.8rem' }}>None</span>
+                      <span style={{ color: '#94a3b8', fontStyle: 'italic', fontSize: '0.8rem' }}>None</span>
                     ) : (
                       score.types.map((t) => (
                         <span
@@ -367,7 +367,7 @@ function ScoreChip({ label, value, detail, color, prefix = '+' }) {
         {label}
       </span>
       <span style={{ color: '#f8fafc', fontWeight: 900, fontSize: '0.95rem' }}>{prefix}{value}</span>
-      {detail && <span style={{ color: '#64748b', fontSize: '0.62rem', fontWeight: 700 }}>{detail}</span>}
+      {detail && <span style={{ color: '#94a3b8', fontSize: '0.62rem', fontWeight: 700 }}>{detail}</span>}
     </span>
   );
 }

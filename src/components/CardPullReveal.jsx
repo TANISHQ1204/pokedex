@@ -1,15 +1,37 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import PowerCard from './PowerCard';
 import AncientCard from './AncientCard';
 import PokemonDetailModal from './PokemonDetailModal';
+import StarMeter from './StarMeter';
 import { glowBaseFor } from '../utils/glow';
 import { spriteCdnUrl } from '../utils/sprites';
-import { MAX_STAR_LEVEL, starTierInfo, starTierColor } from '../game/cardLevels.js';
+import { MAX_STAR_LEVEL, starTierClass } from '../game/cardLevels.js';
+import { SparkleStarIcon } from './icons/GameIcons';
+import useDialogFocus from '../hooks/useDialogFocus';
 
-export default function CardPullReveal({ awardedDrop, onContinue, onPlayAgain }) {
+function formatTitle(str) {
+  if (!str) return '';
+  return str
+    .split('-')
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ');
+}
+
+export default function CardPullReveal({
+  awardedDrop,
+  onContinue,
+  onPlayAgain,
+  continueLabel = 'Continue to Home',
+  playAgainLabel = 'Battle Again',
+  showPlayAgain = true,
+}) {
   const [stage, setStage] = useState('anticipating');
   const [showFlash, setShowFlash] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
+  const revealRef = useRef(null);
+  const continueRef = useRef(null);
+
+  useDialogFocus(revealRef);
 
   const dropType = awardedDrop?.dropType || 'normal';
   const pokemon = awardedDrop?.pokemon;
@@ -17,7 +39,6 @@ export default function CardPullReveal({ awardedDrop, onContinue, onPlayAgain })
   const isNew = Boolean(awardedDrop?.isNew);
   const becameShiny = Boolean(awardedDrop?.becameShiny);
   const starUpgraded = Boolean(awardedDrop?.starUpgraded);
-  const alreadyOwned = Boolean(awardedDrop?.alreadyOwned);
 
   const isPowerCard = dropType === 'power';
   const isAncientCard = dropType === 'ancient';
@@ -48,14 +69,18 @@ export default function CardPullReveal({ awardedDrop, onContinue, onPlayAgain })
     }
 
     const timer1 = setTimeout(() => setStage('flipping'), 1200);
-    const timer2 = setTimeout(() => { setStage('revealed'); setShowFlash(true); }, 1900);
+    const timer2 = setTimeout(() => {
+      setStage('revealed');
+      setShowFlash(true);
+    }, 1900);
 
     let starTimer;
     if (starUpgraded && !becameShiny && !isSpecial) {
       starTimer = setTimeout(() => setIsStarBursting(true), 2200);
     }
 
-    let shinyTimer1, shinyTimer2;
+    let shinyTimer1;
+    let shinyTimer2;
     if (becameShiny && !isSpecial) {
       shinyTimer1 = setTimeout(() => setIsShinyTransforming(true), 2500);
       shinyTimer2 = setTimeout(() => {
@@ -77,6 +102,16 @@ export default function CardPullReveal({ awardedDrop, onContinue, onPlayAgain })
     };
   }, [pokemon, becameShiny, starUpgraded, entry.is_shiny, isSpecial]);
 
+  useEffect(() => {
+    if (stage !== 'revealed' || showInfo) return undefined;
+    const frame = requestAnimationFrame(() => {
+      if (!revealRef.current?.contains(document.activeElement) || document.activeElement === document.body) {
+        continueRef.current?.focus({ preventScroll: true });
+      }
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [stage, showInfo]);
+
   if (!pokemon) return null;
 
   let flashClass = 'flash-dupe';
@@ -86,241 +121,223 @@ export default function CardPullReveal({ awardedDrop, onContinue, onPlayAgain })
     flashClass = 'flash-new';
   }
 
-  const handleOverlayClick = (e) => {
-    if (e.target.closest('button')) return;
-    if (stage !== 'revealed') {
-      setStage('revealed');
-      setShowFlash(false);
-      if (becameShiny || entry.is_shiny) {
-        setDisplayedSprite(pokemon.sprites.shiny);
-        setIsShinyUnlocked(true);
-        setIsShinyTransforming(false);
-      }
+  const skipToRevealed = () => {
+    setStage('revealed');
+    setShowFlash(false);
+    if (becameShiny || entry.is_shiny) {
+      setDisplayedSprite(pokemon.sprites.shiny);
+      setIsShinyUnlocked(true);
+      setIsShinyTransforming(false);
     }
   };
 
-  // Badge text
+  const handleOverlayClick = (event) => {
+    if (event.target.closest('button')) return;
+    if (stage !== 'revealed') skipToRevealed();
+  };
+
   let badgeText = '';
-  let badgeStyle = {};
+  let badgeVariant = '';
   if (isPowerCard) {
-    badgeText = '⚡ ULTRA RARE POWER CARD UNLOCKED! ⚡';
-    badgeStyle = { background: 'linear-gradient(90deg, #ec4899, #8b5cf6, #ffd700)', color: '#ffffff' };
+    badgeText = 'Ultra rare Power card unlocked';
+    badgeVariant = 'is-power';
   } else if (isAncientCard) {
-    badgeText = '🏛️ ANCIENT RELIC CARD UNLOCKED! 🏛️';
-    badgeStyle = { background: 'linear-gradient(90deg, #b89a6c, #8a6a3c, #c9a84c)', color: '#1a1612' };
+    badgeText = 'Ancient relic card unlocked';
+    badgeVariant = 'is-ancient';
   } else if (becameShiny || isShinyUnlocked) {
-    badgeText = '✨ MAXED — SHINY UNLOCKED! ✨';
+    badgeText = 'Maxed - shiny unlocked';
+    badgeVariant = 'is-shiny';
   } else if (isNew) {
-    badgeText = '🌟 NEW CARD COLLECTED!';
+    badgeText = 'New card collected';
+    badgeVariant = 'is-new';
   } else if (starUpgraded) {
-    badgeText = `⭐ STAR LEVEL UPGRADED! (Star ${starLevel})`;
+    badgeText = `Star level upgraded to ${starLevel}`;
+    badgeVariant = 'is-star';
   }
 
-  // Title text
   let titleText = '';
   if (stage === 'anticipating') {
-    titleText = isPowerCard ? '⚡ POWER CARD INCOMING!' : isAncientCard ? '🏛️ ANCIENT CARD INCOMING!' : '⚡ CARD PULL UNLOCKED!';
+    titleText = isPowerCard ? 'Power card incoming' : isAncientCard ? 'Ancient card incoming' : 'Card pull unlocked';
   } else if (isPowerCard) {
-    titleText = '⚡ POWER CARD UNLOCKED! ⚡';
+    titleText = 'Power card unlocked';
   } else if (isAncientCard) {
-    titleText = '🏛️ ANCIENT CARD UNLOCKED! 🏛️';
+    titleText = 'Ancient card unlocked';
   } else if (isShinyUnlocked || isShinyTransforming) {
-    titleText = '✨ SHINY CARD UNLOCKED! ✨';
+    titleText = 'Shiny card unlocked';
   } else if (starUpgraded) {
-    titleText = '⭐ STAR LEVEL UPGRADED!';
+    titleText = 'Star level upgraded';
   } else {
-    titleText = '🎉 CARD REVEALED!';
+    titleText = 'Card revealed';
   }
 
-  const titleColor = isPowerCard ? '#ffd700' : isAncientCard ? '#b89a6c' : '#f8fafc';
-  const titleShadow = isPowerCard
-    ? '0 0 30px rgba(255, 215, 0, 0.9)'
+  const titleVariant = isPowerCard
+    ? 'is-power'
     : isAncientCard
-    ? '0 0 30px rgba(184, 154, 108, 0.9)'
+    ? 'is-ancient'
     : isShinyUnlocked || isShinyTransforming
-    ? '0 0 25px rgba(250, 204, 21, 0.9)'
-    : '0 0 15px rgba(245, 158, 11, 0.5)';
+    ? 'is-shiny'
+    : 'is-standard';
+
+  const handleCardKeyDown = (event) => {
+    if (stage !== 'revealed') return;
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      setShowInfo(true);
+    }
+  };
 
   return (
     <div className="card-reveal-overlay" onClick={handleOverlayClick}>
-      <div className="card-reveal-inner">
-      {showFlash && <div className={`flash-burst ${flashClass}`} />}
-      {isShinyTransforming && <div className="shiny-transform-flash" />}
+      <div ref={revealRef} className="card-reveal-inner" role="dialog" aria-modal="true" aria-labelledby="card-reveal-title" tabIndex={-1}>
+        {showFlash && <div className={`flash-burst ${flashClass}`} aria-hidden="true" />}
+        {isShinyTransforming && <div className="shiny-transform-flash" aria-hidden="true" />}
 
-      {stage !== 'revealed' && (
-        <div style={{ color: '#94a3b8', fontSize: '0.8rem', marginBottom: '0.5rem', cursor: 'pointer' }}>
-          (Click anywhere to skip animation)
-        </div>
-      )}
+        {stage !== 'revealed' && (
+          <button type="button" className="card-reveal-skip" onClick={skipToRevealed}>
+            Skip animation
+          </button>
+        )}
 
-      <h2 style={{
-        color: titleColor,
-        fontSize: '1.75rem',
-        margin: '0 0 1.5rem 0',
-        textTransform: 'uppercase',
-        letterSpacing: '2px',
-        textShadow: titleShadow,
-        transition: 'all 0.3s ease',
-      }}>
-        {titleText}
-      </h2>
+        <h2 id="card-reveal-title" className={`card-reveal-title ${titleVariant}`} aria-live="polite">
+          {titleText}
+        </h2>
 
-      {/* RENDER SPECIAL CARDS (Power or Ancient) */}
-      {isSpecial ? (
-        <div style={{ margin: '10px 0 20px 0', transform: stage === 'anticipating' ? 'scale(0.85)' : 'scale(1)', transition: 'transform 0.4s' }}>
-          {isPowerCard ? (
-            <PowerCard pokemon={pokemon} enableTilt={stage === 'revealed'} onClick={() => { if (stage === 'revealed') setShowInfo(true); }} />
-          ) : (
-            <AncientCard pokemon={pokemon} enableTilt={stage === 'revealed'} onClick={() => { if (stage === 'revealed') setShowInfo(true); }} />
-          )}
-        </div>
-      ) : (
-        /* STANDARD 3D CARD CONTAINER (Normal cards) */
-        <div className="card-3d-wrapper" onClick={stage === 'revealed' ? () => setShowInfo(true) : undefined} style={stage === 'revealed' ? { cursor: 'pointer' } : undefined}>
-          <div className={`card-3d-body ${stage === 'anticipating' ? 'anticipating' : ''} ${
-            stage === 'revealed' || stage === 'flipping' ? 'flipped' : ''
-          }`}>
-            <div className="card-face card-back">
-              <div className="card-back-pattern">
-                <div style={{ fontSize: '3rem', margin: 0 }}>⚡</div>
-                <div style={{ color: '#fbbf24', fontSize: '0.8rem', fontWeight: 800, marginTop: '0.5rem' }}>POKÉDEX</div>
-              </div>
-            </div>
-
-            <div
-              className={`card-face card-front ${isShinyUnlocked ? 'is-shiny-card' : ''} ${
-                isStarBursting ? 'card-star-glow' : ''
-              }`}
-              data-glow
-              style={{ '--base': glowBaseFor(pokemon.types) }}
-            >
-              <span className="card-glow-overlay" data-glow aria-hidden="true" />
-              {isShinyUnlocked && <div className="shiny-sparkle-overlay" />}
-
-              <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center', marginBottom: '0.5rem' }}>
-                <span style={{ fontSize: '1.1rem', fontWeight: 800, color: '#f8fafc', textTransform: 'capitalize' }}>
-                  {pokemon.name}
-                </span>
-                <span>
-                  {pokemon.types.map((t) => (
-                    <span key={t} className={`pokemon-type-badge type-${t}`}>{t}</span>
-                  ))}
-                </span>
-              </div>
-
-              <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
-                <img
-                  src={spriteBroken ? spriteCdnUrl(pokemon.dexNo || pokemon.id, isShinyUnlocked) : displayedSprite}
-                  alt={pokemon.name}
-                  className={isShinyTransforming ? 'shiny-sprite-transform' : ''}
-                  onError={() => { if (!spriteBroken) setSpriteBroken(true); }}
-                  style={{
-                    width: '140px', height: '140px', objectFit: 'contain',
-                    filter: 'drop-shadow(0 10px 15px rgba(0, 0, 0, 0.5))',
-                    transition: 'all 0.4s ease-in-out',
-                  }}
-                />
-              </div>
-
-              <div style={{ marginTop: 'auto', textAlign: 'center', width: '100%' }}>
-                <div style={{ fontSize: '1.35rem', color: starTierColor(starLevel), letterSpacing: '2px', margin: '0.2rem 0' }}>
-                  {Array.from({ length: starLevel }).map((_, sIdx) => {
-                    const isNewestStar = isStarBursting && sIdx === starLevel - 1;
-                    return (
-                      <span key={sIdx} className={isNewestStar ? 'star-upgrade-burst' : ''} style={{ display: 'inline-block', margin: '0 1px' }}>
-                        ★
-                      </span>
-                    );
-                  })}
+        {isSpecial ? (
+          <div className={`card-reveal-special ${stage === 'anticipating' ? 'is-anticipating' : ''}`}>
+            {isPowerCard ? (
+              <PowerCard
+                pokemon={pokemon}
+                enableTilt={stage === 'revealed'}
+                onClick={stage === 'revealed' ? () => setShowInfo(true) : null}
+              />
+            ) : (
+              <AncientCard
+                pokemon={pokemon}
+                enableTilt={stage === 'revealed'}
+                onClick={stage === 'revealed' ? () => setShowInfo(true) : null}
+              />
+            )}
+          </div>
+        ) : (
+          <div
+            className={`card-3d-wrapper ${stage === 'revealed' ? 'is-openable' : ''}`}
+            onClick={stage === 'revealed' ? () => setShowInfo(true) : undefined}
+            onKeyDown={handleCardKeyDown}
+            role={stage === 'revealed' ? 'button' : undefined}
+            tabIndex={stage === 'revealed' ? 0 : undefined}
+            aria-label={stage === 'revealed' ? `Open details for ${formatTitle(pokemon.name)}` : undefined}
+          >
+            <div className={`card-3d-body ${stage === 'anticipating' ? 'anticipating' : ''} ${
+              stage === 'revealed' || stage === 'flipping' ? 'flipped' : ''
+            }`}>
+              <div className="card-face card-back">
+                <div className="card-back-pattern">
+                  <SparkleStarIcon size={48} />
+                  <span className="card-back-logo">POKEDEX</span>
                 </div>
-                <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
-                  ID #{String(pokemon.dexNo || pokemon.id).padStart(3, '0')}
-                  {(pokemon.kind === 'form' || Number(pokemon.id) >= 10001) && pokemon.label ? ` ◆ ${pokemon.label}` : ''}
+              </div>
+
+              <div
+                className={`card-face card-front ${isShinyUnlocked ? 'is-shiny-card' : ''} ${
+                  isStarBursting ? 'card-star-glow' : ''
+                } ${starTierClass(starLevel)}`}
+                data-glow
+                style={{ '--base': glowBaseFor(pokemon.types) }}
+              >
+                <span className="card-glow-overlay" data-glow aria-hidden="true" />
+                {isShinyUnlocked && <span className="shiny-sparkle-overlay" aria-hidden="true" />}
+
+                <div className="card-front-head">
+                  <span className="card-front-name">{formatTitle(pokemon.name)}</span>
+                  <span className="card-front-types">
+                    {pokemon.types.map((type) => (
+                      <span key={type} className={`pokemon-type-badge type-${type}`}>{type}</span>
+                    ))}
+                  </span>
+                </div>
+
+                <div className="card-front-art">
+                  <img
+                    src={spriteBroken ? spriteCdnUrl(pokemon.dexNo || pokemon.id, isShinyUnlocked) : displayedSprite}
+                    alt={formatTitle(pokemon.name)}
+                    className={isShinyTransforming ? 'card-front-sprite shiny-sprite-transform' : 'card-front-sprite'}
+                    onError={() => {
+                      if (!spriteBroken) setSpriteBroken(true);
+                    }}
+                  />
+                </div>
+
+                <div className="card-front-footer">
+                  <span className={`card-front-stars ${isStarBursting ? 'star-upgrade-burst' : ''}`}>
+                    <StarMeter starLevel={starLevel} size="lg" animated={isStarBursting} />
+                  </span>
+                  <span className="card-front-id">
+                    ID #{String(pokemon.dexNo || pokemon.id).padStart(3, '0')}
+                    {(pokemon.kind === 'form' || Number(pokemon.id) >= 10001) && pokemon.label ? ` - ${pokemon.label}` : ''}
+                  </span>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* METADATA & BADGES */}
-      <div style={{ minHeight: '100px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.75rem' }}>
-        {stage === 'revealed' && (
-          <>
-            {badgeText && (
-              <div className="card-badge-shiny" style={badgeStyle}>
-                {badgeText}
-              </div>
-            )}
-
-            {unlockedMove && !isSpecial && (
-              <div className={`move-unlock-chip type-${unlockedMove.type || 'normal'}`}>
-                <span style={{ fontSize: '0.7rem', letterSpacing: '1px', textTransform: 'uppercase', fontWeight: 700 }}>
-                  ✨ New Move Unlocked! ✨
-                </span>
-                <span style={{ fontSize: '1rem', fontWeight: 800, marginTop: '0.15rem' }}>
-                  {unlockedMove.name}
-                </span>
-                <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
-                  {unlockedMove.power > 0 ? `Power ${unlockedMove.power}` : unlockedMove.healPercent ? `Heals ${Math.round(unlockedMove.healPercent * 100)}% HP` : 'Status'} • {unlockedMove.type}
-                </span>
-              </div>
-            )}
-
-            <div style={{ fontSize: '0.75rem', color: '#64748b' }}>💡 Click the card to view full details</div>
-
-            <div style={{ color: '#cbd5e1', fontSize: '1rem', textAlign: 'center' }}>
-              <strong style={{ color: '#f8fafc', textTransform: 'capitalize' }}>{pokemon.name}</strong>
-              {!isSpecial && <> • {'★'.repeat(starLevel)} <span style={{ color: starTierColor(starLevel), fontSize: '0.8rem', fontWeight: 800 }}>{starTierInfo(starLevel).label} tier</span></>}
-              {!isSpecial && (
-                <div style={{ color: '#94a3b8', fontSize: '0.85rem', marginTop: '0.25rem' }}>
-                  Total Duplicates Collected: <strong>{dupesCount}</strong>
+        <div className="card-reveal-details">
+          {stage === 'revealed' && (
+            <>
+              {badgeText && (
+                <div className={`card-badge-shiny card-reveal-badge ${badgeVariant}`}>
+                  {badgeText}
                 </div>
               )}
-              {isPowerCard && (
-                <div style={{ color: '#ec4899', fontSize: '0.85rem', marginTop: '0.25rem' }}>Power Card • Single Copy</div>
-              )}
-              {isAncientCard && (
-                <div style={{ color: '#b89a6c', fontSize: '0.85rem', marginTop: '0.25rem' }}>Ancient Card • Single Copy</div>
-              )}
-            </div>
 
-            <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
-              <button
-                onClick={onContinue}
-                style={{
-                  padding: '0.875rem 1.5rem', fontSize: '1rem', fontWeight: 700, color: '#ffffff',
-                  backgroundColor: '#2563eb', border: 'none', borderRadius: '0.5rem', cursor: 'pointer',
-                  boxShadow: '0 4px 6px -1px rgba(37, 99, 235, 0.4)',
-                }}
-              >
-                Continue to Home
-              </button>
+              {unlockedMove && !isSpecial && (
+                <div className={`move-unlock-chip card-reveal-move type-${unlockedMove.type || 'normal'}`}>
+                  <span className="card-reveal-move-label">New move unlocked</span>
+                  <strong>{unlockedMove.name}</strong>
+                  <span>
+                    {unlockedMove.power > 0
+                      ? `Power ${unlockedMove.power}`
+                      : unlockedMove.healPercent
+                      ? `Heals ${Math.round(unlockedMove.healPercent * 100)}% HP`
+                      : 'Status'}{' '}
+                    - {unlockedMove.type}
+                  </span>
+                </div>
+              )}
 
-              <button
-                onClick={onPlayAgain}
-                style={{
-                  padding: '0.875rem 1.5rem', fontSize: '1rem', fontWeight: 700, color: '#f8fafc',
-                  backgroundColor: '#334155', border: '1px solid #475569', borderRadius: '0.5rem',
-                  cursor: 'pointer',
-                }}
-              >
-                Battle Again
-              </button>
-            </div>
-          </>
+              <p className="card-reveal-hint">Select the card to view its full battle details.</p>
+
+              <div className="card-reveal-meta">
+                <strong>{formatTitle(pokemon.name)}</strong>
+                {!isSpecial && (
+                  <span>Total duplicates collected: <strong>{dupesCount}</strong></span>
+                )}
+                {isPowerCard && <span className="is-power">Power card - single copy collectible</span>}
+                {isAncientCard && <span className="is-ancient">Ancient card - single copy collectible</span>}
+              </div>
+
+              <div className="card-reveal-actions">
+                <button ref={continueRef} type="button" className="ui-btn primary" onClick={onContinue}>
+                  {continueLabel}
+                </button>
+                {showPlayAgain && (
+                  <button type="button" className="ui-btn" onClick={onPlayAgain}>
+                    {playAgainLabel}
+                  </button>
+                )}
+              </div>
+            </>
+          )}
+        </div>
+
+        {showInfo && (
+          <PokemonDetailModal
+            pokemon={pokemon}
+            entry={awardedDrop?.entry || null}
+            cardType={dropType}
+            onClose={() => setShowInfo(false)}
+          />
         )}
-      </div>
-
-      {/* CARD DETAIL MODAL (click the revealed card to open) */}
-      {showInfo && (
-        <PokemonDetailModal
-          pokemon={pokemon}
-          entry={awardedDrop?.entry || null}
-          cardType={dropType}
-          onClose={() => setShowInfo(false)}
-        />
-      )}
       </div>
     </div>
   );

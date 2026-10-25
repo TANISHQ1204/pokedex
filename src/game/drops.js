@@ -39,8 +39,34 @@ function rollNormalCard(userCollection, list) {
   return eligible[Math.floor(Math.random() * eligible.length)];
 }
 
+export function rollArcadeCards(userCollection = [], customList = null, count = 1) {
+  const list = customList && Array.isArray(customList) && customList.length > 0 ? customList : defaultPokemonList;
+  const safeCount = Math.max(1, Math.min(3, Math.floor(Number(count) || 1)));
+  const maxedIds = new Set(
+    userCollection
+      .filter((r) => r && !r.is_power_card && !r.isPowerCard && !r.is_ancient_card && !r.isAncientCard && r.star_level >= MAX_STAR_LEVEL)
+      .map((r) => Number(r.pokemon_id))
+  );
+
+  const picked = [];
+  const pickedIds = new Set();
+  const draw = (pool) => {
+    const available = pool.filter((pokemon) => !pickedIds.has(Number(pokemon.id)));
+    while (picked.length < safeCount && available.length > 0) {
+      const index = Math.floor(Math.random() * available.length);
+      const [pokemon] = available.splice(index, 1);
+      picked.push(pokemon);
+      pickedIds.add(Number(pokemon.id));
+    }
+  };
+
+  draw(list.filter((pokemon) => !maxedIds.has(Number(pokemon.id))));
+  if (picked.length < safeCount) draw(list);
+  return picked;
+}
+
 /**
- * Preview/test mode drop — returns a normal card for preview UI.
+ * Preview/test mode drop - returns a normal card for preview UI.
  * Same shape as rollBattleDrop.
  */
 export function rollPreviewDrop(customList = null) {

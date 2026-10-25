@@ -215,7 +215,7 @@ function PlayerPanel({ player, highlight, subtitle, blind }) {
             </span>
           ))}
           {player.won.length === 0 && (
-            <span style={{ fontSize: '0.75rem', color: '#475569', fontStyle: 'italic' }}>No Pokemon won yet</span>
+            <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontStyle: 'italic' }}>No Pokemon won yet</span>
           )}
         </div>
       </div>
@@ -411,7 +411,7 @@ function SetupScreen({ initial, onStart }) {
         </label>
         <label style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
           <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#94a3b8' }}>
-            Starting Budget <span style={{ color: '#475569' }}>(shared by both)</span>
+            Starting Budget <span style={{ color: '#94a3b8' }}>(shared by both)</span>
           </span>
           <input
             type="number"
@@ -428,7 +428,7 @@ function SetupScreen({ initial, onStart }) {
 
       <div style={{ marginBottom: '1.25rem' }}>
         <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#94a3b8', marginBottom: '0.5rem' }}>
-          Generations to Include <span style={{ color: '#475569' }}>(toggle each; only Pokemon from the selected generations appear — legendaries included normally, ~15% shiny)</span>
+          Generations to Include <span style={{ color: '#94a3b8' }}>(toggle each; only Pokemon from the selected generations appear — legendaries included normally, ~15% shiny)</span>
         </div>
         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
           <button
@@ -468,7 +468,7 @@ function SetupScreen({ initial, onStart }) {
             );
           })}
         </div>
-        <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 700, marginTop: '0.4rem' }}>
+        <div style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 700, marginTop: '0.4rem' }}>
           {isAllGens
             ? 'Every generation included (Gen 1–9).'
             : `Selected: Generation${selectedGens.length > 1 ? 's' : ''} ${selectedGens.join(', ')}.`}
@@ -1071,7 +1071,7 @@ function PlayingView({ session, setSession, onExit }) {
 function RevealedList({ state }) {
   if (state.revealed.length === 0) {
     return (
-      <div style={{ fontSize: '0.85rem', color: '#64748b', fontStyle: 'italic' }}>
+      <div style={{ fontSize: '0.85rem', color: '#94a3b8', fontStyle: 'italic' }}>
         Nothing revealed for this Pokemon yet.
       </div>
     );
@@ -1104,7 +1104,7 @@ function RevealedList({ state }) {
                 {attr.label}:
               </span>
               <span style={{ color: '#f8fafc', fontWeight: 800 }}>{getAttributeValue(entry, r.attributeId)}</span>
-              <span style={{ color: '#64748b', fontSize: '0.72rem' }}>(by {player.name})</span>
+              <span style={{ color: '#94a3b8', fontSize: '0.72rem' }}>(by {player.name})</span>
             </span>
           );
         })}

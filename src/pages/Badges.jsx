@@ -1,11 +1,14 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { getUserCollection } from '../store/collection';
+import useDialogFocus from '../hooks/useDialogFocus';
 import { getBadgeStatus } from '../game/badges';
 import badgesList from '../data/badges.json' with { type: 'json' };
 import pokemonList from '../data/pokemon.json' with { type: 'json' };
 import { GymBadgeIcon } from '../components/icons/GameIcons';
-import { MAX_STAR_LEVEL, SHINY_STAR_LEVEL } from '../game/cardLevels.js';
+import PokemonDetailModal from '../components/PokemonDetailModal';
+import StarMeter from '../components/StarMeter';
+import { SHINY_STAR_LEVEL, starTierClass } from '../game/cardLevels.js';
 
 function formatTitle(str) {
   if (!str) return '';
@@ -15,7 +18,6 @@ function formatTitle(str) {
     .join(' ');
 }
 
-// Color map per gym/region badge for glowing gem cores
 const BADGE_COLOR_MAP = {
   badge_kanto: '#ef4444',
   badge_johto: '#3b82f6',
@@ -36,264 +38,305 @@ const BADGE_COLOR_MAP = {
   badge_earth: '#4d7c0f',
 };
 
+const REGIONAL_PREFIXES = [
+  'badge_kanto',
+  'badge_johto',
+  'badge_hoenn',
+  'badge_sinnoh',
+  'badge_unova',
+  'badge_kalos',
+  'badge_alola',
+  'badge_galar',
+  'badge_paldea',
+];
+
 export default function Badges() {
   const { user } = useAuth();
   const [collectionMap, setCollectionMap] = useState(new Map());
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
 
-  // Filter state
-  const [sectionFilter, setSectionFilter] = useState('all'); // 'all' | 'regional' | 'gym'
+  const [sectionFilter, setSectionFilter] = useState('all');
   const [selectedBadge, setSelectedBadge] = useState(null);
   const [selectedPokemon, setSelectedPokemon] = useState(null);
+  const badgeDialogRef = useRef(null);
 
-  // Fast map lookup for pokemonList
+  useDialogFocus(badgeDialogRef, {
+    active: Boolean(selectedBadge),
+    onEscape: () => setSelectedBadge(null),
+  });
+
   const pokemonMap = useMemo(() => {
     const map = new Map();
     pokemonList.forEach((p) => map.set(p.id, p));
     return map;
   }, []);
 
-  // Load user collection from Supabase
-  useEffect(() => {
-    async function loadCollection() {
-      if (!user) {
-        setIsLoading(false);
-        return;
-      }
-      try {
-        setIsLoading(true);
-        const data = await getUserCollection(user.id);
-        const map = new Map();
-        data.forEach((entry) => {
-          map.set(Number(entry.pokemon_id), entry);
-        });
-        setCollectionMap(map);
-      } catch (err) {
-        console.error('Failed to load user collection:', err.message);
-      } finally {
-        setIsLoading(false);
-      }
+  const loadCollection = useCallback(async () => {
+    if (!user) {
+      setIsLoading(false);
+      return;
     }
-    loadCollection();
+    try {
+      setIsLoading(true);
+      setLoadError('');
+      const data = await getUserCollection(user.id);
+      const map = new Map();
+      data.forEach((entry) => {
+        map.set(Number(entry.pokemon_id), entry);
+      });
+      setCollectionMap(map);
+    } catch (err) {
+      console.error('Failed to load user collection:', err.message);
+      setLoadError('We could not load your badge case. Check your connection and try again.');
+    } finally {
+      setIsLoading(false);
+    }
   }, [user]);
 
-  // Compute status for all badges
+  useEffect(() => {
+    loadCollection();
+  }, [loadCollection]);
+
   const evaluatedBadges = useMemo(() => {
     return badgesList.map((badge) => {
       const status = getBadgeStatus(badge, collectionMap);
-      const isRegional = badge.id.startsWith('badge_kanto') ||
-        badge.id.startsWith('badge_johto') ||
-        badge.id.startsWith('badge_hoenn') ||
-        badge.id.startsWith('badge_sinnoh') ||
-        badge.id.startsWith('badge_unova') ||
-        badge.id.startsWith('badge_kalos') ||
-        badge.id.startsWith('badge_alola') ||
-        badge.id.startsWith('badge_galar') ||
-        badge.id.startsWith('badge_paldea');
+      const isRegional = REGIONAL_PREFIXES.some((prefix) => badge.id.startsWith(prefix));
+      const isMaster = badge.id.startsWith('badge_master_') || badge.id === 'badge_shiny_master';
 
       return {
         ...badge,
         status,
-        type: isRegional ? 'regional' : 'gym',
+        type: isRegional ? 'regional' : isMaster ? 'master' : 'gym',
         gemColor: BADGE_COLOR_MAP[badge.id] || '#f59e0b',
       };
     });
   }, [collectionMap]);
 
-  // Summary counts
   const summary = useMemo(() => {
     let unlocked = 0;
-    evaluatedBadges.forEach((b) => {
-      if (b.status.isUnlocked) unlocked++;
+    evaluatedBadges.forEach((badge) => {
+      if (badge.status.isUnlocked) unlocked++;
     });
     return {
       unlocked,
       total: evaluatedBadges.length,
-      percentage: Math.round((unlocked / evaluatedBadges.length) * 100),
+      percentage: evaluatedBadges.length > 0 ? Math.round((unlocked / evaluatedBadges.length) * 100) : 0,
     };
   }, [evaluatedBadges]);
 
-  // Filtered badges list
   const filteredBadges = useMemo(() => {
     if (sectionFilter === 'all') return evaluatedBadges;
-    return evaluatedBadges.filter((b) => b.type === sectionFilter);
+    return evaluatedBadges.filter((badge) => badge.type === sectionFilter);
   }, [evaluatedBadges, sectionFilter]);
 
   return (
-    <div className="page-container">
-      {/* HEADER & GYM BADGE CASE SUMMARY */}
-      <div className="collection-header">
-        <div>
-          <h1 style={{ margin: 0, color: '#f8fafc', fontSize: '1.75rem' }}>League Gym Badge Case</h1>
-          <p style={{ margin: '0.25rem 0 0 0', color: '#94a3b8', fontSize: '0.875rem' }}>
-            Earn binary Gym Badges by completing 100% of Regional Dexes & Curated Gym Sets!
+    <div className="page-container home-page batch-page badges-page">
+      <section className="ui-page-hero">
+        <div className="ui-page-hero-copy">
+          <span className="home-eyebrow"><GymBadgeIcon size={18} color="#fbbf24" /> League Badge Case</span>
+          <h1>Collect the league.</h1>
+          <p>
+            Complete regional dexes, curated gym sets, and master challenges to earn all {badgesList.length} badge case collectibles.
           </p>
-        </div>
-
-        {/* Badge Case Counter Box */}
-        <div className="collection-progress-card" style={{ border: '1px solid #d97706', background: 'rgba(30, 27, 75, 0.85)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.35rem', fontSize: '0.875rem' }}>
-            <span style={{ fontWeight: 700, color: '#fef08a', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-              <GymBadgeIcon size={18} color="#f59e0b" /> Badges Collected
-            </span>
-            <span style={{ color: '#f59e0b', fontWeight: 700 }}>
-              {summary.unlocked} / {summary.total} ({summary.percentage}%)
-            </span>
-          </div>
-          <div className="hp-bar-outer" style={{ height: '10px' }}>
-            <div className="hp-bar-inner hp-yellow" style={{ width: `${summary.percentage}%` }} />
+          <div className="home-hero-meta">
+            <span><span className="home-status-dot" /> {summary.unlocked} earned</span>
+            <span>{summary.total - summary.unlocked} remaining</span>
+            <span>{summary.percentage}% complete</span>
           </div>
         </div>
-      </div>
 
-      {/* FILTER BUTTONS */}
-      <div className="gen-shortcuts">
-        {[
-          { label: 'All Badges (17)', value: 'all' },
-          { label: 'Regional Champion Badges (9)', value: 'regional' },
-          { label: 'Classic Gym Badges (8)', value: 'gym' },
-        ].map((tab) => (
-          <button
-            key={tab.value}
-            className={`gen-badge-btn ${sectionFilter === tab.value ? 'active' : ''}`}
-            onClick={() => setSectionFilter(tab.value)}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
-      {/* GYM BADGE CASE CONTAINER */}
-      {isLoading ? (
-        <div style={{ textAlign: 'center', padding: '3rem', color: '#94a3b8' }}>
-          Opening Gym Badge Case...
-        </div>
-      ) : (
-        <div className="badge-case-wrapper">
-          <div className="badge-case-title-row">
-            <span>OFFICIAL POKÉMON LEAGUE DISPLAY CASE</span>
-            <span>{summary.unlocked} BADGES EARNED</span>
+        <div className="ui-hero-stat-card">
+          <span className="ui-stat-eyebrow">Badges collected</span>
+          <strong>{summary.unlocked}/{summary.total}</strong>
+          <div className="ui-progress is-gold" aria-hidden="true">
+            <span style={{ width: `${summary.percentage}%` }} />
           </div>
-
-          <div className="badge-case-grid">
-            {filteredBadges.map((badge) => {
-              const { status } = badge;
-              const isUnlocked = status.isUnlocked;
-
-              return (
-                <div
-                  key={badge.id}
-                  className={`badge-case-slot ${isUnlocked ? 'unlocked' : 'locked'}`}
-                  onClick={() => setSelectedBadge(badge)}
-                >
-                  <div className="badge-slot-icon-wrapper">
-                    <GymBadgeIcon size={36} color={badge.gemColor} isUnlocked={isUnlocked} />
-                  </div>
-
-                  <div className="badge-slot-title">{badge.name}</div>
-                  <div className="badge-slot-region">{badge.region}</div>
-
-                  {isUnlocked ? (
-                    <div className="badge-earned-tag">✨ EARNED</div>
-                  ) : (
-                    <div className="badge-progress-box">
-                      <div className="badge-progress-text">
-                        {status.ownedCount}/{status.totalCount} ({status.progressPercent}%)
-                      </div>
-                      <div className="hp-bar-outer" style={{ height: '6px' }}>
-                        <div
-                          className="hp-bar-inner hp-yellow"
-                          style={{ width: `${status.progressPercent}%` }}
-                        />
-                      </div>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
+          <small>{summary.percentage}% of the league badge case</small>
         </div>
-      )}
+      </section>
 
-      {/* BADGE DETAILS MODAL */}
+      <section className="ui-panel badge-browser" aria-labelledby="badge-browser-title">
+        <div className="ui-section-head">
+          <div>
+            <span className="home-eyebrow">Badge case</span>
+            <h2 id="badge-browser-title">Official league display</h2>
+            <p>Regional champion badges and classic gym challenges.</p>
+          </div>
+          <span className="ui-badge">{filteredBadges.length} badges</span>
+        </div>
+
+        <div className="gen-shortcuts" role="group" aria-label="Badge categories">
+          {[
+            { label: 'All Badges', value: 'all', count: evaluatedBadges.length },
+            { label: 'Regional Champion', value: 'regional', count: evaluatedBadges.filter((b) => b.type === 'regional').length },
+            { label: 'Classic Gym', value: 'gym', count: evaluatedBadges.filter((b) => b.type === 'gym').length },
+            { label: 'Master Sets', value: 'master', count: evaluatedBadges.filter((b) => b.type === 'master').length },
+          ].map((tab) => (
+            <button
+              key={tab.value}
+              type="button"
+              className={`gen-badge-btn ${sectionFilter === tab.value ? 'active' : ''}`}
+              onClick={() => setSectionFilter(tab.value)}
+              aria-pressed={sectionFilter === tab.value}
+            >
+              <span className="gen-badge-title">{tab.label}</span>
+              <span className="gen-badge-count">{tab.count}</span>
+            </button>
+          ))}
+        </div>
+
+        {isLoading ? (
+          <div className="ui-state" role="status">
+            <span className="ui-spinner" aria-hidden="true" />
+            <h3>Opening the badge case</h3>
+            <p>Checking your regional and gym set progress...</p>
+          </div>
+        ) : loadError ? (
+          <div className="ui-state is-error" role="alert">
+            <GymBadgeIcon size={34} />
+            <h3>Badge case unavailable</h3>
+            <p>{loadError}</p>
+            <button type="button" className="ui-btn primary" onClick={loadCollection}>Try again</button>
+          </div>
+        ) : filteredBadges.length === 0 ? (
+          <div className="ui-state">
+            <GymBadgeIcon size={34} isUnlocked={false} />
+            <h3>No badges in this category</h3>
+            <p>Switch back to all badges to browse the full case.</p>
+            <button type="button" className="ui-btn" onClick={() => setSectionFilter('all')}>View all badges</button>
+          </div>
+        ) : (
+          <div className="badge-case-wrapper">
+            <div className="badge-case-title-row">
+              <span>Official Pokemon League display case</span>
+              <span>{summary.unlocked} earned</span>
+            </div>
+
+            <div className="badge-case-grid">
+              {filteredBadges.map((badge) => {
+                const { status } = badge;
+                const isUnlocked = status.isUnlocked;
+
+                return (
+                  <button
+                    key={badge.id}
+                    type="button"
+                    className={`badge-case-slot ${isUnlocked ? 'unlocked' : 'locked'}`}
+                    onClick={() => setSelectedBadge(badge)}
+                    aria-label={`${badge.name}, ${isUnlocked ? 'earned' : `${status.progressPercent}% complete`}`}
+                  >
+                    <span className="badge-slot-icon-wrapper">
+                      <GymBadgeIcon size={36} color={badge.gemColor} isUnlocked={isUnlocked} />
+                    </span>
+
+                    <span className="badge-slot-title">{badge.name}</span>
+                    <span className="badge-slot-region">{badge.region}</span>
+
+                    {isUnlocked ? (
+                      <span className="badge-earned-tag">Earned</span>
+                    ) : (
+                      <span className="badge-progress-box">
+                        <span className="badge-progress-text">
+                          {status.ownedCount}/{status.totalCount} ({status.progressPercent}%)
+                        </span>
+                        <span className="ui-progress is-compact" aria-hidden="true">
+                          <span style={{ width: `${status.progressPercent}%` }} />
+                        </span>
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </section>
+
       {selectedBadge && (
-        <div className="modal-overlay" onClick={() => setSelectedBadge(null)}>
-          <div className="modal-content" style={{ maxWidth: '850px' }} onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <GymBadgeIcon size={36} color={selectedBadge.gemColor} isUnlocked={selectedBadge.status.isUnlocked} />
-                <div>
+        <div className="modal-overlay ui-modal-overlay" onClick={() => setSelectedBadge(null)}>
+          <div
+            ref={badgeDialogRef}
+            className="modal-content collection-detail-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="badge-detail-title"
+            tabIndex={-1}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="modal-header detail-modal-head">
+              <div className="detail-modal-identity">
+                <div className="detail-modal-id-row">
+                  <GymBadgeIcon size={34} color={selectedBadge.gemColor} isUnlocked={selectedBadge.status.isUnlocked} />
                   <span className="modal-dex-id">{selectedBadge.region}</span>
-                  <h2 className="modal-title">{selectedBadge.name}</h2>
                 </div>
+                <h2 className="modal-title" id="badge-detail-title">{selectedBadge.name}</h2>
               </div>
-              <button className="modal-close-btn" onClick={() => setSelectedBadge(null)}>
+              <button
+                type="button"
+                className="modal-close-btn"
+                onClick={() => setSelectedBadge(null)}
+                aria-label="Close badge details"
+              >
                 &times;
               </button>
             </div>
 
-            {/* Badge Info Card */}
-            <div className="collection-progress-card" style={{ marginBottom: '1.25rem' }}>
-              <div style={{ fontSize: '0.875rem', color: '#e2e8f0', marginBottom: '0.5rem' }}>
-                {selectedBadge.description}
-              </div>
-
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.35rem', fontSize: '0.875rem' }}>
+            <div className="collection-progress-card detail-progress-card">
+              <p className="detail-badge-description">{selectedBadge.description}</p>
+              <div className="detail-progress-head">
                 <span>
-                  Set Completion: <strong>{selectedBadge.status.ownedCount} / {selectedBadge.status.totalCount}</strong> Pokémon
+                  Set completion: <strong>{selectedBadge.status.ownedCount} / {selectedBadge.status.totalCount}</strong>
                 </span>
-                <span style={{ color: selectedBadge.status.isUnlocked ? '#4ade80' : '#f59e0b', fontWeight: 700 }}>
-                  {selectedBadge.status.isUnlocked ? '✨ EARNED (100%)' : `${selectedBadge.status.progressPercent}%`}
-                </span>
+                <strong className={selectedBadge.status.isUnlocked ? 'is-success' : ''}>
+                  {selectedBadge.status.isUnlocked ? 'Earned' : `${selectedBadge.status.progressPercent}%`}
+                </strong>
               </div>
-
-              <div className="hp-bar-outer" style={{ height: '10px' }}>
-                <div
-                  className={`hp-bar-inner ${selectedBadge.status.isUnlocked ? 'hp-green' : 'hp-yellow'}`}
-                  style={{ width: `${selectedBadge.status.progressPercent}%` }}
-                />
+              <div className="ui-progress is-gold" aria-hidden="true">
+                <span style={{ width: `${selectedBadge.status.progressPercent}%` }} />
               </div>
             </div>
 
-            {/* Pokémon Grid */}
-            <h4 style={{ margin: '0 0 0.75rem 0', color: '#f8fafc' }}>Included Pokémon in Set</h4>
-            <div className="collection-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))' }}>
+            <div className="ui-section-head detail-grid-head">
+              <div>
+                <span className="ui-field-label">Included Pokemon</span>
+                <h3>Set roster</h3>
+              </div>
+              <span className="ui-badge">{selectedBadge.pokemonIds.length} cards</span>
+            </div>
+
+            <div className="collection-grid detail-card-grid">
               {selectedBadge.pokemonIds.map((id) => {
-                const p = pokemonMap.get(id);
-                if (!p) return null;
+                const pokemon = pokemonMap.get(id);
+                if (!pokemon) return null;
 
                 const entry = collectionMap.get(id);
                 const isOwned = Boolean(entry);
                 const starLevel = entry?.star_level || 0;
                 const isShiny = entry?.is_shiny || starLevel >= SHINY_STAR_LEVEL;
-                const spriteSrc = isOwned ? (isShiny ? p.sprites.shiny : p.sprites.normal) : p.sprites.normal;
+                const spriteSrc = isOwned ? (isShiny ? pokemon.sprites.shiny : pokemon.sprites.normal) : pokemon.sprites.normal;
 
                 return (
-                  <div
-                    key={p.id}
-                    className={`collection-card ${isOwned ? 'owned' : 'unowned'}`}
-                    onClick={() => setSelectedPokemon(p)}
+                  <button
+                    key={pokemon.id}
+                    type="button"
+                    className={`collection-card ${isOwned ? `owned ${starTierClass(starLevel)}` : 'unowned star-tier-0'}`}
+                    onClick={() => setSelectedPokemon(pokemon)}
+                    aria-label={isOwned ? `${formatTitle(pokemon.name)}, star level ${starLevel}` : `${formatTitle(pokemon.name)}, unowned`}
                   >
-                    <div className="card-top-id">#{String(p.id).padStart(4, '0')}</div>
-                    <div className="card-image-wrapper">
-                      <img
-                        src={spriteSrc}
-                        alt={isOwned ? p.name : '???'}
-                        className={isOwned ? '' : 'card-silhouette'}
-                      />
-                    </div>
-                    <div className="card-info">
-                      <div className="card-name">{isOwned ? formatTitle(p.name) : '???'}</div>
+                    <span className="card-top-id">#{String(pokemon.id).padStart(4, '0')}</span>
+                    <span className="card-image-wrapper">
+                      <img src={spriteSrc} alt="" className={isOwned ? '' : 'card-silhouette'} loading="lazy" />
+                    </span>
+                    <span className="card-info">
+                      <span className="card-name">{isOwned ? formatTitle(pokemon.name) : '???'}</span>
                       {isOwned ? (
-                        <div className="star-rating">
-                          {'★'.repeat(starLevel)}
-                          {'☆'.repeat(MAX_STAR_LEVEL - starLevel)}
-                        </div>
+                        <StarMeter starLevel={starLevel} size="compact" showCount={false} />
                       ) : (
-                        <div className="unowned-badge">Unowned</div>
+                        <span className="unowned-badge">Unowned</span>
                       )}
-                    </div>
-                  </div>
+                    </span>
+                  </button>
                 );
               })}
             </div>
@@ -301,98 +344,13 @@ export default function Badges() {
         </div>
       )}
 
-      {/* POKEMON SECONDARY DETAIL MODAL */}
       {selectedPokemon && (
-        <div className="modal-overlay" style={{ zIndex: 10000 }} onClick={() => setSelectedPokemon(null)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <div>
-                <span className="modal-dex-id">#{String(selectedPokemon.id).padStart(4, '0')}</span>
-                <h2 className="modal-title">
-                  {collectionMap.has(selectedPokemon.id) ? formatTitle(selectedPokemon.name) : '???'}
-                </h2>
-              </div>
-              <button className="modal-close-btn" onClick={() => setSelectedPokemon(null)}>
-                &times;
-              </button>
-            </div>
-
-            <div className="modal-body">
-              <div className="modal-left">
-                <div className="modal-image-card">
-                  <img
-                    src={
-                      collectionMap.has(selectedPokemon.id) &&
-                      (collectionMap.get(selectedPokemon.id)?.is_shiny ||
-                        collectionMap.get(selectedPokemon.id)?.star_level >= SHINY_STAR_LEVEL)
-                        ? selectedPokemon.sprites.shiny
-                        : selectedPokemon.sprites.normal
-                    }
-                    alt={selectedPokemon.name}
-                    className={collectionMap.has(selectedPokemon.id) ? '' : 'modal-silhouette'}
-                  />
-                </div>
-                <div className="modal-status-box">
-                  {collectionMap.has(selectedPokemon.id) ? (
-                    <div className="modal-star-row">
-                      {'★'.repeat(collectionMap.get(selectedPokemon.id).star_level)}
-                      {'☆'.repeat(MAX_STAR_LEVEL - collectionMap.get(selectedPokemon.id).star_level)}
-                    </div>
-                  ) : (
-                    <div style={{ color: '#f87171', fontWeight: 600, fontSize: '0.875rem' }}>
-                      Unowned
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="modal-right">
-                <div style={{ marginBottom: '1rem' }}>
-                  <span style={{ fontSize: '0.75rem', color: '#94a3b8', display: 'block', marginBottom: '0.25rem' }}>
-                    TYPES
-                  </span>
-                  <div>
-                    {selectedPokemon.types.map((t) => (
-                      <span key={t} className={`pokemon-type-badge type-${t}`}>
-                        {t}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                <div style={{ marginBottom: '1rem' }}>
-                  <span style={{ fontSize: '0.75rem', color: '#94a3b8', display: 'block', marginBottom: '0.5rem' }}>
-                    BASE STATS
-                  </span>
-                  <div className="stat-bars-container">
-                    {[
-                      { label: 'HP', val: selectedPokemon.stats.hp, max: 250, color: '#22c55e' },
-                      { label: 'ATK', val: selectedPokemon.stats.attack, max: 190, color: '#ef4444' },
-                      { label: 'DEF', val: selectedPokemon.stats.defense, max: 230, color: '#3b82f6' },
-                      { label: 'SP.ATK', val: selectedPokemon.stats.specialAttack, max: 194, color: '#a855f7' },
-                      { label: 'SP.DEF', val: selectedPokemon.stats.specialDefense, max: 230, color: '#06b6d4' },
-                      { label: 'SPD', val: selectedPokemon.stats.speed, max: 200, color: '#eab308' },
-                    ].map((stat) => (
-                      <div key={stat.label} className="stat-row">
-                        <span className="stat-label">{stat.label}</span>
-                        <span className="stat-val">{stat.val}</span>
-                        <div className="stat-bar-outer">
-                          <div
-                            className="stat-bar-inner"
-                            style={{
-                              width: `${Math.min(100, (stat.val / stat.max) * 100)}%`,
-                              backgroundColor: stat.color,
-                            }}
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <PokemonDetailModal
+          pokemon={selectedPokemon}
+          entry={collectionMap.get(selectedPokemon.id) || null}
+          cardType="normal"
+          onClose={() => setSelectedPokemon(null)}
+        />
       )}
     </div>
   );

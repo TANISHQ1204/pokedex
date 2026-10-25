@@ -31,8 +31,9 @@ function normalizeMap(playerCollection) {
  * Calculates badge status (earned / locked) for a badge object.
  *
  * Legacy badges { pokemonIds } unlock when 100% of the set is owned.
- * Star-mastery badges { criteria: 'star10', pokemonIds } also require every
- * member of the set to reach MAX_STAR_LEVEL (10★).
+ * Star-mastery badges { criteria: 'star20', pokemonIds } also require every
+ * member of the set to reach MAX_STAR_LEVEL (20★). `star10` is accepted as a
+ * legacy alias so older saved badge data keeps working.
  *
  * @param {Object} badge - { id, name, region, badgeIcon, pokemonIds, [criteria] }
  * @param {Array|Map} playerCollection - User's collection records
@@ -42,7 +43,7 @@ export function getBadgeStatus(badge, playerCollection) {
   const progress = getCollectionProgress(badge, playerCollection);
   const ids = Array.isArray(badge?.pokemonIds) ? badge.pokemonIds : [];
 
-  if (badge?.criteria === 'star10') {
+  if (badge?.criteria === 'star20' || badge?.criteria === 'star10') {
     const map = normalizeMap(playerCollection);
     const masteredCount = ids.filter((id) => {
       const entry = map.get(Number(id));

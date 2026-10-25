@@ -119,7 +119,7 @@ export default function Login() {
               </button>
             </form>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', margin: '1.5rem 0', color: '#64748b' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', margin: '1.5rem 0', color: '#94a3b8' }}>
               <div style={{ flex: 1, height: '1px', backgroundColor: '#334155' }}></div>
               <span style={{ fontSize: '0.85rem' }}>OR</span>
               <div style={{ flex: 1, height: '1px', backgroundColor: '#334155' }}></div>

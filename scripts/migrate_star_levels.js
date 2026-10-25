@@ -23,6 +23,10 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { createClient } from '@supabase/supabase-js';
 
+console.error('This migration is obsolete. The app now uses the 20-star system.');
+console.error('Run: node scripts/migrate_star_levels_20.js --migrate');
+process.exit(1);
+
 // ─── Load .env manually (no dotenv dependency needed) ────────────────────────
 const __filename = fileURLToPath(import.meta.url);
 const __dirname  = path.dirname(__filename);

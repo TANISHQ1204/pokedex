@@ -156,7 +156,7 @@ function SetupScreen({ initial, onStart }) {
 
       <div style={{ marginBottom: '1.25rem' }}>
         <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#94a3b8', marginBottom: '0.5rem' }}>
-          Generations to Include <span style={{ color: '#475569' }}>(toggle each; only Pokemon from the selected generations can be shown, guessed or won)</span>
+          Generations to Include <span style={{ color: '#94a3b8' }}>(toggle each; only Pokemon from the selected generations can be shown, guessed or won)</span>
         </div>
         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
           <button
@@ -196,7 +196,7 @@ function SetupScreen({ initial, onStart }) {
             );
           })}
         </div>
-        <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 700, marginTop: '0.4rem' }}>
+        <div style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 700, marginTop: '0.4rem' }}>
           {isAllGens
             ? 'Every generation included (Gen 1–9).'
             : `Selected: Generation${selectedGens.length > 1 ? 's' : ''} ${selectedGens.join(', ')}.`}
@@ -429,7 +429,7 @@ function GuessBox({ player, session, accent, onLock }) {
           )}
         </div>
       ) : session.phase === 'resolved' ? (
-        <div style={{ color: '#64748b', fontSize: '0.85rem', padding: '0.5rem 0.25rem', fontWeight: 700 }}>
+        <div style={{ color: '#94a3b8', fontSize: '0.85rem', padding: '0.5rem 0.25rem', fontWeight: 700 }}>
           Round resolved — next round decides the winner.
         </div>
       ) : (
@@ -517,7 +517,7 @@ function GuessBox({ player, session, accent, onLock }) {
                   }}
                 >
                   <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.label}</span>
-                  <span style={{ color: '#64748b', fontSize: '0.75rem', fontWeight: 800, flexShrink: 0 }}>
+                  <span style={{ color: '#94a3b8', fontSize: '0.75rem', fontWeight: 800, flexShrink: 0 }}>
                     #{String(s.dexNo).padStart(3, '0')}
                   </span>
                 </button>
@@ -553,7 +553,7 @@ function PlayerDraftPanel({ player, session, accent, onLock }) {
       </div>
       <div style={{ display: 'flex', gap: '0.3rem', flexWrap: 'wrap', minHeight: 34 }}>
         {player.won.length === 0 && (
-          <span style={{ fontSize: '0.75rem', color: '#475569', fontStyle: 'italic' }}>No Pokemon won yet</span>
+          <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontStyle: 'italic' }}>No Pokemon won yet</span>
         )}
         {player.won.map((entry, i) => (
           <span
@@ -625,7 +625,7 @@ function ResolutionPanel({ session, onNext }) {
               Won by {session.players[r.winnerId].name}
               {r.awarded.formKind && <span style={{ color: '#a78bfa' }}> · {r.awarded.formLabel || 'Alternate Form'}</span>}
               {r.awarded.variant === 'shiny' && <span style={{ color: '#fbbf24' }}> · ★ SHINY</span>}
-              <span style={{ color: '#64748b' }}> · BST {r.awarded.bst ?? baseStatTotal(r.awarded)}</span>
+              <span style={{ color: '#94a3b8' }}> · BST {r.awarded.bst ?? baseStatTotal(r.awarded)}</span>
             </div>
           )}
           {r.voided && (
@@ -655,7 +655,7 @@ function ResolutionPanel({ session, onNext }) {
                   #{String(g.dexNo).padStart(3, '0')} {g.name}
                 </span>
               </div>
-              <div style={{ marginTop: '0.4rem', fontSize: '0.75rem', fontWeight: 800, color: '#64748b' }}>
+              <div style={{ marginTop: '0.4rem', fontSize: '0.75rem', fontWeight: 800, color: '#94a3b8' }}>
                 distance {g.distance} {g.distance === 0 ? '· exact hit!' : isWinner ? '· closest' : ''}
               </div>
             </div>

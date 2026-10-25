@@ -1,10 +1,12 @@
-import React, { useState, useEffect, useMemo } from 'react';
+﻿import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { getUserCollection } from '../store/collection';
 import { fullPokemonList, displayName, isAltForm } from '../utils/pokemonCatalog.js';
 import { glowBaseFor } from '../utils/glow';
 import PokemonDetailModal from '../components/PokemonDetailModal';
-import { MAX_STAR_LEVEL, SHINY_STAR_LEVEL, STAR_TIERS, STAR_TIER_COLORS, starTierInfo } from '../game/cardLevels.js';
+import StarMeter from '../components/StarMeter';
+import { CardsIcon, SparkleStarIcon } from '../components/icons/GameIcons';
+import { MAX_STAR_LEVEL, SHINY_STAR_LEVEL, STAR_TIERS, STAR_TIER_COLORS, starTierClass } from '../game/cardLevels.js';
 
 const ITEMS_PER_PAGE = 48;
 
@@ -51,12 +53,25 @@ function formatTitle(str) {
     .join(' ');
 }
 
+function rarityClassFor(starLevel, isShiny) {
+  if (isShiny || starLevel >= MAX_STAR_LEVEL) return 'rarity-card-shiny';
+  if (starLevel >= 9) return 'rarity-card-aurora';
+  if (starLevel === 8) return 'rarity-card-prismatic';
+  if (starLevel === 7) return 'rarity-card-golden';
+  if (starLevel === 6) return 'rarity-card-radiant';
+  if (starLevel === 5) return 'rarity-card-super';
+  if (starLevel === 4) return 'rarity-card-legendary';
+  if (starLevel === 3) return 'rarity-card-rare';
+  if (starLevel === 2) return 'rarity-card-uncommon';
+  return 'rarity-card-common';
+}
+
 export default function Collection() {
   const { user } = useAuth();
   const [collectionMap, setCollectionMap] = useState(new Map());
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
 
-  // Filters & Pagination state
   const [searchQuery, setSearchQuery] = useState('');
   const [ownershipFilter, setOwnershipFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
@@ -64,43 +79,42 @@ export default function Collection() {
   const [sortBy, setSortBy] = useState('id-asc');
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Detail Modal state
   const [selectedPokemon, setSelectedPokemon] = useState(null);
 
-  // Fetch collection from Supabase
-  useEffect(() => {
-    async function loadCollection() {
-      if (!user) {
-        setIsLoading(false);
-        return;
-      }
-      try {
-        setIsLoading(true);
-        const data = await getUserCollection(user.id);
-        const normalMap = new Map();
-
-        data.forEach((entry) => {
-          const pId = Number(entry.pokemon_id);
-          if (!entry.is_power_card && !entry.is_ancient_card) {
-            normalMap.set(pId, entry);
-          }
-        });
-
-        setCollectionMap(normalMap);
-      } catch (err) {
-        console.error('Failed to load collection:', err.message);
-      } finally {
-        setIsLoading(false);
-      }
+  const loadCollection = useCallback(async () => {
+    if (!user) {
+      setIsLoading(false);
+      return;
     }
-    loadCollection();
+    try {
+      setIsLoading(true);
+      setLoadError('');
+      const data = await getUserCollection(user.id);
+      const normalMap = new Map();
+
+      data.forEach((entry) => {
+        const pId = Number(entry.pokemon_id);
+        if (!entry.is_power_card && !entry.is_ancient_card) {
+          normalMap.set(pId, entry);
+        }
+      });
+
+      setCollectionMap(normalMap);
+    } catch (err) {
+      console.error('Failed to load collection:', err.message);
+      setLoadError('We could not load your collection. Check your connection and try again.');
+    } finally {
+      setIsLoading(false);
+    }
   }, [user]);
 
-  // Filter & Sort logic
+  useEffect(() => {
+    loadCollection();
+  }, [loadCollection]);
+
   const filteredPokemon = useMemo(() => {
     let result = fullPokemonList;
 
-    // Search query
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase().trim();
       result = result.filter(
@@ -108,19 +122,16 @@ export default function Collection() {
       );
     }
 
-    // Ownership filter (normal cards only)
     if (ownershipFilter === 'owned') {
       result = result.filter((p) => collectionMap.has(p.id));
     } else if (ownershipFilter === 'unowned') {
       result = result.filter((p) => !collectionMap.has(p.id));
     }
 
-    // Type filter
     if (typeFilter !== 'all') {
       result = result.filter((p) => p.types.includes(typeFilter.toLowerCase()));
     }
 
-    // Generation filter
     if (genFilter !== 'all') {
       const genObj = GENERATIONS.find((g) => g.value === genFilter);
       if (genObj) {
@@ -129,7 +140,6 @@ export default function Collection() {
       }
     }
 
-    // Sorting
     return [...result].sort((a, b) => {
       if (sortBy === 'id-asc') return a.id - b.id;
       if (sortBy === 'id-desc') return b.id - a.id;
@@ -143,12 +153,10 @@ export default function Collection() {
     });
   }, [searchQuery, ownershipFilter, typeFilter, genFilter, sortBy, collectionMap]);
 
-  // Reset page when filters change
   useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery, ownershipFilter, typeFilter, genFilter, sortBy]);
 
-  // Pagination bounds
   const totalPages = Math.max(1, Math.ceil(filteredPokemon.length / ITEMS_PER_PAGE));
   const validCurrentPage = Math.min(currentPage, totalPages);
   const paginatedPokemon = useMemo(() => {
@@ -156,12 +164,12 @@ export default function Collection() {
     return filteredPokemon.slice(start, start + ITEMS_PER_PAGE);
   }, [filteredPokemon, validCurrentPage]);
 
-  // Statistics (normal cards only)
   const ownedCount = collectionMap.size;
   const totalCount = fullPokemonList.length;
   const completionPercentage = Math.round((ownedCount / totalCount) * 100);
+  const hasActiveFilters =
+    Boolean(searchQuery.trim()) || ownershipFilter !== 'all' || typeFilter !== 'all' || genFilter !== 'all';
 
-  // Star-tier breakdown: how many owned cards sit at each of the 10 levels.
   const tierStats = STAR_TIERS.map((t) => {
     const count = [...collectionMap.values()].filter(
       (e) => Math.max(1, Math.min(MAX_STAR_LEVEL, Number(e.star_level) || 1)) === t.star
@@ -172,7 +180,6 @@ export default function Collection() {
   const ownedTierCards = tierStats.reduce((acc, t) => acc + t.count, 0);
   const maxLevelCount = tierStats.find((t) => t.star === MAX_STAR_LEVEL)?.count || 0;
 
-  // Per-generation completion stats (uses the same id ranges as the filters).
   const perGenStats = GENERATIONS.map((gen) => {
     const [minId, maxId] = gen.range;
     const total = fullPokemonList.filter((p) => p.id >= minId && p.id <= maxId).length;
@@ -180,47 +187,50 @@ export default function Collection() {
     return { ...gen, total, owned };
   });
 
-  const handleCardClick = (p) => {
-    setSelectedPokemon(p);
+  const resetFilters = () => {
+    setSearchQuery('');
+    setOwnershipFilter('all');
+    setTypeFilter('all');
+    setGenFilter('all');
+    setSortBy('id-asc');
   };
 
   return (
-    <div className="page-container">
-      {/* HEADER & COLLECTION PROGRESS BAR */}
-      <div className="collection-header">
-        <div>
-          <h1 style={{ margin: 0, color: '#f8fafc', fontSize: '1.75rem' }}>National Dex Card Collection</h1>
-          <p style={{ margin: '0.25rem 0 0 0', color: '#94a3b8', fontSize: '0.875rem' }}>
-            Collect and upgrade cards across all 9 Pokémon Generations + alternate forms!
+    <div className="page-container home-page batch-page collection-page">
+      <section className="ui-page-hero">
+        <div className="ui-page-hero-copy">
+          <span className="home-eyebrow"><CardsIcon size={18} /> National Dex</span>
+          <h1>Your card collection</h1>
+          <p>
+            Track every catch, follow your star upgrades, and complete all nine generations plus alternate forms.
           </p>
-        </div>
-
-        <div className="collection-progress-card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.35rem', fontSize: '0.875rem' }}>
-            <span style={{ fontWeight: 600, color: '#e2e8f0' }}>Dex Completion</span>
-            <span style={{ color: '#f59e0b', fontWeight: 700 }}>
-              {ownedCount} / {totalCount} ({completionPercentage}%)
-            </span>
-          </div>
-          <div className="hp-bar-outer" style={{ height: '10px' }}>
-            <div
-              className="hp-bar-inner hp-green"
-              style={{ width: `${completionPercentage}%` }}
-            />
+          <div className="home-hero-meta">
+            <span><span className="home-status-dot" /> {ownedCount} owned</span>
+            <span>{totalCount - ownedCount} still to find</span>
+            <span>{maxLevelCount} fully maxed</span>
           </div>
         </div>
-      </div>
 
-      {/* STAR-LEVEL BREAKDOWN — all levels up to Shiny Master */}
-      <div className="collection-tiers">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem', flexWrap: 'wrap', gap: '0.4rem' }}>
-          <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#e2e8f0', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
-            ⭐ Card Levels — {ownedTierCards} of {ownedCount} owned
-          </span>
-          <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#e879f9' }}>
-            👑 {maxLevelCount} fully maxed ({STAR_TIERS[MAX_STAR_LEVEL - 1].label})
-          </span>
+        <div className="ui-hero-stat-card">
+          <span className="ui-stat-eyebrow">Dex completion</span>
+          <strong>{completionPercentage}%</strong>
+          <div className="ui-progress" aria-hidden="true">
+            <span style={{ width: `${completionPercentage}%` }} />
+          </div>
+          <small>{ownedCount} of {totalCount} cards collected</small>
         </div>
+      </section>
+
+      <section className="ui-panel collection-tier-panel" aria-labelledby="collection-levels-title">
+        <div className="ui-section-head">
+          <div>
+            <span className="home-eyebrow">Progression</span>
+            <h2 id="collection-levels-title">Card levels</h2>
+            <p>{ownedTierCards} of {ownedCount} owned cards are leveled up.</p>
+          </div>
+          <span className="ui-badge is-gold"><SparkleStarIcon size={14} /> {maxLevelCount} maxed</span>
+        </div>
+
         <div className="tier-bar">
           {tierStats.map((t) => (
             <div
@@ -236,8 +246,8 @@ export default function Collection() {
               title={`${t.label}: ${t.count} card${t.count === 1 ? '' : 's'}`}
             >
               {t.count > 0 && (
-                <span className="tier-segment-count" style={{ color: STAR_TIER_COLORS[t.star] }}>
-                  {'★'.repeat(t.star)}
+                <span className={`tier-segment-count ${starTierClass(t.star)}`}>
+                  <span className="tier-segment-star">*</span>
                   <em>{t.count}</em>
                 </span>
               )}
@@ -246,198 +256,224 @@ export default function Collection() {
         </div>
         <div className="tier-legend">
           {tierStats.map((t) => (
-            <span key={t.star} title={`${t.label} — ${t.count} card${t.count === 1 ? '' : 's'}`}>
-              <i style={{ background: STAR_TIER_COLORS[t.star] }} />
-              ★<b>{t.star}</b> {t.label} <em>({t.count})</em>
+            <span
+              key={t.star}
+              className={`tier-legend-item ${starTierClass(t.star)}`}
+              title={`${t.label} - ${t.count} card${t.count === 1 ? '' : 's'}`}
+            >
+              <i />
+              *<b>{t.star}</b> {t.label} <em>({t.count})</em>
             </span>
           ))}
         </div>
-      </div>
+      </section>
 
-      {/* QUICK GENERATION SHORTCUT BUTTONS */}
-      <div className="gen-shortcuts">
-        {perGenStats.map((gen) => (
-          <button
-            key={gen.value}
-            className={`gen-badge-btn ${genFilter === gen.value ? 'active' : ''}`}
-            onClick={() => setGenFilter(gen.value)}
-            title={`${gen.label} — ${gen.owned}/${gen.total} collected`}
-          >
-            {gen.label === 'All Gens' ? gen.label : <span className="gen-badge-title">{gen.label}</span>}
-            <span className="gen-badge-count">{gen.owned}/{gen.total}</span>
-          </button>
-        ))}
-      </div>
+      <section className="ui-panel collection-browser" aria-labelledby="collection-browser-title">
+        <div className="ui-section-head">
+          <div>
+            <span className="home-eyebrow">Card browser</span>
+            <h2 id="collection-browser-title">Find your next favorite</h2>
+            <p>Filter by ownership, type, generation, or star level.</p>
+          </div>
+          <span className="ui-badge">{filteredPokemon.length} results</span>
+        </div>
 
-      {/* FILTER & SEARCH CONTROL BAR */}
-      <div className="collection-filter-bar">
-        {/* Search Input */}
-        <input
-          type="text"
-          className="search-input"
-          placeholder="Search by name or Dex ID..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-
-        {/* Ownership Filter */}
-        <select
-          className="filter-select"
-          value={ownershipFilter}
-          onChange={(e) => setOwnershipFilter(e.target.value)}
-        >
-          <option value="all">All Ownership Status</option>
-          <option value="owned">Owned Cards</option>
-          <option value="unowned">Unowned Only</option>
-        </select>
-
-        {/* Type Filter */}
-        <select
-          className="filter-select"
-          value={typeFilter}
-          onChange={(e) => setTypeFilter(e.target.value)}
-        >
-          <option value="all">All Types</option>
-          {POKEMON_TYPES.map((t) => (
-            <option key={t} value={t}>
-              {t.charAt(0).toUpperCase() + t.slice(1)}
-            </option>
+        <div className="gen-shortcuts" role="group" aria-label="Generation filters">
+          {perGenStats.map((gen) => (
+            <button
+              key={gen.value}
+              type="button"
+              className={`gen-badge-btn ${genFilter === gen.value ? 'active' : ''}`}
+              onClick={() => setGenFilter(gen.value)}
+              aria-pressed={genFilter === gen.value}
+              title={`${gen.label} - ${gen.owned}/${gen.total} collected`}
+            >
+              <span className="gen-badge-title">
+                {gen.label === 'All Gens' ? gen.label : gen.label.replace(/ \(.*\)/, '')}
+              </span>
+              <span className="gen-badge-count">{gen.owned}/{gen.total}</span>
+            </button>
           ))}
-        </select>
+        </div>
 
-        {/* Sort By */}
-        <select
-          className="filter-select"
-          value={sortBy}
-          onChange={(e) => setSortBy(e.target.value)}
-        >
-          <option value="id-asc">Dex ID: Low to High</option>
-          <option value="id-desc">Dex ID: High to Low</option>
-          <option value="name-asc">Name: A to Z</option>
-          <option value="star-desc">Star Level: High to Low</option>
-        </select>
-      </div>
+        <div className="ui-toolbar">
+          <label className="ui-field ui-search-field">
+            <span className="ui-field-label">Search</span>
+            <input
+              type="search"
+              className="search-input"
+              placeholder="Search by name or Dex ID..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </label>
 
-      {/* FILTER STATUS / COUNT SUMMARY */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', color: '#94a3b8', fontSize: '0.875rem' }}>
-        <span>
-          Showing {filteredPokemon.length} Pokémon {searchQuery || typeFilter !== 'all' || ownershipFilter !== 'all' || genFilter !== 'all' ? '(Filtered)' : ''}
-        </span>
-        {totalPages > 1 && (
-          <span>
-            Page {validCurrentPage} of {totalPages}
+          <label className="ui-field">
+            <span className="ui-field-label">Ownership</span>
+            <select
+              className="filter-select"
+              value={ownershipFilter}
+              onChange={(e) => setOwnershipFilter(e.target.value)}
+            >
+              <option value="all">All ownership</option>
+              <option value="owned">Owned cards</option>
+              <option value="unowned">Unowned only</option>
+            </select>
+          </label>
+
+          <label className="ui-field">
+            <span className="ui-field-label">Type</span>
+            <select
+              className="filter-select"
+              value={typeFilter}
+              onChange={(e) => setTypeFilter(e.target.value)}
+            >
+              <option value="all">All types</option>
+              {POKEMON_TYPES.map((t) => (
+                <option key={t} value={t}>
+                  {t.charAt(0).toUpperCase() + t.slice(1)}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label className="ui-field">
+            <span className="ui-field-label">Sort</span>
+            <select
+              className="filter-select"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+            >
+              <option value="id-asc">Dex ID: Low to high</option>
+              <option value="id-desc">Dex ID: High to low</option>
+              <option value="name-asc">Name: A to Z</option>
+              <option value="star-desc">Star level: High to low</option>
+            </select>
+          </label>
+        </div>
+
+        <div className="ui-result-bar">
+          <span aria-live="polite">
+            Showing {filteredPokemon.length} Pokemon
+            {hasActiveFilters ? ' matching your filters' : ''}
           </span>
-        )}
-      </div>
-
-      {/* LOADING SPINNER / GRID */}
-      {isLoading ? (
-        <div style={{ textAlign: 'center', padding: '3rem', color: '#94a3b8' }}>
-          Loading Collection Data...
+          <div className="ui-result-actions">
+            {totalPages > 1 && <span>Page {validCurrentPage} of {totalPages}</span>}
+            {hasActiveFilters && (
+              <button type="button" className="ui-text-btn" onClick={resetFilters}>
+                Clear filters
+              </button>
+            )}
+          </div>
         </div>
-      ) : paginatedPokemon.length === 0 ? (
-        <div className="card" style={{ textAlign: 'center', padding: '3rem', color: '#94a3b8' }}>
-          No Pokémon match your current filter settings.
-        </div>
-      ) : (
-        <div className="collection-grid">
-          {paginatedPokemon.map((p) => {
-            const entry = collectionMap.get(p.id);
-            const isOwned = Boolean(entry);
-            const starLevel = entry?.star_level || 0;
-            const isShiny = entry?.is_shiny || starLevel >= SHINY_STAR_LEVEL;
-            const spriteSrc = isOwned ? (isShiny ? p.sprites.shiny : p.sprites.normal) : p.sprites.normal;
 
-            let rarityClass = 'rarity-card-common';
-            if (starLevel === 2) rarityClass = 'rarity-card-uncommon';
-            else if (starLevel === 3) rarityClass = 'rarity-card-rare';
-            else if (starLevel === 4) rarityClass = 'rarity-card-legendary';
-            else if (starLevel === 5) rarityClass = 'rarity-card-super';
-            else if (starLevel === 6) rarityClass = 'rarity-card-radiant';
-            else if (starLevel === 7) rarityClass = 'rarity-card-golden';
-            else if (starLevel === 8) rarityClass = 'rarity-card-prismatic';
-            else if (starLevel === 9) rarityClass = 'rarity-card-aurora';
-            else if (starLevel >= MAX_STAR_LEVEL || isShiny) rarityClass = 'rarity-card-shiny holo-shimmer-effect';
+        {isLoading ? (
+          <div className="ui-state" role="status">
+            <span className="ui-spinner" aria-hidden="true" />
+            <h3>Loading your collection</h3>
+            <p>Syncing your cards and star levels...</p>
+          </div>
+        ) : loadError ? (
+          <div className="ui-state is-error" role="alert">
+            <CardsIcon size={34} />
+            <h3>Collection unavailable</h3>
+            <p>{loadError}</p>
+            <button type="button" className="ui-btn primary" onClick={loadCollection}>Try again</button>
+          </div>
+        ) : paginatedPokemon.length === 0 ? (
+          <div className="ui-state">
+            <CardsIcon size={34} />
+            <h3>No cards match</h3>
+            <p>Try a different search or clear a filter to see more of the dex.</p>
+            <button type="button" className="ui-btn" onClick={resetFilters}>Clear filters</button>
+          </div>
+        ) : (
+          <div className="collection-grid">
+            {paginatedPokemon.map((p) => {
+              const entry = collectionMap.get(p.id);
+              const isOwned = Boolean(entry);
+              const starLevel = entry?.star_level || 0;
+              const isShiny = entry?.is_shiny || starLevel >= SHINY_STAR_LEVEL;
+              const spriteSrc = isOwned ? (isShiny ? p.sprites.shiny : p.sprites.normal) : p.sprites.normal;
+              const tierClass = isOwned ? starTierClass(starLevel) : 'star-tier-0';
+              const rarityClass = isOwned ? rarityClassFor(starLevel, isShiny) : '';
+              const holoClass = isOwned && (isShiny || starLevel >= 18) ? 'holo-shimmer-effect' : '';
 
-            return (
-              <div
-                key={p.id}
-                className={`collection-card tcg-card ${isOwned ? rarityClass + ' owned' : 'unowned'} star-tier-${isOwned ? starLevel : 0}`}
-                onClick={() => handleCardClick(p)}
-                data-glow
-                style={{ '--base': glowBaseFor(p.types) }}
-              >
-                <span className="card-glow-overlay" data-glow aria-hidden="true" />
-                <div className="card-top-id stat-number-condensed">
+              return (
+                <button
+                  key={p.id}
+                  type="button"
+                  className={`collection-card tcg-card ${tierClass} ${rarityClass} ${holoClass} ${isOwned ? 'owned' : 'unowned'}`.trim()}
+                  onClick={() => setSelectedPokemon(p)}
+                  data-glow
+                  style={{ '--base': glowBaseFor(p.types) }}
+                  aria-label={isOwned ? `${displayName(p)}, star level ${starLevel}${isShiny ? ', shiny' : ''}` : `${formatTitle(p.name)}, unowned`}
+                >
+                  <span className="card-glow-overlay" data-glow aria-hidden="true" />
+                  <span className="card-top-id stat-number-condensed">
                     #{String(p.id).padStart(4, '0')}
-                    {isAltForm(p) && <span className="form-badge-mark"> ◆{p.generation ? `Gen ${p.generation}` : ''}</span>}
-                  </div>
+                    {isAltForm(p) && <span className="form-badge-mark"> + {p.generation ? `Gen ${p.generation}` : 'Form'}</span>}
+                  </span>
 
-                <div className="card-image-wrapper">
-                  <img
-                    src={spriteSrc}
-                    alt={isOwned ? p.name : '???'}
-                    className={isOwned ? '' : 'card-silhouette'}
-                  />
-                  {isShiny && isOwned && <div className="shiny-sparkle-badge">✨ Shiny</div>}
-                </div>
+                  <span className="card-image-wrapper">
+                    <img
+                      src={spriteSrc}
+                      alt=""
+                      className={isOwned ? '' : 'card-silhouette'}
+                      loading="lazy"
+                    />
+                    {isShiny && isOwned && <span className="shiny-sparkle-badge"><SparkleStarIcon size={11} /> Shiny</span>}
+                  </span>
 
-                <div className="card-info">
-                  <div className="card-name">{isOwned ? displayName(p) : '???'}</div>
+                  <span className="card-info">
+                    <span className="card-name">{isOwned ? displayName(p) : '???'}</span>
 
-                  {isOwned ? (
-                    <>
-                      <div className="star-rating">
-                        {'★'.repeat(starLevel)}
-                        {'☆'.repeat(MAX_STAR_LEVEL - starLevel)}
-                      </div>
-                      <div className="card-types">
-                        <span className={`pokemon-type-badge tier-chip ${rarityClass}`} style={{ fontSize: '0.6rem', padding: '0.1rem 0.4rem', marginRight: '0.25rem', boxShadow: 'none' }}>
-                          {starTierInfo(starLevel).label}
+                    {isOwned ? (
+                      <>
+                        <StarMeter starLevel={starLevel} size="compact" />
+                        <span className="card-types">
+                          {p.types.map((t) => (
+                            <span key={t} className={`pokemon-type-badge type-${t}`}>
+                              {t}
+                            </span>
+                          ))}
                         </span>
-                        {p.types.map((t) => (
-                          <span key={t} className={`pokemon-type-badge type-${t}`}>
-                            {t}
-                          </span>
-                        ))}
-                      </div>
-                    </>
-                  ) : (
-                    <div className="unowned-badge">Unowned</div>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
+                      </>
+                    ) : (
+                      <span className="unowned-badge">Unowned</span>
+                    )}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        )}
 
-      {/* PAGINATION CONTROLS */}
-      {totalPages > 1 && (
-        <div className="pagination-bar">
-          <button
-            className="page-btn"
-            disabled={validCurrentPage === 1}
-            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-          >
-            &laquo; Prev
-          </button>
+        {totalPages > 1 && (
+          <div className="pagination-bar">
+            <button
+              type="button"
+              className="page-btn"
+              disabled={validCurrentPage === 1}
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            >
+              &laquo; Prev
+            </button>
 
-          <span style={{ fontSize: '0.875rem', color: '#94a3b8' }}>
-            Page {validCurrentPage} of {totalPages}
-          </span>
+            <span className="ui-page-count">Page {validCurrentPage} of {totalPages}</span>
 
-          <button
-            className="page-btn"
-            disabled={validCurrentPage === totalPages}
-            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-          >
-            Next &raquo;
-          </button>
-        </div>
-      )}
+            <button
+              type="button"
+              className="page-btn"
+              disabled={validCurrentPage === totalPages}
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            >
+              Next &raquo;
+            </button>
+          </div>
+        )}
+      </section>
 
-      {/* DETAIL MODAL */}
       {selectedPokemon && (
         <PokemonDetailModal
           pokemon={selectedPokemon}

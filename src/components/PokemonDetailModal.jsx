@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
-import { MAX_STAR_LEVEL, SHINY_STAR_LEVEL, unlockedMoveCount, starTierColor, starTierInfo } from '../game/cardLevels.js';
+import React, { useRef, useState } from 'react';
+import { SHINY_STAR_LEVEL, unlockedMoveCount, starTierClass } from '../game/cardLevels.js';
 import { computePokemonStats, tierName } from '../game/balance.js';
 import PokemonImage from './PokemonImage';
+import StarMeter from './StarMeter';
 import learnsets from '../data/learnsets.json' with { type: 'json' };
+import useDialogFocus from '../hooks/useDialogFocus';
 
 function formatTitle(str) {
   if (!str) return '';
@@ -13,10 +15,19 @@ function formatTitle(str) {
 }
 
 const CARD_TYPE_CHIP = {
-  normal: { label: 'NORMAL', color: '#38bdf8', bg: 'rgba(56, 189, 248, 0.15)' },
-  power: { label: '⚡ POWER', color: '#ffd700', bg: 'rgba(236, 72, 153, 0.2)' },
-  ancient: { label: '🏛️ ANCIENT', color: '#b89a6c', bg: 'rgba(184, 154, 108, 0.2)' },
+  normal: { label: 'NORMAL', color: '#7dd3fc', bg: 'rgba(56, 189, 248, 0.14)' },
+  power: { label: 'POWER', color: '#f9a8d4', bg: 'rgba(236, 72, 153, 0.18)' },
+  ancient: { label: 'ANCIENT', color: '#d6bc8a', bg: 'rgba(184, 154, 108, 0.18)' },
 };
+
+const STAT_ROWS = [
+  { label: 'HP', key: 'hp', max: 250, color: '#22c55e' },
+  { label: 'ATK', key: 'attack', max: 190, color: '#ef4444' },
+  { label: 'DEF', key: 'defense', max: 230, color: '#3b82f6' },
+  { label: 'SP.ATK', key: 'specialAttack', max: 194, color: '#a855f7' },
+  { label: 'SP.DEF', key: 'specialDefense', max: 230, color: '#06b6d4' },
+  { label: 'SPD', key: 'speed', max: 200, color: '#eab308' },
+];
 
 export default function PokemonDetailModal({
   pokemon,
@@ -27,6 +38,9 @@ export default function PokemonDetailModal({
   const isOwned = Boolean(entry);
   const starLevel = entry?.star_level || 0;
   const [previewShiny, setPreviewShiny] = useState(isOwned && (entry?.is_shiny || starLevel >= SHINY_STAR_LEVEL));
+  const dialogRef = useRef(null);
+
+  useDialogFocus(dialogRef, { onEscape: onClose });
 
   if (!pokemon) return null;
 
@@ -38,226 +52,201 @@ export default function PokemonDetailModal({
   const isNormalOwned = isOwned && cardType === 'normal';
   const unlockedCount = isNormalOwned && learnset ? unlockedMoveCount(starLevel) : (learnset?.length ?? pokemon.moves?.length ?? 4);
   const displayMoves = learnset || pokemon.moves || [];
+  const displayName = isOwned ? formatTitle(pokemon.name) : 'Unknown Pokemon';
+  const isShinyActive = Boolean(previewShiny && isOwned);
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        {/* Modal Header */}
-        <div className="modal-header">
-          <div>
-            <span className="modal-dex-id">
-              #{String(pokemon.dexNo || pokemon.id).padStart(4, '0')}
-              {isForm && pokemon.label && <span className="form-badge-mark">◆ {pokemon.label}</span>}
-            </span>
-            {cardType !== 'normal' && (
-              <span
-                style={{
-                  marginLeft: '0.5rem',
-                  fontSize: '0.7rem',
-                  fontWeight: 800,
-                  letterSpacing: '1px',
-                  padding: '2px 8px',
-                  borderRadius: '6px',
-                  color: chip.color,
-                  background: chip.bg,
-                }}
-              >
-                {chip.label}
+    <div className="modal-overlay ui-modal-overlay" onClick={onClose}>
+      <div
+        ref={dialogRef}
+        className="modal-content pokemon-detail-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="pokemon-detail-title"
+        tabIndex={-1}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="modal-header detail-modal-head">
+          <div className="detail-modal-identity">
+            <div className="detail-modal-id-row">
+              <span className="modal-dex-id">
+                #{String(pokemon.dexNo || pokemon.id).padStart(4, '0')}
+                {isForm && pokemon.label && <span className="form-badge-mark"> + {pokemon.label}</span>}
               </span>
-            )}
-            <h2 className="modal-title">{isOwned ? formatTitle(pokemon.name) : '???'}</h2>
+              {cardType !== 'normal' && (
+                <span className="detail-card-type" style={{ color: chip.color, background: chip.bg }}>
+                  {chip.label}
+                </span>
+              )}
+            </div>
+            <h2 className="modal-title" id="pokemon-detail-title">{displayName}</h2>
+            <div className="detail-type-row">
+              {pokemon.types.map((t) => (
+                <span key={t} className={`pokemon-type-badge type-${t}`}>{t}</span>
+              ))}
+              <span className={`detail-evolution-chip ${pokemon.isFinalEvolution ? 'is-final' : ''}`}>
+                {pokemon.isFinalEvolution ? 'Final evolution' : 'Can evolve'}
+              </span>
+            </div>
           </div>
-          <button className="modal-close-btn" onClick={onClose}>&times;</button>
+          <button type="button" className="modal-close-btn" onClick={onClose} aria-label="Close Pokemon details">
+            &times;
+          </button>
         </div>
 
-        {/* Modal Body */}
-        <div className="modal-body">
-          {/* Left Column: Image & Ownership status */}
-          <div className="modal-left">
-            <div className="modal-image-card">
+        <div className="modal-body detail-modal-body">
+          <div className="modal-left detail-art-column">
+            <div className={`modal-image-card detail-image-card ${isOwned && cardType === 'normal' ? starTierClass(starLevel) : ''}`}>
               <PokemonImage
                 pokemon={pokemon}
-                isShiny={Boolean(previewShiny && isOwned)}
-                alt={pokemon.name}
+                isShiny={isShinyActive}
+                alt=""
                 className={isOwned ? '' : 'modal-silhouette'}
               />
             </div>
 
             {isOwned && (
-              <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', marginTop: '0.5rem' }}>
+              <div className="detail-preview-toggle" role="group" aria-label="Sprite preview">
                 <button
+                  type="button"
                   className={`preview-toggle-btn ${!previewShiny ? 'active' : ''}`}
                   onClick={() => setPreviewShiny(false)}
+                  aria-pressed={!previewShiny}
                 >
                   Normal
                 </button>
                 <button
+                  type="button"
                   className={`preview-toggle-btn ${previewShiny ? 'active' : ''}`}
                   onClick={() => setPreviewShiny(true)}
+                  aria-pressed={previewShiny}
                 >
-                  ✨ Shiny
+                  Shiny
                 </button>
               </div>
             )}
 
-            <div className="modal-status-box">
+            <div className="modal-status-box detail-status-box">
               {isOwned ? (
                 cardType === 'power' ? (
                   <>
-                    <div className="modal-star-row">⚡ ⭐</div>
-                    <div style={{ fontSize: '0.8rem', color: '#ec4899', marginTop: '0.25rem' }}>
-                      Power Card · Single Copy
-                    </div>
+                    <div className="detail-special-label is-power">Power card</div>
+                    <small>Single copy collectible</small>
                   </>
                 ) : cardType === 'ancient' ? (
                   <>
-                    <div className="modal-star-row">🏛️ ⭐</div>
-                    <div style={{ fontSize: '0.8rem', color: '#b89a6c', marginTop: '0.25rem' }}>
-                      Ancient Card · Single Copy
-                    </div>
+                    <div className="detail-special-label is-ancient">Ancient card</div>
+                    <small>Single copy collectible</small>
                   </>
                 ) : (
                   <>
-                    <div className="modal-star-row" style={{ color: starTierColor(entry.star_level) }}>
-                      {'★'.repeat(entry.star_level)}
-                      {'☆'.repeat(MAX_STAR_LEVEL - entry.star_level)}
-                    </div>
-                    <div style={{ fontSize: '0.72rem', color: starTierColor(entry.star_level), marginTop: '0.1rem', fontWeight: 800, letterSpacing: '0.04em' }}>
-                      {starTierInfo(entry.star_level).label} TIER
-                    </div>
-                    <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '0.15rem' }}>
-                      Duplicates Collected: {entry.dupes_collected || 0}
+                    <StarMeter starLevel={entry.star_level} size="lg" />
+                    <div className="detail-ownership-copy">
+                      {entry.dupes_collected || 0} duplicate{entry.dupes_collected === 1 ? '' : 's'} collected
                     </div>
                     {!entry.is_shiny && starLevel >= SHINY_STAR_LEVEL && (
-                      <div style={{ fontSize: '0.8rem', color: '#fbbf24', marginTop: '0.25rem', fontWeight: 700 }}>
-                        ✨ Maxed — Shiny Unlocked!
-                      </div>
+                      <div className="detail-shiny-unlocked">Shiny unlocked</div>
                     )}
                   </>
                 )
               ) : (
-                <div style={{ color: '#f87171', fontWeight: 600, fontSize: '0.875rem' }}>
-                  Not in Collection Yet (Win battles to unlock!)
+                <div className="detail-unowned">
+                  Not in your collection yet. Win battles or clear arcade runs to unlock it.
                 </div>
               )}
             </div>
           </div>
 
-          {/* Right Column: Types, Stats & Moveset */}
-          <div className="modal-right">
-            {/* Types */}
-            <div style={{ marginBottom: '1rem' }}>
-              <span style={{ fontSize: '0.75rem', color: '#94a3b8', display: 'block', marginBottom: '0.25rem' }}>
-                TYPES &amp; EVOLUTION
-              </span>
-              <div>
-                {pokemon.types.map((t) => (
-                  <span key={t} className={`pokemon-type-badge type-${t}`} style={{ fontSize: '0.8rem', padding: '0.2rem 0.6rem' }}>
-                    {t}
-                  </span>
-                ))}
-                <span
-                  style={{
-                    marginLeft: '0.5rem',
-                    fontSize: '0.75rem',
-                    padding: '0.2rem 0.5rem',
-                    borderRadius: '0.25rem',
-                    backgroundColor: pokemon.isFinalEvolution ? '#065f46' : '#334155',
-                    color: pokemon.isFinalEvolution ? '#a7f3d0' : '#cbd5e1',
-                    fontWeight: 600,
-                  }}
-                >
-                  {pokemon.isFinalEvolution ? 'Final Evolution' : 'Can Evolve'}
-                </span>
+          <div className="modal-right detail-info-column">
+            <section className="detail-section" aria-labelledby="detail-stats-title">
+              <div className="detail-section-head">
+                <div>
+                  <span className="ui-field-label">Battle stats</span>
+                  <h3 id="detail-stats-title">{tierName(loreStats.tier)} tier</h3>
+                </div>
+                {isShinyActive && <span className="ui-badge is-gold">Shiny +12%</span>}
               </div>
-            </div>
-
-            {/* Base Stats */}
-            <div style={{ marginBottom: '1.25rem' }}>
-              <span style={{ fontSize: '0.75rem', color: '#94a3b8', display: 'block', marginBottom: '0.5rem' }}>
-                BATTLE STATS{' '}
-                <span style={{ color: '#38bdf8', fontWeight: 800 }}>({tierName(loreStats.tier)} tier)</span>
-                {Boolean(previewShiny && isOwned) && (
-                  <span style={{ color: '#fbbf24', fontWeight: 800 }}> ✨ +12% Shiny</span>
-                )}
-              </span>
               <div className="stat-bars-container">
-                {[
-                  { label: 'HP', val: loreStats.hp, max: 250, color: '#22c55e' },
-                  { label: 'ATK', val: loreStats.attack, max: 190, color: '#ef4444' },
-                  { label: 'DEF', val: loreStats.defense, max: 230, color: '#3b82f6' },
-                  { label: 'SP.ATK', val: loreStats.specialAttack, max: 194, color: '#a855f7' },
-                  { label: 'SP.DEF', val: loreStats.specialDefense, max: 230, color: '#06b6d4' },
-                  { label: 'SPD', val: loreStats.speed, max: 200, color: '#eab308' },
-                ].map((stat) => (
-                  <div key={stat.label} className="stat-row">
-                    <span className="stat-label">{stat.label}</span>
-                    <span className="stat-val stat-number-condensed">{stat.val}</span>
-                    <div className="stat-bar-outer">
-                      <div
-                        className="stat-bar-inner"
-                        style={{
-                          width: `${Math.min(100, (stat.val / stat.max) * 100)}%`,
-                          backgroundColor: stat.color,
-                        }}
-                      />
+                {STAT_ROWS.map((stat) => {
+                  const value = loreStats[stat.key];
+                  return (
+                    <div key={stat.label} className="stat-row">
+                      <span className="stat-label">{stat.label}</span>
+                      <span className="stat-val stat-number-condensed">{value}</span>
+                      <div className="stat-bar-outer">
+                        <div
+                          className="stat-bar-inner"
+                          style={{
+                            width: `${Math.min(100, (value / stat.max) * 100)}%`,
+                            backgroundColor: stat.color,
+                          }}
+                        />
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
-            </div>
+            </section>
 
-            {/* 4-Move Moveset + Learnset Progression */}
-            <div>
-              <span style={{ fontSize: '0.75rem', color: '#94a3b8', display: 'block', marginBottom: '0.5rem' }}>
-                BATTLE MOVESET {isNormalOwned && learnset ? `(${unlockedCount} of ${learnset.length} moves unlocked)` : ''}
-              </span>
+            <section className="detail-section" aria-labelledby="detail-moves-title">
+              <div className="detail-section-head">
+                <div>
+                  <span className="ui-field-label">Battle moveset</span>
+                  <h3 id="detail-moves-title">
+                    {isNormalOwned && learnset ? `${unlockedCount} of ${learnset.length} unlocked` : 'Available moves'}
+                  </h3>
+                </div>
+              </div>
               <div className="modal-moves-grid">
-                {displayMoves.slice(0, unlockedCount).map((m, mIdx) => (
-                  <div key={mIdx} className="modal-move-card">
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ fontWeight: 700, fontSize: '0.85rem', color: '#f8fafc' }}>{m.name}</span>
-                      <span className={`pokemon-type-badge type-${m.type}`}>{m.type}</span>
+                {displayMoves.slice(0, unlockedCount).map((move, index) => (
+                  <div key={`${move.name}-${index}`} className="modal-move-card detail-move-card">
+                    <div className="detail-move-head">
+                      <span>{move.name}</span>
+                      <span className={`pokemon-type-badge type-${move.type}`}>{move.type}</span>
                     </div>
-                    <div style={{ fontSize: '0.75rem', color: '#cbd5e1', marginTop: '0.2rem' }}>
-                      <span>Cat: {m.category}</span> | <span>Pwr: {m.power || '--'}</span> | <span>PP: {m.pp}/{m.maxPp}</span>
+                    <div className="detail-move-meta">
+                      <span>{move.category}</span>
+                      <span>Power {move.power || '--'}</span>
+                      <span>PP {move.pp}/{move.maxPp}</span>
                     </div>
-                    <div style={{ fontSize: '0.7rem', color: '#94a3b8', marginTop: '0.25rem', fontStyle: 'italic' }}>
-                      {m.effect}
-                    </div>
+                    <p>{move.effect}</p>
                   </div>
                 ))}
               </div>
-            </div>
+            </section>
 
             {learnset && (
-              <div style={{ marginTop: '1.25rem' }}>
-                <span style={{ fontSize: '0.75rem', color: '#94a3b8', display: 'block', marginBottom: '0.5rem' }}>
-                  LEARNSET PROGRESSION {isNormalOwned ? '· One more move per star level' : ''}
-                </span>
+              <section className="detail-section" aria-labelledby="detail-learnset-title">
+                <div className="detail-section-head">
+                  <div>
+                    <span className="ui-field-label">Learnset progression</span>
+                    <h3 id="detail-learnset-title">Move unlocks by star level</h3>
+                  </div>
+                </div>
                 <div className="modal-moves-grid">
-                  {learnset.map((m, mIdx) => {
-                    const isUnlocked = mIdx < unlockedCount;
-                    const requiredStar = mIdx >= 4 ? mIdx - 2 : 1;
+                  {learnset.map((move, index) => {
+                    const isUnlocked = index < unlockedCount;
+                    const requiredStar = index >= 4 ? index - 2 : 1;
                     return (
-                      <div key={mIdx} className={`modal-move-card ${isUnlocked ? '' : 'modal-move-locked'}`} style={!isUnlocked ? { opacity: 0.55 } : undefined}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <span style={{ fontWeight: 700, fontSize: '0.85rem', color: isUnlocked ? '#f8fafc' : '#64748b' }}>
-                            {isUnlocked ? '' : '🔒 '}{m.name}
-                          </span>
-                          <span className={`pokemon-type-badge type-${m.type}`}>{m.type}</span>
+                      <div
+                        key={`${move.name}-${index}`}
+                        className={`modal-move-card detail-move-card ${isUnlocked ? '' : 'modal-move-locked'}`}
+                      >
+                        <div className="detail-move-head">
+                          <span>{isUnlocked ? '' : 'Locked - '}{move.name}</span>
+                          <span className={`pokemon-type-badge type-${move.type}`}>{move.type}</span>
                         </div>
-                        <div style={{ fontSize: '0.75rem', color: '#cbd5e1', marginTop: '0.2rem' }}>
-                          <span>Cat: {m.category}</span> | <span>Pwr: {m.power || '--'}</span> | <span>PP: {m.pp}/{m.maxPp}</span>
+                        <div className="detail-move-meta">
+                          <span>{move.category}</span>
+                          <span>Power {move.power || '--'}</span>
+                          <span>PP {move.pp}/{move.maxPp}</span>
                         </div>
-                        <div style={{ fontSize: '0.7rem', color: '#94a3b8', marginTop: '0.25rem', fontStyle: 'italic' }}>
-                          {isUnlocked ? m.effect : `Unlocks at Star ${requiredStar}`}
-                        </div>
+                        <p>{isUnlocked ? move.effect : `Unlocks at star ${requiredStar}`}</p>
                       </div>
                     );
                   })}
                 </div>
-              </div>
+              </section>
             )}
           </div>
         </div>

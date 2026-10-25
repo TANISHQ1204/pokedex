@@ -232,7 +232,7 @@ export default function RealtimeBattleArena({ match, userId, onUpdateState, play
 
         {/* Bench Rows */}
         <div style={{ padding: '1rem', backgroundColor: '#0f172a', borderTop: '1px solid #334155' }}>
-          <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748b', marginBottom: '0.35rem', textTransform: 'uppercase' }}>
+          <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#94a3b8', marginBottom: '0.35rem', textTransform: 'uppercase' }}>
             @{opponentName}'s Bench ({revealedOppIndices.length}/6 Revealed)
           </div>
           <BenchRow team={formattedOppBench} activeIndex={oppActiveIdx} onSelectSlot={() => {}} />

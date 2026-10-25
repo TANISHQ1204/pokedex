@@ -173,7 +173,7 @@ function SetupScreen({ initial, onStart }) {
 
       <div style={{ marginBottom: '1.25rem' }}>
         <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#94a3b8', marginBottom: '0.5rem' }}>
-          Generations to Include <span style={{ color: '#475569' }}>(toggle each; only Pokemon from the selected generations appear in any round, whatever the theme — ~15% of balls are shiny)</span>
+          Generations to Include <span style={{ color: '#94a3b8' }}>(toggle each; only Pokemon from the selected generations appear in any round, whatever the theme — ~15% of balls are shiny)</span>
         </div>
         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
           <button
@@ -213,7 +213,7 @@ function SetupScreen({ initial, onStart }) {
             );
           })}
         </div>
-        <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 700, marginTop: '0.4rem' }}>
+        <div style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 700, marginTop: '0.4rem' }}>
           {isAllGens
             ? 'Every generation included (Gen 1–9).'
             : `Selected: Generation${selectedGens.length > 1 ? 's' : ''} ${selectedGens.join(', ')}.`}
@@ -446,7 +446,7 @@ function BallTile({ ball, index, clickable, onClick, size = 'md', ownerName, rev
           justifyContent: 'center',
           border: '2px dashed #1e293b',
           background: 'rgba(15, 23, 42, 0.4)',
-          color: '#475569',
+          color: '#94a3b8',
           fontSize: size === 'lg' ? '1.2rem' : '0.9rem',
           opacity: 0.55,
         }}
@@ -548,7 +548,7 @@ function PlayerDraftPanel({ player, session, active }) {
         <span style={{ fontWeight: 900, fontSize: '1rem', color: '#f8fafc' }}>
           {player.name} {active && <span style={{ fontSize: '0.75rem', color: '#38bdf8' }}>🎯 your turn</span>}
         </span>
-        <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#64748b' }}>
+        <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#94a3b8' }}>
           burned {player.burned}
         </span>
       </div>
@@ -562,7 +562,7 @@ function PlayerDraftPanel({ player, session, active }) {
       </div>
       <div style={{ display: 'flex', gap: '0.3rem', flexWrap: 'wrap', minHeight: 34 }}>
         {player.won.length === 0 && (
-          <span style={{ fontSize: '0.75rem', color: '#475569', fontStyle: 'italic' }}>No Pokemon locked yet</span>
+          <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontStyle: 'italic' }}>No Pokemon locked yet</span>
         )}
         {player.won.map((entry, i) => (
           <span
@@ -729,7 +729,7 @@ function PlayingView({ session, setSession, onExit }) {
           <div style={{ fontSize: '0.7rem', fontWeight: 800, color: isRoundComplete ? '#4ade80' : pickPhase ? '#4ade80' : swapMode ? '#fbbf24' : '#94a3b8', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
             {isRoundComplete ? `✅ Round ${session.round} complete — ${BALLS_PER_SET} balls resolved` : pickPhase ? `🔒 Mystery Pokéballs — all ${BALLS_PER_SET} share the theme` : swapMode ? '🔀 No Deal — pick a closed ball to swap into' : 'Revealed — decide your deal'}
           </div>
-          <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748b' }}>
+          <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#94a3b8' }}>
             {pickPhase && actor ? `${actor.name} picks first this round` : ''}
           </div>
         </div>
@@ -851,7 +851,7 @@ function PlayingView({ session, setSession, onExit }) {
         )}
 
         {!pickPhase && !isRoundComplete && round && (
-          <div style={{ marginTop: '0.75rem', fontSize: '0.75rem', color: '#64748b', fontWeight: 700, textAlign: 'center' }}>
+          <div style={{ marginTop: '0.75rem', fontSize: '0.75rem', color: '#94a3b8', fontWeight: 700, textAlign: 'center' }}>
             Round theme: every ball here is a {session.themeLabel} — {categoryLabel(session.themeCategory)}
           </div>
         )}

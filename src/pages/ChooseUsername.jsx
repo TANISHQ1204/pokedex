@@ -136,7 +136,7 @@ export default function ChooseUsername() {
                   left: '0.875rem',
                   top: '50%',
                   transform: 'translateY(-50%)',
-                  color: '#64748b',
+                  color: '#94a3b8',
                   fontWeight: 600,
                 }}
               >
@@ -167,7 +167,7 @@ export default function ChooseUsername() {
                 }}
               />
             </div>
-            <p style={{ marginTop: '0.5rem', fontSize: '0.78rem', color: '#64748b', lineHeight: 1.4 }}>
+            <p style={{ marginTop: '0.5rem', fontSize: '0.78rem', color: '#94a3b8', lineHeight: 1.4 }}>
               Must be 3-20 characters long. Letters, numbers, and underscores only.
             </p>
           </div>

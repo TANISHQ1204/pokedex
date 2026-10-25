@@ -247,7 +247,7 @@ export default function SpecialCollection() {
                     </div>
                   </div>
                 </div>
-                <p style={{ margin: 0, fontSize: '0.8rem', color: '#64748b', lineHeight: '1.5', textAlign: 'left' }}>
+                <p style={{ margin: 0, fontSize: '0.8rem', color: '#94a3b8', lineHeight: '1.5', textAlign: 'left' }}>
                   {cat.description}
                 </p>
                 <div className="hp-bar-outer" style={{ height: '6px', marginTop: '14px' }}>
@@ -353,7 +353,7 @@ export default function SpecialCollection() {
         <div style={{ textAlign: 'center', padding: '3rem', color: '#94a3b8' }}>Loading {catInfo.name}...</div>
       ) : allEntries.length === 0 ? (
         <div style={{
-          textAlign: 'center', padding: '40px 20px', color: '#64748b',
+          textAlign: 'center', padding: '40px 20px', color: '#94a3b8',
           background: 'rgba(15, 23, 42, 0.5)', borderRadius: '24px', border: '1px solid rgba(255, 255, 255, 0.06)',
         }}>
           <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#94a3b8' }}>No cards match your search.</div>
@@ -432,10 +432,10 @@ export default function SpecialCollection() {
                       gap: '12px', position: 'relative', overflow: 'hidden',
                     }}>
                       <img src={pokemon.sprites.normal} alt="" style={{ width: '120px', height: '120px', filter: 'brightness(0) invert(0.15)', opacity: 0.3, userSelect: 'none', pointerEvents: 'none' }} />
-                      <div style={{ fontSize: '0.75rem', fontFamily: "'Rajdhani', sans-serif", fontWeight: 800, letterSpacing: '2px', color: '#475569', textAlign: 'center' }}>
+                      <div style={{ fontSize: '0.75rem', fontFamily: "'Rajdhani', sans-serif", fontWeight: 800, letterSpacing: '2px', color: '#94a3b8', textAlign: 'center' }}>
                         🔒 LOCKED
                       </div>
-                      <div style={{ fontSize: '0.65rem', color: '#334155', textAlign: 'center', padding: '0 20px' }}>
+                      <div style={{ fontSize: '0.65rem', color: '#94a3b8', textAlign: 'center', padding: '0 20px' }}>
                         Win battles to unlock
                       </div>
                       <span className={`pokemon-type-badge type-${pokemon.types[0]}`} style={{ position: 'absolute', top: '12px', right: '12px', fontSize: '0.65rem', padding: '2px 8px', opacity: 0.5 }}>
@@ -463,7 +463,7 @@ export default function SpecialCollection() {
                   )}
 
                   {owned && (
-                    <span style={{ fontSize: '0.68rem', color: '#475569' }}>Click the card to view details</span>
+                    <span style={{ fontSize: '0.68rem', color: '#94a3b8' }}>Click the card to view details</span>
                   )}
                 </div>
               );

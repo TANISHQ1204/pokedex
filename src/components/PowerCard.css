@@ -347,7 +347,7 @@
 .pc-stat-label {
   font-size: 0.5rem;
   text-transform: uppercase;
-  color: #64748b;
+  color: #94a3b8;
   font-weight: 700;
   letter-spacing: 0.5px;
 }
@@ -365,7 +365,7 @@
   align-items: center;
   justify-content: space-between;
   font-size: 0.55rem;
-  color: #475569;
+  color: #94a3b8;
   padding-top: 4px;
   border-top: 1px solid rgba(255, 255, 255, 0.05);
 }

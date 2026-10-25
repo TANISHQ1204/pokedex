@@ -1,3 +1,5 @@
+import { MAX_STAR_LEVEL } from './cardLevels.js';
+
 /**
  * Helper to normalize playerCollection parameter into a Map of pokemon_id -> entry object.
  * ONLY standard (normal) card records are counted — Power Cards and Ancient Cards are
@@ -85,14 +87,14 @@ export function getCollectionProgress(collection, playerCollection) {
 /**
  * Determines trophy tier based on collection progress and average star level.
  *
- * Tier Rules (extended for the 10-star system):
+ * Tier Rules (extended for the 20-star system):
  * - Locked until 100% of collection is owned.
- * - Bronze:  avg star level 1 - 2.9
- * - Silver:  avg star level 3 - 4.9
- * - Gold:    avg star level 5 - 6.9
- * - Platinum: avg star level 7 - 8.9
- * - Diamond:  avg star level 9
- * - Master:   avg star level 10 (every card maxed → shiny mastery)
+ * - Bronze:  avg star level 1 - 4.9
+ * - Silver:  avg star level 5 - 8.9
+ * - Gold:    avg star level 9 - 12.9
+ * - Platinum: avg star level 13 - 15.9
+ * - Diamond:  avg star level 16 - 19.9
+ * - Master:   avg star level 20 (every card maxed → shiny mastery)
  *
  * @param {Object} collection - Collection object
  * @param {Array|Map} playerCollection - User's collection records
@@ -112,7 +114,7 @@ export function getTrophyTier(collection, playerCollection) {
   }
 
   const avg = progress.avgStarLevel;
-  if (avg >= 10) {
+  if (avg >= MAX_STAR_LEVEL) {
     return {
       tier: 'master',
       tierName: 'Master Trophy (Shiny)',
@@ -121,7 +123,7 @@ export function getTrophyTier(collection, playerCollection) {
       progress,
     };
   }
-  if (avg >= 9) {
+  if (avg >= 16) {
     return {
       tier: 'diamond',
       tierName: 'Diamond Trophy',
@@ -130,7 +132,7 @@ export function getTrophyTier(collection, playerCollection) {
       progress,
     };
   }
-  if (avg >= 7) {
+  if (avg >= 13) {
     return {
       tier: 'platinum',
       tierName: 'Platinum Trophy',
@@ -139,7 +141,7 @@ export function getTrophyTier(collection, playerCollection) {
       progress,
     };
   }
-  if (avg >= 5) {
+  if (avg >= 9) {
     return {
       tier: 'gold',
       tierName: 'Gold Trophy',
@@ -149,7 +151,7 @@ export function getTrophyTier(collection, playerCollection) {
     };
   }
 
-  if (avg >= 3) {
+  if (avg >= 5) {
     return {
       tier: 'silver',
       tierName: 'Silver Trophy',

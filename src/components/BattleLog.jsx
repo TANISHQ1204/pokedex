@@ -12,7 +12,7 @@ export default function BattleLog({ logs }) {
   return (
     <div className="battle-log-container" ref={logContainerRef}>
       {logs.length === 0 ? (
-        <div style={{ color: '#64748b', fontStyle: 'italic' }}>Battle ready. Choose a move to begin!</div>
+        <div style={{ color: '#94a3b8', fontStyle: 'italic' }}>Battle ready. Choose a move to begin!</div>
       ) : (
         logs.map((log, index) => {
           let className = 'log-entry';

@@ -82,8 +82,21 @@ export default function AncientCard({
     setTiltStyle({ transform: 'rotateX(0deg) rotateY(0deg) scale(1)' });
   };
 
+  const handleKeyDown = (event) => {
+    if (!onClick || (event.key !== 'Enter' && event.key !== ' ')) return;
+    event.preventDefault();
+    onClick(event);
+  };
+
   return (
-    <div className="ancient-card-stage" onClick={onClick}>
+    <div
+      className="ancient-card-stage"
+      onClick={onClick}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      aria-label={onClick ? `Open details for ${pokemon.name}` : undefined}
+      onKeyDown={handleKeyDown}
+    >
       <div
         ref={cardRef}
         className={`ancient-card ancient-gen-${gen}`}

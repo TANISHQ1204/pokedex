@@ -1,6 +1,10 @@
 import { supabase, isSupabaseConfigured } from './supabaseClient';
 import { findNormalRecord, findPowerRecord, findAncientRecord } from '../utils/cardTypes';
-import { MAX_STAR_LEVEL, SHINY_STAR_LEVEL } from '../game/cardLevels.js';
+import {
+  MAX_STAR_LEVEL,
+  SHINY_STAR_LEVEL,
+  starLevelFromDupes,
+} from '../game/cardLevels.js';
 
 const MOCK_COLLECTION_KEY = 'pokedex_mock_normal_collection';
 
@@ -74,13 +78,13 @@ export async function upsertCollectionEntry(entry) {
  * 
  * DUPLICATE & STAR LEVEL MECHANICS (Cumulative Counting):
  * - If user does NOT own this card: insert row with star_level=1, dupes_collected=0, is_shiny=false.
- * - If user DOES own this card and star_level < 5:
+ * - If user DOES own this card and star_level < 20:
  *   - Increments dupes_collected by +1.
- *   - dupes_collected accumulates continuously (1, 2, 3, 4+).
- *   - Each dupe collected increases star_level by exactly +1 stage.
- *   - Formula: star_level = Math.min(5, 1 + dupes_collected).
- *   - When star_level reaches 5 (max level, requiring 4 total dupes), is_shiny is set to true!
- * - If star_level is already 5 (maxed): further drops of this pokemon_id are blocked.
+ *   - Each duplicate collected increases star_level by exactly +1 stage.
+ *   - Formula: star_level = Math.min(20, 1 + dupes_collected).
+ *   - 19 total duplicates reaches 20★ and unlocks shiny.
+ *   - Stored star levels are never downgraded during migration.
+ * - If star_level is already 20 (maxed): further drops of this pokemon_id are blocked.
  * 
  * @param {string} userId - Auth user UUID
  * @param {number} pokemonId - Pokémon ID awarded
@@ -126,7 +130,7 @@ export async function awardCard(userId, pokemonId) {
     };
   }
 
-  // Case B: Card is already maxed out at MAX_STAR_LEVEL (10) stars
+  // Case B: Card is already maxed out at MAX_STAR_LEVEL (20) stars
   if (existing.star_level >= MAX_STAR_LEVEL) {
     return {
       isNew: false,
@@ -138,14 +142,12 @@ export async function awardCard(userId, pokemonId) {
   }
 
   // Case C: Card exists and star_level < MAX_STAR_LEVEL -> Increment dupes and calculate star level.
-  const newDupes = (existing.dupes_collected || 0) + 1;
-  // Star formula (chosen in plan): min(10, 1 + floor(dupes/2)) → 1★ @0-1, 10★ @18.
-  // Never downgrade: preserved progress (e.g. pre-migration 5★ rows) stays put,
-  // only upgraded once the new formula's level is actually higher.
-  const formulaStar = Math.min(MAX_STAR_LEVEL, 1 + Math.floor(newDupes / 2));
-  const newStarLevel = Math.max(Number(existing.star_level) || 1, formulaStar);
-  const starUpgraded = newStarLevel > existing.star_level;
-  const becameShiny = newStarLevel >= SHINY_STAR_LEVEL;
+  const currentDupes = Math.max(0, Number(existing.dupes_collected) || 0);
+  const newDupes = Math.min(MAX_STAR_LEVEL - 1, currentDupes + 1);
+  // One duplicate = one star: min(20, 1 + dupes). Never downgrade legacy progress.
+  const newStarLevel = starLevelFromDupes(newDupes, existing.star_level);
+  const starUpgraded = newStarLevel > (Number(existing.star_level) || 1);
+  const becameShiny = !existing.is_shiny && newStarLevel >= SHINY_STAR_LEVEL;
 
   const updatedEntry = await upsertCollectionEntry({
     user_id: userId,

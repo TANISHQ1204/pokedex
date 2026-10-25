@@ -1,4 +1,8 @@
 ﻿-- ============================================================
+--  OBSOLETE - DO NOT RUN.
+--  This is the old 5-star migration. The app now uses 20 stars.
+--  Use scripts/migrate_star_levels_20.sql instead.
+-- ============================================================
 --  ONE-TIME MIGRATION: Fix star_level / is_shiny in collections
 --  Run in: Supabase Dashboard > SQL Editor
 --  Formula: star_level = LEAST(5, 1 + dupes_collected)

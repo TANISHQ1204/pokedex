@@ -257,7 +257,7 @@ export default function JoinMatch() {
             style={{
               background: 'none',
               border: 'none',
-              color: '#64748b',
+              color: '#94a3b8',
               fontSize: '0.85rem',
               cursor: 'pointer',
               textDecoration: 'underline',

@@ -272,3 +272,117 @@ export function UsersFriendsIcon({ size = 24, className = '' }) {
   );
 }
 
+export function GamepadIcon({ size = 24, className = '' }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={`game-icon ${className}`}
+    >
+      <path d="M7.5 8h9a4 4 0 0 1 3.8 5.2l-1 3.2a2.4 2.4 0 0 1-4.1 1l-1.4-1.6H10l-1.4 1.6a2.4 2.4 0 0 1-4.1-1l-1-3.2A4 4 0 0 1 7.5 8Z" />
+      <path d="M7.5 11v4M5.5 13h4" />
+      <path d="M16 11.5h.01M18 13.5h.01" strokeWidth="2.8" />
+    </svg>
+  );
+}
+
+export function LinkLabIcon({ size = 24, className = '' }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={`game-icon ${className}`}
+    >
+      <circle cx="6" cy="12" r="3" />
+      <circle cx="18" cy="6" r="2.5" />
+      <circle cx="18" cy="18" r="2.5" />
+      <path d="M8.8 10.8 15.5 7M8.8 13.2l6.7 3.8" />
+    </svg>
+  );
+}
+
+export function TypeWeaverIcon({ size = 24, className = '' }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={`game-icon ${className}`}
+    >
+      <path d="M12 3v4M12 17v4M3 12h4M17 12h4" />
+      <path d="m6.3 6.3 2.8 2.8M14.9 14.9l2.8 2.8M17.7 6.3l-2.8 2.8M9.1 14.9l-2.8 2.8" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  );
+}
+
+export function CatchRushIcon({ size = 24, className = '' }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={`game-icon ${className}`}
+    >
+      <circle cx="12" cy="12" r="8" />
+      <circle cx="12" cy="12" r="3.5" />
+      <path d="M12 2v4M12 18v4M2 12h4M18 12h4" />
+    </svg>
+  );
+}
+
+export function MemoryDexIcon({ size = 24, className = '' }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={`game-icon ${className}`}
+    >
+      <rect x="4" y="4" width="6" height="6" rx="1" />
+      <rect x="14" y="4" width="6" height="6" rx="1" />
+      <rect x="4" y="14" width="6" height="6" rx="1" />
+      <rect x="14" y="14" width="6" height="6" rx="1" />
+    </svg>
+  );
+}
+
+const ARCADE_ICONS = {
+  'link-lab': LinkLabIcon,
+  'type-weaver': TypeWeaverIcon,
+  'catch-rush': CatchRushIcon,
+  'memory-dex': MemoryDexIcon,
+};
+
+export function ArcadeGameIcon({ gameId, size = 24, className = '' }) {
+  const Icon = ARCADE_ICONS[gameId] || GamepadIcon;
+  return <Icon size={size} className={className} />;
+}
+

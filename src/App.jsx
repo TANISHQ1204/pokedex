@@ -5,6 +5,8 @@ import Navbar from './components/Navbar';
 import Login from './pages/Login';
 import ChooseUsername from './pages/ChooseUsername';
 import Home from './pages/Home';
+import Arcade from './pages/Arcade';
+import ArcadeRun from './pages/ArcadeRun';
 import Battle from './pages/Battle';
 import Collection from './pages/Collection';
 import Trophies from './pages/Trophies';
@@ -23,6 +25,16 @@ import Stats from './pages/Stats';
 import MatchInviteBanner from './components/MatchInviteBanner';
 import usePointerGlow from './hooks/usePointerGlow';
 
+function AppLayout({ children }) {
+  return (
+    <>
+      <a href="#main-content" className="skip-link">Skip to main content</a>
+      <Navbar />
+      <main id="main-content" tabIndex={-1}>{children}</main>
+    </>
+  );
+}
+
 function ProtectedRoute({ children }) {
   const { session, profile, loading, loadingProfile, isConfigured } = useAuth();
   const location = useLocation();
@@ -37,12 +49,7 @@ function ProtectedRoute({ children }) {
 
   // If Supabase isn't configured yet, allow viewing routes for preview
   if (!isConfigured) {
-    return (
-      <>
-        <Navbar />
-        <main>{children}</main>
-      </>
-    );
+    return <AppLayout>{children}</AppLayout>;
   }
 
   if (!session) {
@@ -54,7 +61,7 @@ function ProtectedRoute({ children }) {
     if (location.pathname !== '/choose-username') {
       return <Navigate to="/choose-username" replace />;
     }
-    return <main>{children}</main>;
+    return <main id="main-content" tabIndex={-1}>{children}</main>;
   }
 
   // User has profile already; don't allow visiting /choose-username
@@ -62,12 +69,7 @@ function ProtectedRoute({ children }) {
     return <Navigate to="/home" replace />;
   }
 
-  return (
-    <>
-      <Navbar />
-      <main>{children}</main>
-    </>
-  );
+  return <AppLayout>{children}</AppLayout>;
 }
 
 function PublicRoute({ children }) {
@@ -93,7 +95,7 @@ function PublicRoute({ children }) {
     return <Navigate to="/home" replace />;
   }
 
-  return <main>{children}</main>;
+  return <main id="main-content" tabIndex={-1}>{children}</main>;
 }
 
 export default function App() {
@@ -124,6 +126,22 @@ export default function App() {
           element={
             <ProtectedRoute>
               <Home />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/arcade"
+          element={
+            <ProtectedRoute>
+              <Arcade />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/arcade/play/:gameId"
+          element={
+            <ProtectedRoute>
+              <ArcadeRun />
             </ProtectedRoute>
           }
         />
@@ -241,10 +259,3 @@ export default function App() {
     </AuthProvider>
   );
 }
-
-
-
-
-
-
-

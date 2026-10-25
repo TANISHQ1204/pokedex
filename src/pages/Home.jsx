@@ -9,10 +9,15 @@ import collectionsList from '../data/collections.json' with { type: 'json' };
 import badgesList from '../data/badges.json' with { type: 'json' };
 import { getPokemonById, fullPokemonList } from '../utils/pokemonCatalog.js';
 import { isNormalRecord } from '../utils/cardTypes';
-import { MAX_STAR_LEVEL, SHINY_STAR_LEVEL } from '../game/cardLevels.js';
+import { MAX_STAR_LEVEL, SHINY_STAR_LEVEL, starTierClass } from '../game/cardLevels.js';
 import { fetchRecentPulls, fetchBattleHistory, computeBattleRecord, summarizePulls, formatTimeAgo, mergeCollectionPulls } from '../store/stats';
+import { getDailyArcadeGame, getQuickPlayGames } from '../game/arcadeGames';
+import { loadArcadeProgress } from '../store/arcadeProgress';
 import PokemonDetailModal from '../components/PokemonDetailModal';
 import PokemonImage from '../components/PokemonImage';
+import StarMeter from '../components/StarMeter';
+import HomeProgressTabs from '../components/HomeProgressTabs';
+import ArcadeGameCard from '../components/ArcadeGameCard';
 import {
   SwordsIcon,
   CardsIcon,
@@ -21,6 +26,9 @@ import {
   PokedexBookIcon,
   SparkleStarIcon,
   ChartBarIcon,
+  GamepadIcon,
+  UsersFriendsIcon,
+  ArcadeGameIcon,
 } from '../components/icons/GameIcons';
 
 function formatTitle(str) {
@@ -41,6 +49,7 @@ export default function Home() {
   const [activity, setActivity] = useState({ history: [], pulls: [], collection: [] });
   const [selectedShowcase, setSelectedShowcase] = useState(null);
   const [typeChartOpen, setTypeChartOpen] = useState(false);
+  const [arcadeProgress, setArcadeProgress] = useState(() => loadArcadeProgress(user?.id));
 
   // User display name
   const trainerName =
@@ -48,6 +57,10 @@ export default function Home() {
     user?.user_metadata?.name ||
     user?.email?.split('@')[0] ||
     'Trainer';
+
+  useEffect(() => {
+    setArcadeProgress(loadArcadeProgress(user?.id));
+  }, [user?.id]);
 
   // Fetch collection from Supabase
   useEffect(() => {
@@ -104,10 +117,13 @@ export default function Home() {
     return getPokemonById(pullSummary.recent.pokemon_id) || null;
   }, [pullSummary]);
 
-  // Compute Dashboard Stats
+  // Compute dashboard and tab progress from the same collection snapshot so every
+  // number on the page stays in sync.
   const stats = useMemo(() => {
     const totalOwned = collectionMap.size;
-    const completionPercent = Math.round((totalOwned / fullPokemonList.length) * 100);
+    const completionPercent = fullPokemonList.length
+      ? Math.round((totalOwned / fullPokemonList.length) * 100)
+      : 0;
 
     let maxedShinyCount = 0;
     collectionMap.forEach((entry) => {
@@ -116,37 +132,54 @@ export default function Home() {
       }
     });
 
-    // Trophies stats
-    let goldTrophies = 0;
-    let silverTrophies = 0;
-    let bronzeTrophies = 0;
-
+    const trophyCounts = {
+      locked: 0,
+      bronze: 0,
+      silver: 0,
+      gold: 0,
+      platinum: 0,
+      diamond: 0,
+      master: 0,
+    };
     collectionsList.forEach((col) => {
-      const tierObj = getTrophyTier(col, collectionMap);
-      if (tierObj.tier === 'gold') goldTrophies++;
-      else if (tierObj.tier === 'silver') silverTrophies++;
-      else if (tierObj.tier === 'bronze') bronzeTrophies++;
+      const tier = getTrophyTier(col, collectionMap).tier;
+      if (trophyCounts[tier] != null) trophyCounts[tier]++;
     });
+    const totalTrophies = collectionsList.length;
+    const trophiesUnlocked = totalTrophies - trophyCounts.locked;
 
-    // Badges stats
-    let badgesUnlocked = 0;
+    const badgeGroups = {
+      all: { total: 0, unlocked: 0 },
+      regional: { total: 0, unlocked: 0 },
+      mastery: { total: 0, unlocked: 0 },
+    };
     badgesList.forEach((badge) => {
-      const status = getBadgeStatus(badge, collectionMap);
-      if (status.isUnlocked) badgesUnlocked++;
+      const isMastery = badge.criteria === 'star20' || badge.criteria === 'star10';
+      const group = isMastery ? badgeGroups.mastery : badgeGroups.regional;
+      const isUnlocked = getBadgeStatus(badge, collectionMap).isUnlocked;
+      group.total++;
+      badgeGroups.all.total++;
+      if (isUnlocked) {
+        group.unlocked++;
+        badgeGroups.all.unlocked++;
+      }
     });
 
     return {
       totalOwned,
       completionPercent,
       maxedShinyCount,
-      goldTrophies,
-      silverTrophies,
-      bronzeTrophies,
-      totalTrophies: goldTrophies + silverTrophies + bronzeTrophies,
-      badgesUnlocked,
+      trophyCounts,
+      totalTrophies,
+      trophiesUnlocked,
+      badgeGroups,
+      badgesUnlocked: badgeGroups.all.unlocked,
       totalBadges: badgesList.length,
     };
   }, [collectionMap]);
+
+  const dailyGame = useMemo(() => getDailyArcadeGame(new Date()), []);
+  const quickPlayGames = useMemo(() => getQuickPlayGames(new Date()), []);
 
   // Top Collection Showcase — most recently obtained cards (live pulls merged
   // with pre-tracking collection backfill). Clicking a card opens its detail modal.
@@ -178,217 +211,275 @@ export default function Home() {
 
   return (
     <>
-    <div className="page-container">
-      {/* HERO WELCOME BANNER */}
-      <div className="home-hero-card">
-        <div className="hero-content">
-          <div className="hero-badge">HQ DASHBOARD</div>
-          <h1 className="hero-title">Welcome back, {trainerName}!</h1>
-          <p className="hero-subtitle">
-            Your Pokédex Command Center. Battle trainers, collect National Dex cards, earn gym badges, and achieve trophy glory!
+    <div className="page-container home-page">
+      <section className="home-arcade-hero">
+        <div className="home-hero-copy">
+          <div className="home-hero-eyebrow">
+            <GamepadIcon size={18} />
+            <span>Poké Arcade</span>
+            <span className="home-live-dot">Daily run live</span>
+          </div>
+          <h1>Play a quick run.<br />Pull the next card.</h1>
+          <p className="home-hero-subtitle">
+            Welcome back, {trainerName}. The arcade is your new home for short challenges,
+            daily rotations, and collection rewards — with the full league still a click away.
           </p>
-
-          {/* Quick Action Launchers */}
-          <div className="hero-actions">
-            <Link to="/battle" className="hero-btn primary">
-              <SwordsIcon size={20} /> Battle Arena
+          <div className="home-hero-actions">
+            <Link to="/arcade" className="home-cta primary">
+              <GamepadIcon size={20} /> Enter Poké Arcade
             </Link>
-            <Link to="/collection" className="hero-btn secondary">
-              <CardsIcon size={20} /> Card Collection
+            <Link to="/collection" className="home-cta secondary">
+              <CardsIcon size={20} /> View Collection
             </Link>
-            <Link to="/trophies" className="hero-btn secondary">
-              <TrophyIcon size={20} tier="gold" /> Trophy Hall
-            </Link>
+          </div>
+          <div className="home-hero-meta">
+            <span><span className="home-status-dot" /> Today&apos;s featured: {dailyGame.name}</span>
+            <span>{quickPlayGames.length} more quick-play runs</span>
+            <span>{arcadeProgress.streak?.current || 0} {(arcadeProgress.streak?.current || 0) === 1 ? 'day' : 'days'} arcade streak</span>
           </div>
         </div>
-      </div>
 
-      {/* DASHBOARD STATS GRID */}
-      <div className="dashboard-stats-grid">
-        {/* Card 1: Pokédex Completion */}
-        <div className="dash-stat-card">
-          <div className="dash-stat-header">
-            <PokedexBookIcon size={22} />
-            <span className="dash-stat-label">Pokédex Completion</span>
+        <div
+          className="home-feature-card"
+          style={{ '--game-accent': dailyGame.accent, '--game-accent-2': dailyGame.accent2 }}
+        >
+          <div className="home-feature-glow" aria-hidden="true" />
+          <div className="home-feature-head">
+            <span className="home-eyebrow">Daily featured</span>
+            <span className="home-feature-time">{dailyGame.duration}</span>
           </div>
-          <div className="dash-stat-val">
-            {stats.totalOwned} <span style={{ fontSize: '1rem', color: '#94a3b8' }}>/ 1025</span>
-          </div>
-          <div style={{ margin: '0.5rem 0' }}>
-            <div className="hp-bar-outer" style={{ height: '8px' }}>
-              <div className="hp-bar-inner hp-green" style={{ width: `${stats.completionPercent}%` }} />
+          <div className="home-feature-body">
+            <div className="home-feature-icon">
+              <ArcadeGameIcon gameId={dailyGame.id} size={42} />
+            </div>
+            <div>
+              <span className="arcade-game-eyebrow">{dailyGame.eyebrow}</span>
+              <h2>{dailyGame.name}</h2>
+              <p>{dailyGame.tagline}</p>
             </div>
           </div>
-          <div className="dash-stat-subtext">
-            {stats.completionPercent}% Completed ({1025 - stats.totalOwned} remaining)
+          <div className="home-feature-meta">
+            <span>{dailyGame.difficulty}</span>
+            <span>{dailyGame.reward}</span>
+            <span>Rotates daily</span>
           </div>
+          <Link
+            to={dailyGame.playable ? `/arcade/play/${dailyGame.id}` : `/arcade?game=${dailyGame.id}`}
+            className="home-feature-cta"
+          >
+            {dailyGame.playable ? 'Play' : 'Preview'} today&apos;s run <span aria-hidden="true">→</span>
+          </Link>
         </div>
+      </section>
 
-        {/* Card 2: Trophy Summary */}
-        <div className="dash-stat-card">
-          <div className="dash-stat-header">
-            <TrophyIcon size={22} tier="gold" />
-            <span className="dash-stat-label">Trophies Hall</span>
+      <section className="home-metric-strip" aria-label="Trainer overview">
+        <Link to="/collection" className="home-metric">
+          <span className="home-metric-icon"><PokedexBookIcon size={20} /></span>
+          <span className="home-metric-copy">
+            <span className="home-metric-label">Pokédex</span>
+            <strong>{isLoading ? '—' : stats.totalOwned} <small>/ {fullPokemonList.length}</small></strong>
+            <span className="home-metric-track"><span style={{ width: `${isLoading ? 0 : stats.completionPercent}%` }} /></span>
+          </span>
+          <span className="home-metric-value">{isLoading ? '—' : `${stats.completionPercent}%`}</span>
+        </Link>
+
+        <Link to="/trophies" className="home-metric">
+          <span className="home-metric-icon"><TrophyIcon size={20} tier="gold" /></span>
+          <span className="home-metric-copy">
+            <span className="home-metric-label">Trophies</span>
+            <strong>{isLoading ? '—' : stats.trophiesUnlocked} <small>/ {stats.totalTrophies}</small></strong>
+            <span className="home-metric-track gold">
+              <span style={{ width: `${stats.totalTrophies ? Math.round((stats.trophiesUnlocked / stats.totalTrophies) * 100) : 0}%` }} />
+            </span>
+          </span>
+          <span className="home-metric-value">{stats.trophyCounts.gold} gold</span>
+        </Link>
+
+        <Link to="/badges" className="home-metric">
+          <span className="home-metric-icon"><GymBadgeIcon size={20} color="#f59e0b" /></span>
+          <span className="home-metric-copy">
+            <span className="home-metric-label">Badges</span>
+            <strong>{isLoading ? '—' : stats.badgesUnlocked} <small>/ {stats.totalBadges}</small></strong>
+            <span className="home-metric-track green">
+              <span style={{ width: `${stats.totalBadges ? Math.round((stats.badgesUnlocked / stats.totalBadges) * 100) : 0}%` }} />
+            </span>
+          </span>
+          <span className="home-metric-value">{stats.badgeGroups.mastery.unlocked} mastery</span>
+        </Link>
+
+        <Link to="/stats" className="home-metric">
+          <span className="home-metric-icon"><SparkleStarIcon size={20} /></span>
+          <span className="home-metric-copy">
+            <span className="home-metric-label">Maxed shiny</span>
+            <strong>{isLoading ? '—' : stats.maxedShinyCount}</strong>
+            <span className="home-metric-note">{MAX_STAR_LEVEL}-star cards</span>
+          </span>
+          <span className="home-metric-value">{battleRecord.wins}W</span>
+        </Link>
+      </section>
+
+      <HomeProgressTabs collectionMap={collectionMap} stats={stats} isLoading={isLoading} />
+
+      <section className="home-section" id="quick-play">
+        <div className="home-section-head">
+          <div>
+            <span className="home-eyebrow">Quick play</span>
+            <h2>Choose your next run</h2>
+            <p>Short sessions built around what you already collect. Every run feeds the same card pool.</p>
           </div>
-          <div className="dash-stat-val">
-            {stats.totalTrophies} <span style={{ fontSize: '1rem', color: '#94a3b8' }}>Unlocked</span>
-          </div>
-          <div className="dash-pill-row">
-            <span className="dash-pill gold"><TrophyIcon size={12} tier="gold" /> {stats.goldTrophies} Gold</span>
-            <span className="dash-pill silver"><TrophyIcon size={12} tier="silver" /> {stats.silverTrophies} Silver</span>
-            <span className="dash-pill bronze"><TrophyIcon size={12} tier="bronze" /> {stats.bronzeTrophies} Bronze</span>
-          </div>
+          <Link className="home-text-link" to="/arcade">
+            Open arcade <span aria-hidden="true">→</span>
+          </Link>
         </div>
+        <div className="arcade-game-grid">
+          {quickPlayGames.map((game) => (
+            <ArcadeGameCard
+              key={game.id}
+              game={game}
+              ctaLabel={game.playable ? 'Play run' : 'Preview run'}
+            />
+          ))}
+        </div>
+      </section>
 
-        {/* Card 3: Gym Badges */}
-        <div className="dash-stat-card">
-          <div className="dash-stat-header">
-            <GymBadgeIcon size={22} color="#f59e0b" />
-            <span className="dash-stat-label">Gym Badges</span>
-          </div>
-          <div className="dash-stat-val">
-            {stats.badgesUnlocked} <span style={{ fontSize: '1rem', color: '#94a3b8' }}>/ {stats.totalBadges}</span>
-          </div>
-          <div style={{ margin: '0.5rem 0' }}>
-            <div className="hp-bar-outer" style={{ height: '8px' }}>
-              <div
-                className="hp-bar-inner hp-yellow"
-                style={{ width: `${Math.round((stats.badgesUnlocked / stats.totalBadges) * 100)}%` }}
-              />
+      <div className="home-lower-grid">
+        <section className="home-showcase" aria-labelledby="recent-cards-title">
+          <div className="home-section-head">
+            <div>
+              <span className="home-eyebrow">Collection highlights</span>
+              <h2 id="recent-cards-title">Recently obtained cards</h2>
+              <p>Your latest pulls — click a card for its full details.</p>
             </div>
+            <Link className="home-text-link" to="/stats">
+              Full stats <span aria-hidden="true">→</span>
+            </Link>
           </div>
-          <div className="dash-stat-subtext">
-            Regional Champion & Gym Sets Completed
-          </div>
-        </div>
 
-        {/* Card 4: Shiny & Maxed Cards */}
-        <div className="dash-stat-card">
-          <div className="dash-stat-header">
-            <SparkleStarIcon size={22} />
-            <span className="dash-stat-label">Shiny & Maxed Cards</span>
-          </div>
-          <div className="dash-stat-val" style={{ color: '#fef08a' }}>
-            {stats.maxedShinyCount}
-          </div>
-          <div className="dash-stat-subtext" style={{ marginTop: '0.75rem' }}>
-            5-Star Maxed & Shiny Cards Owned
-          </div>
-        </div>
-
-        {/* Card 5: Battle Stats / Recent Pull */}
-        <div className="dash-stat-card">
-          <div className="dash-stat-header">
-            <ChartBarIcon size={22} />
-            <span className="dash-stat-label">Battle Stats</span>
-          </div>
-          <div className="dash-stat-val">
-            {battleRecord.total} <span style={{ fontSize: '1rem', color: '#94a3b8' }}>Battles</span>
-          </div>
-          <div className="dash-pill-row">
-            <span className="dash-pill gold"><SwordsIcon size={12} /> {battleRecord.wins} Wins</span>
-            <span className="dash-pill silver">Streak: {battleRecord.currentStreak}</span>
-          </div>
-          {lastPullPkmn ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.6rem' }}>
-              <img
-                src={lastPullPkmn.sprites.normal}
-                alt={formatTitle(lastPullPkmn.name)}
-                onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                width={36}
-                height={36}
-                style={{ objectFit: 'contain', imageRendering: 'pixelated', background: '#0f172a', borderRadius: '0.4rem', padding: '0.1rem 0.2rem' }}
-              />
-              <div style={{ minWidth: 0 }}>
-                <div style={{ color: '#f8fafc', fontSize: '0.8rem', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                  Pull: {formatTitle(lastPullPkmn.name)}
-                </div>
-                <div style={{ color: '#94a3b8', fontSize: '0.7rem' }}>{formatTimeAgo(pullSummary.recent.created_at)}</div>
-              </div>
+          {!hasShowcase ? (
+            <div className="home-empty-state">
+              <SparkleStarIcon size={28} />
+              <p>No cards yet — win battles and clear arcade runs to pull your first cards.</p>
+              <Link to="/battle" className="home-text-link">Start a battle →</Link>
             </div>
           ) : (
-            <div className="dash-stat-subtext" style={{ marginTop: '0.6rem' }}>
-              No activity yet — win battles to build your record.
+            <div className="showcase-grid home-showcase-grid">
+              {showcaseCards.map(({ pkmn, pull, cardType, entry }) => {
+                const starLevel = entry?.star_level || Number(pull.star_level) || 0;
+                const isShiny = Boolean((entry?.is_shiny) || pull.is_shiny) || starLevel >= SHINY_STAR_LEVEL;
+                const isSpecial = cardType === 'power' || cardType === 'ancient';
+                const typeLabel = cardType === 'power' ? '⚡ Power' : cardType === 'ancient' ? '🏛️ Ancient' : 'Normal';
+                const tierClass = !isSpecial && starLevel > 0 ? starTierClass(starLevel) : '';
+
+                return (
+                  <button
+                    key={pkmn.id}
+                    type="button"
+                    className={`showcase-card ${cardType === 'power' ? 'showcase-power' : cardType === 'ancient' ? 'showcase-ancient' : ''} ${tierClass}`.trim()}
+                    onClick={() => setSelectedShowcase({ pkmn, cardType, entry })}
+                  >
+                    <div className="card-top-id">#{String(pkmn.id).padStart(4, '0')}</div>
+                    <div className="showcase-card-image">
+                      <PokemonImage pokemon={pkmn} isShiny={isShiny} alt={formatTitle(pkmn.name)} />
+                      {isShiny && (
+                        <div className="shiny-sparkle-badge">
+                          <SparkleStarIcon size={12} /> Shiny
+                        </div>
+                      )}
+                    </div>
+                    <div className="showcase-card-info">
+                      <div className="card-name">{formatTitle(pkmn.name)}</div>
+                      <div className="showcase-card-type" style={{ background: isSpecial ? 'rgba(236,72,153,0.15)' : 'rgba(56,189,248,0.12)', color: isSpecial ? '#ec4899' : '#38bdf8' }}>
+                        {typeLabel}
+                      </div>
+                      {starLevel > 0 && !isSpecial && (
+                        <StarMeter starLevel={starLevel} size="compact" showCount={false} />
+                      )}
+                      <div className="showcase-obtained">{formatTimeAgo(pull.created_at)}</div>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           )}
-          <Link to="/stats" style={{ color: '#38bdf8', textDecoration: 'none', fontWeight: 700, fontSize: '0.78rem', marginTop: '0.5rem' }}>
-            View Full Stats &rarr;
-          </Link>
-        </div>
+        </section>
+
+        <aside className="home-activity" aria-label="Trainer activity">
+          <div className="home-activity-card">
+            <div className="home-activity-head">
+              <span className="home-eyebrow">Battle pulse</span>
+              <SwordsIcon size={18} />
+            </div>
+            <div className="home-battle-score">
+              <strong>{battleRecord.wins}</strong>
+              <span>wins</span>
+              <strong>{battleRecord.losses}</strong>
+              <span>losses</span>
+            </div>
+            <div className="home-battle-details">
+              <span>{battleRecord.total} battles</span>
+              <span>{battleRecord.currentStreak} current streak</span>
+            </div>
+            <Link to="/stats" className="home-text-link">View battle log →</Link>
+          </div>
+
+          <div className="home-activity-card">
+            <div className="home-activity-head">
+              <span className="home-eyebrow">Latest pull</span>
+              <CardsIcon size={18} />
+            </div>
+            {lastPullPkmn ? (
+              <div className="home-last-pull">
+                <img
+                  src={lastPullPkmn.sprites.normal}
+                  alt={formatTitle(lastPullPkmn.name)}
+                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                  width={54}
+                  height={54}
+                />
+                <div>
+                  <strong>{formatTitle(lastPullPkmn.name)}</strong>
+                  <span>{formatTimeAgo(pullSummary.recent.created_at)}</span>
+                </div>
+              </div>
+            ) : (
+              <p className="home-activity-empty">No pulls yet. Your first run is waiting.</p>
+            )}
+            <Link to="/collection" className="home-text-link">Browse collection →</Link>
+          </div>
+        </aside>
       </div>
 
-      {/* TOP COLLECTION SHOWCASE */}
-      <div style={{ marginTop: '2rem' }} className="showcase-section">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+      <section className="home-section" aria-labelledby="trainer-tools-title">
+        <div className="home-section-head">
           <div>
-            <div className="hero-badge" style={{ marginBottom: '0.35rem' }}>TOP COLLECTION SHOWCASE</div>
-            <h2 style={{ margin: 0, color: '#f8fafc', fontSize: '1.25rem' }}>Recently Obtained Cards</h2>
-            <p style={{ margin: '0.2rem 0 0 0', color: '#94a3b8', fontSize: '0.8rem' }}>
-              Your latest pulls — click a card for its full details.
-            </p>
+            <span className="home-eyebrow">Trainer tools</span>
+            <h2 id="trainer-tools-title">The rest of your league</h2>
+            <p>The arcade is the front door, but every existing mode stays close at hand.</p>
           </div>
-          <Link to="/stats" style={{ color: '#38bdf8', textDecoration: 'none', fontWeight: 600, fontSize: '0.875rem' }}>
-            View Full Stats &rarr;
-          </Link>
         </div>
-
-        {!hasShowcase ? (
-          <div className="card" style={{ background: 'rgba(30, 41, 59, 0.7)', textAlign: 'center', padding: '2rem' }}>
-            <SparkleStarIcon size={28} />
-            <p style={{ color: '#94a3b8', fontSize: '0.9rem', margin: '0.5rem 0 0 0' }}>
-              No cards yet — win battles to pull cards and showcase them here.
-            </p>
-          </div>
-        ) : (
-          <div className="showcase-grid">
-            {showcaseCards.map(({ pkmn, pull, cardType, entry }) => {
-              const starLevel = entry?.star_level || Number(pull.star_level) || 0;
-              const isShiny = Boolean((entry?.is_shiny) || pull.is_shiny) || starLevel >= SHINY_STAR_LEVEL;
-              const isSpecial = cardType === 'power' || cardType === 'ancient';
-              const typeLabel = cardType === 'power' ? '⚡ Power' : cardType === 'ancient' ? '🏛️ Ancient' : 'Normal';
-
-              return (
-                <button
-                  key={pkmn.id}
-                  type="button"
-                  className={`showcase-card ${cardType === 'power' ? 'showcase-power' : cardType === 'ancient' ? 'showcase-ancient' : ''}`}
-                  onClick={() => setSelectedShowcase({ pkmn, cardType, entry })}
-                >
-                  <div className="card-top-id">#{String(pkmn.id).padStart(4, '0')}</div>
-                  <div className="showcase-card-image">
-                    <PokemonImage pokemon={pkmn} isShiny={isShiny} alt={formatTitle(pkmn.name)} />
-                    {isShiny && (
-                      <div className="shiny-sparkle-badge">
-                        <SparkleStarIcon size={12} /> Shiny
-                      </div>
-                    )}
-                  </div>
-                  <div className="showcase-card-info">
-                    <div className="card-name">{formatTitle(pkmn.name)}</div>
-                    <div className="showcase-card-type" style={{ background: isSpecial ? 'rgba(236,72,153,0.15)' : 'rgba(56,189,248,0.12)', color: isSpecial ? '#ec4899' : '#38bdf8' }}>
-                      {typeLabel}
-                    </div>
-                    {starLevel > 0 && (
-                      <div className="star-rating">
-                        {'★'.repeat(Math.max(1, Math.min(MAX_STAR_LEVEL, starLevel)))}
-                        {'☆'.repeat(Math.max(0, MAX_STAR_LEVEL - Math.min(MAX_STAR_LEVEL, starLevel)))}
-                      </div>
-                    )}
-                    <div className="showcase-obtained">{formatTimeAgo(pull.created_at)}</div>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        )}
-      </div>
-
-      {/* TYPE EFFECTIVENESS INFO BUTTON */}
-      <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'center' }}>
-        <button type="button" className="hero-btn secondary" onClick={() => setTypeChartOpen(true)} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
-          <SwordsIcon size={18} /> Type Effectiveness Chart
-        </button>
-      </div>
+        <div className="home-tool-grid">
+          <Link to="/battle" className="home-tool-card">
+            <SwordsIcon size={22} />
+            <span><strong>CPU Battle</strong><small>Build your record</small></span>
+            <span aria-hidden="true">→</span>
+          </Link>
+          <Link to="/game-modes" className="home-tool-card">
+            <GamepadIcon size={22} />
+            <span><strong>Game Modes</strong><small>More ways to play</small></span>
+            <span aria-hidden="true">→</span>
+          </Link>
+          <Link to="/friends" className="home-tool-card">
+            <UsersFriendsIcon size={22} />
+            <span><strong>Friends</strong><small>Compare collections</small></span>
+            <span aria-hidden="true">→</span>
+          </Link>
+          <button type="button" className="home-tool-card" onClick={() => setTypeChartOpen(true)}>
+            <ChartBarIcon size={22} />
+            <span><strong>Type chart</strong><small>Check matchups</small></span>
+            <span aria-hidden="true">→</span>
+          </button>
+        </div>
+      </section>
     </div>
 
     {/* CARD DETAIL MODAL — clicked from the Top Collection Showcase */}
@@ -447,7 +538,7 @@ export default function Home() {
             <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginTop: '1rem', fontSize: '0.75rem', color: '#94a3b8' }}>
               <span style={{ color: '#4ade80' }}>■ 2× Super Effective</span>
               <span style={{ color: '#f87171' }}>■ ½ Not Very Effective</span>
-              <span style={{ color: '#64748b' }}>■ 0 No Effect</span>
+              <span style={{ color: '#94a3b8' }}>■ 0 No Effect</span>
               <span style={{ color: '#94a3b8' }}>■ ·· Neutral</span>
             </div>
           </div>

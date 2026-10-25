@@ -62,7 +62,7 @@ function rollIt(userCollection, randomQueue) {
 const normalRecord = (id, { star = MAX_STAR_LEVEL, shiny = false } = {}) => ({
   pokemon_id: id,
   star_level: star,
-  dupes_collected: star >= MAX_STAR_LEVEL ? 18 : 0,
+  dupes_collected: star >= MAX_STAR_LEVEL ? MAX_STAR_LEVEL - 1 : 0,
   is_shiny: shiny,
   is_power_card: false,
   is_ancient_card: false,

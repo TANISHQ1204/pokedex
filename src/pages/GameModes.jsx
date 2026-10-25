@@ -2,15 +2,83 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { createMatch } from '../store/matches';
-import { SwordsIcon, UsersFriendsIcon, PokeballIcon, PokedexBookIcon } from '../components/icons/GameIcons';
+import { SwordsIcon, UsersFriendsIcon, PokeballIcon, PokedexBookIcon, GamepadIcon } from '../components/icons/GameIcons';
+
+const GAME_MODES = [
+  {
+    id: 'friend',
+    title: '6v6 Friend Battle',
+    status: 'Live',
+    statusVariant: 'is-live',
+    icon: SwordsIcon,
+    variant: 'is-blue',
+    description: 'Challenge accepted friends directly or create an open battle lobby link to share over WhatsApp or any direct URL.',
+  },
+  {
+    id: 'guess',
+    title: 'Guess Who?',
+    status: 'Coming soon',
+    statusVariant: 'is-coming',
+    icon: PokeballIcon,
+    variant: 'is-muted',
+    description: 'Deduce your opponent\'s secret Pokemon by asking strategic questions about types, stats, and generations.',
+    disabled: true,
+  },
+  {
+    id: 'mystery',
+    title: 'Mystery Draft',
+    status: 'New',
+    statusVariant: 'is-new',
+    icon: PokedexBookIcon,
+    variant: 'is-purple',
+    description: 'A local party auction game. Queue 12 mystery Pokemon, reveal one clue at a time, then bid to draft a six-Pokemon team. Zero-dollar bids welcome.',
+    path: '/mystery-draft',
+    action: 'Start Mystery Draft',
+  },
+  {
+    id: 'deal',
+    title: 'Deal or No Deal',
+    status: 'New',
+    statusVariant: 'is-new',
+    icon: PokeballIcon,
+    variant: 'is-green',
+    description: 'A local game-show draft with six rounds of themed mystery Pokeballs. Claim one, then decide whether to deal or swap it for a different closed ball.',
+    path: '/deal-or-no-deal',
+    action: 'Start Deal or No Deal',
+  },
+  {
+    id: 'dex',
+    title: 'Dex Battle',
+    status: 'New',
+    statusVariant: 'is-new',
+    icon: PokeballIcon,
+    variant: 'is-orange',
+    description: 'A local party memory race. Race to name the Pokemon from its dex number, closest answer wins the card, first to six takes the round.',
+    path: '/dex-battle',
+    action: 'Start Dex Battle',
+  },
+  {
+    id: 'friends',
+    title: 'Trainer Friends',
+    status: 'Social',
+    statusVariant: 'is-social',
+    icon: UsersFriendsIcon,
+    variant: 'is-slate',
+    description: 'Search for trainers, manage your friends list, check online status, and respond to incoming battle invites.',
+    path: '/friends',
+    action: 'Manage Friends List',
+  },
+];
 
 export default function GameModes() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [isCreating, setIsCreating] = useState(false);
+  const [createError, setCreateError] = useState('');
 
   const handleCreateShareableLink = async () => {
     setIsCreating(true);
+    setCreateError('');
     try {
       const newMatch = await createMatch({
         mode: '6v6',
@@ -19,442 +87,114 @@ export default function GameModes() {
       navigate(`/match/${newMatch.id}`);
     } catch (err) {
       console.error('Error creating match link:', err);
+      setCreateError('Could not create a match link. Check your connection and try again.');
     } finally {
       setIsCreating(false);
     }
   };
 
   return (
-    <div className="page-container" style={{ maxWidth: '900px', margin: '0 auto' }}>
-      <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-        <h1 style={{ fontSize: '2.25rem', fontWeight: 900, color: '#f8fafc', margin: '0 0 0.5rem 0' }}>
-          Game Modes Hub
-        </h1>
-        <p style={{ color: '#94a3b8', fontSize: '1.05rem', margin: 0 }}>
-          Choose your favorite battle mode, challenge friends, or share live match links.
-        </p>
-      </div>
-
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.5rem' }}>
-        {/* Mode 1: 6v6 Friend Battles */}
-        <div
-          className="card"
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            padding: '2rem 1.5rem',
-            border: '2px solid #0284c7',
-            background: 'linear-gradient(180deg, #1e293b 0%, #0f172a 100%)',
-            boxShadow: '0 12px 24px rgba(0, 0, 0, 0.6), 0 0 15px rgba(56, 189, 248, 0.25)',
-          }}
-        >
-          <div>
-            <div
-              style={{
-                display: 'inline-flex',
-                padding: '0.75rem',
-                borderRadius: '50%',
-                backgroundColor: '#0284c7',
-                color: '#ffffff',
-                marginBottom: '1rem',
-              }}
-            >
-              <SwordsIcon size={32} />
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-              <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#f8fafc', margin: 0 }}>
-                6v6 Friend Battle
-              </h2>
-              <span
-                style={{
-                  fontSize: '0.75rem',
-                  fontWeight: 700,
-                  padding: '0.2rem 0.5rem',
-                  borderRadius: '0.25rem',
-                  backgroundColor: '#16a34a',
-                  color: '#a7f3d0',
-                }}
-              >
-                LIVE
-              </span>
-            </div>
-
-            <p style={{ color: '#cbd5e1', fontSize: '0.925rem', lineHeight: 1.5, marginBottom: '1.5rem' }}>
-              Challenge accepted friends directly or create an open battle lobby link to share over WhatsApp or direct URL.
-            </p>
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            <button
-              onClick={() => navigate('/friends')}
-              style={{
-                width: '100%',
-                padding: '0.75rem',
-                borderRadius: '0.375rem',
-                border: 'none',
-                backgroundColor: '#dc2626',
-                color: '#ffffff',
-                fontWeight: 800,
-                fontSize: '0.95rem',
-                cursor: 'pointer',
-              }}
-            >
-              ⚔️ Challenge a Friend
-            </button>
-
-            <button
-              onClick={handleCreateShareableLink}
-              disabled={isCreating}
-              style={{
-                width: '100%',
-                padding: '0.75rem',
-                borderRadius: '0.375rem',
-                border: '1px solid #38bdf8',
-                backgroundColor: '#0f172a',
-                color: '#38bdf8',
-                fontWeight: 800,
-                fontSize: '0.95rem',
-                cursor: isCreating ? 'not-allowed' : 'pointer',
-              }}
-            >
-              {isCreating ? 'Creating Link...' : '📲 Share via WhatsApp / URL'}
-            </button>
+    <div className="page-container home-page batch-page game-modes-page">
+      <section className="ui-page-hero">
+        <div className="ui-page-hero-copy">
+          <span className="home-eyebrow"><GamepadIcon size={18} /> Game Modes</span>
+          <h1>Choose your next match.</h1>
+          <p>
+            Battle friends, share a live lobby, or jump into a local party mode. Every mode is built around your collection.
+          </p>
+          <div className="home-hero-meta">
+            <span><span className="home-status-dot" /> 6 modes available</span>
+            <span>Friend battles live</span>
+            <span>Local party games</span>
           </div>
         </div>
-
-        {/* Mode 2: Guess Who (Coming Soon) */}
-        <div
-          className="card"
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            padding: '2rem 1.5rem',
-            border: '2px dashed #475569',
-            backgroundColor: '#0f172a',
-            opacity: 0.85,
-          }}
-        >
-          <div>
-            <div
-              style={{
-                display: 'inline-flex',
-                padding: '0.75rem',
-                borderRadius: '50%',
-                backgroundColor: '#334155',
-                color: '#f59e0b',
-                marginBottom: '1rem',
-              }}
-            >
-              <PokeballIcon size={32} />
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-              <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#cbd5e1', margin: 0 }}>
-                Guess Who?
-              </h2>
-              <span
-                style={{
-                  fontSize: '0.75rem',
-                  fontWeight: 700,
-                  padding: '0.2rem 0.5rem',
-                  borderRadius: '0.25rem',
-                  backgroundColor: '#451a03',
-                  color: '#fef08a',
-                  border: '1px solid #b45309',
-                }}
-              >
-                COMING SOON
-              </span>
-            </div>
-
-            <p style={{ color: '#94a3b8', fontSize: '0.925rem', lineHeight: 1.5, marginBottom: '1.5rem' }}>
-              Deduce your opponent's secret Pokémon by asking strategic questions about types, stats, and generations!
-            </p>
-          </div>
-
+        <div className="ui-hero-stat-card">
+          <span className="ui-stat-eyebrow">Quick battle</span>
+          <strong>6v6</strong>
+          <p className="ui-stat-meta">Challenge a friend or create a shareable lobby link.</p>
           <button
-            disabled
-            style={{
-              width: '100%',
-              padding: '0.75rem',
-              borderRadius: '0.375rem',
-              border: 'none',
-              backgroundColor: '#334155',
-              color: '#64748b',
-              fontWeight: 700,
-              fontSize: '0.95rem',
-              cursor: 'not-allowed',
-            }}
-          >
-            🔒 Phase 5 - Under Construction
-          </button>
-        </div>
-
-        {/* Mode: Mystery Draft */}
-        <div
-          className="card"
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            padding: '2rem 1.5rem',
-            border: '2px solid #7e22ce',
-            background: 'linear-gradient(180deg, #312e81 0%, #0f172a 100%)',
-            boxShadow: '0 12px 24px rgba(0, 0, 0, 0.6), 0 0 15px rgba(168, 85, 247, 0.3)',
-          }}
-        >
-          <div>
-            <div
-              style={{
-                display: 'inline-flex',
-                padding: '0.75rem',
-                borderRadius: '50%',
-                backgroundColor: '#7e22ce',
-                color: '#f3e8ff',
-                marginBottom: '1rem',
-              }}
-            >
-              <PokedexBookIcon size={32} />
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-              <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#f8fafc', margin: 0 }}>
-                Mystery Draft
-              </h2>
-              <span
-                style={{
-                  fontSize: '0.75rem',
-                  fontWeight: 700,
-                  padding: '0.2rem 0.5rem',
-                  borderRadius: '0.25rem',
-                  backgroundColor: '#16a34a',
-                  color: '#a7f3d0',
-                }}
-              >
-                NEW
-              </span>
-            </div>
-
-            <p style={{ color: '#cbd5e1', fontSize: '0.925rem', lineHeight: 1.5, marginBottom: '1.5rem' }}>
-              A local party auction game. Queue 12 mystery Pokemon, take turns revealing one attribute clue,
-              then verbally bid your shared budget to draft a 6-Pokemon team — $0 bids welcome. No database, no network — just one screen.
-            </p>
-          </div>
-
-          <button
-            onClick={() => navigate('/mystery-draft')}
-            style={{
-              width: '100%',
-              padding: '0.75rem',
-              borderRadius: '0.375rem',
-              border: 'none',
-              backgroundColor: '#7e22ce',
-              color: '#ffffff',
-              fontWeight: 800,
-              fontSize: '0.95rem',
-              cursor: 'pointer',
-            }}
-          >
-            🃏 Start Mystery Draft
-          </button>
-        </div>
-
-        {/* Mode: Deal or No Deal */}
-        <div
-          className="card"
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            padding: '2rem 1.5rem',
-            border: '2px solid #16a34a',
-            background: 'linear-gradient(180deg, #065f46 0%, #0f172a 100%)',
-            boxShadow: '0 12px 24px rgba(0, 0, 0, 0.6), 0 0 15px rgba(34, 197, 94, 0.3)',
-          }}
-        >
-          <div>
-            <div
-              style={{
-                display: 'inline-flex',
-                padding: '0.75rem',
-                borderRadius: '50%',
-                backgroundColor: '#16a34a',
-                color: '#d1fae5',
-                marginBottom: '1rem',
-              }}
-            >
-              <PokeballIcon size={32} />
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-              <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#f8fafc', margin: 0 }}>
-                Deal or No Deal
-              </h2>
-              <span
-                style={{
-                  fontSize: '0.75rem',
-                  fontWeight: 700,
-                  padding: '0.2rem 0.5rem',
-                  borderRadius: '0.25rem',
-                  backgroundColor: '#16a34a',
-                  color: '#a7f3d0',
-                }}
-              >
-                NEW
-              </span>
-            </div>
-
-            <p style={{ color: '#cbd5e1', fontSize: '0.925rem', lineHeight: 1.5, marginBottom: '1.5rem' }}>
-              A local party Game Show draft. 6 rounds of themed mystery Pokéballs (Generation, Color, or
-              Legendary/Mythical). Claim one, then decide — Deal, or swap it for a different closed ball and burn
-              your first pick. Build a 6-Pokémon team and win the draft-style summary.
-            </p>
-          </div>
-
-          <button
-            onClick={() => navigate('/deal-or-no-deal')}
-            style={{
-              width: '100%',
-              padding: '0.75rem',
-              borderRadius: '0.375rem',
-              border: 'none',
-              backgroundColor: '#16a34a',
-              color: '#ffffff',
-              fontWeight: 800,
-              fontSize: '0.95rem',
-              cursor: 'pointer',
-            }}
-          >
-            💼 Start Deal or No Deal
-          </button>
-        </div>
-
-        {/* Mode: Dex Battle */}
-        <div
-          className="card"
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            padding: '2rem 1.5rem',
-            border: '2px solid #ea580c',
-            background: 'linear-gradient(180deg, #7c2d12 0%, #0f172a 100%)',
-            boxShadow: '0 12px 24px rgba(0, 0, 0, 0.6), 0 0 15px rgba(249, 115, 22, 0.3)',
-          }}
-        >
-          <div>
-            <div
-              style={{
-                display: 'inline-flex',
-                padding: '0.75rem',
-                borderRadius: '50%',
-                backgroundColor: '#ea580c',
-                color: '#fff7ed',
-                marginBottom: '1rem',
-              }}
-            >
-              <PokeballIcon size={32} />
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-              <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#f8fafc', margin: 0 }}>
-                Dex Battle
-              </h2>
-              <span
-                style={{
-                  fontSize: '0.75rem',
-                  fontWeight: 700,
-                  padding: '0.2rem 0.5rem',
-                  borderRadius: '0.25rem',
-                  backgroundColor: '#16a34a',
-                  color: '#a7f3d0',
-                }}
-              >
-                NEW
-              </span>
-            </div>
-
-            <p style={{ color: '#cbd5e1', fontSize: '0.925rem', lineHeight: 1.5, marginBottom: '1.5rem' }}>
-              A local party memory race. A secret Pokémon's dex number is shown — both players race, no turns,
-              to type the Pokémon name. Closest dex wins it (shiny or alternate form rolled at award time).
-              First to 6, the remaining bench goes to the other player.
-            </p>
-          </div>
-
-          <button
-            onClick={() => navigate('/dex-battle')}
-            style={{
-              width: '100%',
-              padding: '0.75rem',
-              borderRadius: '0.375rem',
-              border: 'none',
-              backgroundColor: '#ea580c',
-              color: '#ffffff',
-              fontWeight: 800,
-              fontSize: '0.95rem',
-              cursor: 'pointer',
-            }}
-          >
-            🔢 Start Dex Battle
-          </button>
-        </div>
-
-        {/* Mode 3: Trainer Friends & Invites */}
-        <div
-          className="card"
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            padding: '2rem 1.5rem',
-            border: '2px solid #334155',
-            backgroundColor: '#1e293b',
-          }}
-        >
-          <div>
-            <div
-              style={{
-                display: 'inline-flex',
-                padding: '0.75rem',
-                borderRadius: '50%',
-                backgroundColor: '#334155',
-                color: '#38bdf8',
-                marginBottom: '1rem',
-              }}
-            >
-              <UsersFriendsIcon size={32} />
-            </div>
-
-            <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#f8fafc', margin: '0 0 0.5rem 0' }}>
-              Trainer Friends
-            </h2>
-
-            <p style={{ color: '#cbd5e1', fontSize: '0.925rem', lineHeight: 1.5, marginBottom: '1.5rem' }}>
-              Search for trainers by username, manage your friends list, check live online status, and respond to incoming battle invites.
-            </p>
-          </div>
-
-          <button
+            type="button"
+            className="ui-btn primary"
             onClick={() => navigate('/friends')}
-            style={{
-              width: '100%',
-              padding: '0.75rem',
-              borderRadius: '0.375rem',
-              border: 'none',
-              backgroundColor: '#0284c7',
-              color: '#ffffff',
-              fontWeight: 700,
-              fontSize: '0.95rem',
-              cursor: 'pointer',
-            }}
           >
-            👥 Manage Friends List
+            <SwordsIcon size={18} /> Find an opponent
           </button>
         </div>
-      </div>
+      </section>
+
+      {createError && (
+        <div className="ui-state is-error is-inline" role="alert">
+          <SwordsIcon size={28} />
+          <div>
+            <h3>Match link failed</h3>
+            <p>{createError}</p>
+          </div>
+          <button type="button" className="ui-btn" onClick={() => setCreateError('')}>Dismiss</button>
+        </div>
+      )}
+
+      <section className="ui-panel game-modes-panel" aria-labelledby="game-modes-title">
+        <div className="ui-section-head">
+          <div>
+            <span className="home-eyebrow">Mode select</span>
+            <h2 id="game-modes-title">All game modes</h2>
+            <p>Pick a mode to start. Unavailable modes are clearly marked and disabled.</p>
+          </div>
+        </div>
+
+        <div className="game-modes-grid">
+          {GAME_MODES.map((mode) => {
+            const Icon = mode.icon;
+            const isFriendMode = mode.id === 'friend';
+
+            return (
+              <article key={mode.id} className={`ui-mode-card ${mode.variant} ${mode.disabled ? 'is-disabled' : ''}`}>
+                <div className="ui-mode-card-top">
+                  <span className="ui-mode-icon"><Icon size={30} /></span>
+                  <span className={`ui-badge ${mode.statusVariant}`}>{mode.status}</span>
+                </div>
+
+                <div>
+                  <h3>{mode.title}</h3>
+                  <p>{mode.description}</p>
+                </div>
+
+                {isFriendMode ? (
+                  <div className="ui-mode-actions">
+                    <button
+                      type="button"
+                      className="ui-btn primary"
+                      onClick={() => navigate('/friends')}
+                    >
+                      <SwordsIcon size={18} /> Challenge a Friend
+                    </button>
+                    <button
+                      type="button"
+                      className="ui-btn"
+                      onClick={handleCreateShareableLink}
+                      disabled={isCreating}
+                    >
+                      {isCreating ? 'Creating link...' : 'Share via WhatsApp / URL'}
+                    </button>
+                  </div>
+                ) : mode.disabled ? (
+                  <button type="button" className="ui-btn" disabled>
+                    Coming in a future phase
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    className="ui-btn primary"
+                    onClick={() => navigate(mode.path)}
+                  >
+                    {mode.action}
+                  </button>
+                )}
+              </article>
+            );
+          })}
+        </div>
+      </section>
     </div>
   );
 }

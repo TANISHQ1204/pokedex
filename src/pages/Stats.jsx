@@ -14,6 +14,7 @@ import {
   mergeCollectionPulls,
   summarizeCollection,
   formatDate,
+  formatTimeAgo,
 } from '../store/stats';
 
 function formatTitle(str) {
@@ -26,25 +27,17 @@ function formatTitle(str) {
 
 const pokemonById = new Map(pokemonList.map((p) => [Number(p.id), p]));
 
-function PokemonSprite({ id, size = 48 }) {
+function PokemonSprite({ id, size = 44 }) {
   const pkmn = pokemonById.get(Number(id));
   if (!pkmn) {
     return (
-      <div
-        style={{
-          width: size,
-          height: size,
-          borderRadius: '0.5rem',
-          background: '#0f172a',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: '#475569',
-          fontSize: `${size * 0.4}px`,
-        }}
+      <span
+        className="stats-sprite-fallback"
+        style={{ width: size, height: size, fontSize: `${Math.round(size * 0.4)}px` }}
+        aria-hidden="true"
       >
         ?
-      </div>
+      </span>
     );
   }
   return (
@@ -53,10 +46,22 @@ function PokemonSprite({ id, size = 48 }) {
       alt={formatTitle(pkmn.name)}
       width={size}
       height={size}
-      style={{ objectFit: 'contain', imageRendering: 'pixelated' }}
+      className="stats-pokemon-sprite"
     />
   );
 }
+
+const RESULT_LABEL = {
+  won: 'Victory',
+  lost: 'Defeat',
+  draw: 'Draw',
+};
+
+const PULL_TYPE_LABEL = {
+  normal: 'Normal',
+  power: 'Power',
+  ancient: 'Ancient',
+};
 
 export default function Stats() {
   const { user } = useAuth();
@@ -64,27 +69,40 @@ export default function Stats() {
   const [pulls, setPulls] = useState([]);
   const [collection, setCollection] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
 
   useEffect(() => {
     let cancelled = false;
+
     async function load() {
       if (!user?.id) {
         setIsLoading(false);
         return;
       }
-      setIsLoading(true);
-      const [battles, cards, owned] = await Promise.all([
-        fetchBattleHistory(user.id, 400),
-        fetchRecentPulls(user.id, 40),
-        getUserCollection(user.id).catch(() => []),
-      ]);
-      if (!cancelled) {
-        setHistory(battles);
-        setPulls(cards);
-        setCollection(owned);
-        setIsLoading(false);
+
+      try {
+        setIsLoading(true);
+        setLoadError('');
+        const [battles, cards, owned] = await Promise.all([
+          fetchBattleHistory(user.id, 400),
+          fetchRecentPulls(user.id, 40),
+          getUserCollection(user.id),
+        ]);
+        if (!cancelled) {
+          setHistory(battles);
+          setPulls(cards);
+          setCollection(owned);
+        }
+      } catch (err) {
+        console.error('Failed to load battle analytics:', err.message);
+        if (!cancelled) {
+          setLoadError('We could not load your analytics. Check your connection and try again.');
+        }
+      } finally {
+        if (!cancelled) setIsLoading(false);
       }
     }
+
     load();
     return () => {
       cancelled = true;
@@ -95,208 +113,305 @@ export default function Stats() {
   const battlesPerDay = useMemo(() => computeBattlesPerDay(history, 14), [history]);
   const mostFought = useMemo(() => computeMostFoughtOpponents(history, 5), [history]);
   const fastestWin = useMemo(() => findFastestWin(history), [history]);
-
-  // Pulls are the live card_pulls feed PLUS cards the user owned before
-  // analytics tracking existed (backfilled from their collection records).
   const mergedPulls = useMemo(() => mergeCollectionPulls(collection, pulls), [collection, pulls]);
   const collectionSummary = useMemo(() => summarizeCollection(collection), [collection]);
 
+  const recentBattles = history.slice(0, 8);
+  const recentPulls = mergedPulls.slice(0, 8);
   const maxDaily = Math.max(1, ...battlesPerDay.map((d) => d.count));
   const winRate = record.total > 0 ? record.winRate : 0;
+  const hasData = record.total > 0 || mergedPulls.length > 0;
+  const hasBackfilledCards = pulls.length === 0 && mergedPulls.length > 0;
 
   if (isLoading) {
     return (
-      <div className="page-container">
-        <div style={{ color: '#94a3b8', textAlign: 'center', padding: '3rem 0' }}>Loading battle analytics...</div>
+      <div className="page-container home-page batch-page stats-page">
+        <div className="ui-state batch-loading-state" role="status">
+          <span className="ui-spinner" aria-hidden="true" />
+          <h3>Loading trainer analytics</h3>
+          <p>Gathering battles, win streaks, and card pulls...</p>
+        </div>
       </div>
     );
   }
 
-  const hasData = record.total > 0 || mergedPulls.length > 0;
-  const hasBackfilledCards = pulls.length === 0 && mergedPulls.length > 0;
+  if (loadError) {
+    return (
+      <div className="page-container home-page batch-page stats-page">
+        <div className="ui-state is-error" role="alert">
+          <ChartBarIcon size={34} />
+          <h3>Analytics unavailable</h3>
+          <p>{loadError}</p>
+          <button type="button" className="ui-btn primary" onClick={() => window.location.reload()}>
+            Reload page
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="page-container">
-      {/* Header */}
-      <div className="home-hero-card" style={{ padding: '1.5rem 2rem' }}>
-        <div className="hero-badge">TRAINER ANALYTICS</div>
-        <h1 className="hero-title" style={{ fontSize: '1.6rem' }}>
-          <ChartBarIcon size={26} style={{ verticalAlign: '-4px', marginRight: '0.5rem' }} />
-          Stats &amp; Activity
-        </h1>
-        <p className="hero-subtitle" style={{ marginBottom: 0 }}>
-          Your battle record, win streaks, and daily training activity.
-        </p>
-      </div>
+    <div className="page-container home-page batch-page stats-page">
+      <section className="ui-page-hero">
+        <div className="ui-page-hero-copy">
+          <span className="home-eyebrow"><ChartBarIcon size={18} /> Trainer Analytics</span>
+          <h1>Your battle record, at a glance.</h1>
+          <p>
+            Track win rate, streaks, daily training volume, toughest opponents, and every recent card you have pulled.
+          </p>
+          <div className="home-hero-meta">
+            <span><span className="home-status-dot" /> {record.total} battles recorded</span>
+            <span>{mergedPulls.length} cards pulled</span>
+            <span>{record.longestStreak} best win streak</span>
+          </div>
+        </div>
+        <div className="ui-hero-stat-card">
+          <span className="ui-stat-eyebrow">Overall win rate</span>
+          <strong>{winRate}%</strong>
+          <div className="ui-progress" aria-hidden="true">
+            <span style={{ width: `${winRate}%` }} />
+          </div>
+          <small>{record.wins} wins, {record.losses} losses, {record.draws} draws</small>
+        </div>
+      </section>
 
       {!hasData ? (
-        <div className="card" style={{ background: 'rgba(30, 41, 59, 0.7)', textAlign: 'center', padding: '2.5rem' }}>
-          <SwordsIcon size={32} />
-          <h3 style={{ color: '#f8fafc', margin: '0.75rem 0 0.4rem 0' }}>No activity yet</h3>
-          <p style={{ color: '#94a3b8', fontSize: '0.9rem', margin: '0 0 1.25rem 0', maxWidth: 480, marginLeft: 'auto', marginRight: 'auto' }}>
-            Stats populate automatically after your first battle or card pull. Head to the Battle Arena to get going!
-          </p>
-          <Link to="/battle" className="hero-btn primary">
-            <SwordsIcon size={20} /> Battle Arena
-          </Link>
-        </div>
+        <section className="ui-panel">
+          <div className="ui-state">
+            <SwordsIcon size={34} />
+            <h3>No activity yet</h3>
+            <p>Stats populate automatically after your first battle or card pull. Head to the Battle Arena to get started.</p>
+            <Link to="/battle" className="ui-btn primary">
+              <SwordsIcon size={20} /> Battle Arena
+            </Link>
+          </div>
+        </section>
       ) : (
         <>
-          {/* Battle Record */}
-          <div className="dashboard-stats-grid">
-            <div className="dash-stat-card">
-              <div className="dash-stat-header">
-                <SwordsIcon size={22} />
-                <span className="dash-stat-label">Battles</span>
+          <section className="ui-stat-grid stats-summary-grid" aria-label="Battle summary">
+            <div className="ui-stat-card">
+              <div className="ui-stat-top">
+                <span className="ui-stat-icon"><SwordsIcon size={22} /></span>
+                <span className="ui-field-label">Battles</span>
               </div>
-              <div className="dash-stat-val">{record.total}</div>
-              <div className="dash-stat-subtext">
-                {record.wins}W · {record.losses}L · {record.draws}D
+              <strong className="ui-stat-value">{record.total}</strong>
+              <p className="ui-stat-meta">{record.wins} wins, {record.losses} losses, {record.draws} draws</p>
+              <div className="ui-progress is-compact" aria-hidden="true">
+                <span style={{ width: `${winRate}%` }} />
               </div>
-              <div style={{ margin: '0.4rem 0' }}>
-                <div className="hp-bar-outer" style={{ height: '6px' }}>
-                  <div className="hp-bar-inner hp-green" style={{ width: `${winRate}%` }} />
-                </div>
-              </div>
-              <div className="dash-stat-subtext">{winRate}% win rate</div>
+              <small>{winRate}% win rate</small>
             </div>
 
-            <div className="dash-stat-card">
-              <div className="dash-stat-header">
-                <TrophyIcon size={22} tier="gold" />
-                <span className="dash-stat-label">Win Streak</span>
+            <div className="ui-stat-card">
+              <div className="ui-stat-top">
+                <span className="ui-stat-icon is-gold"><TrophyIcon size={22} tier="gold" /></span>
+                <span className="ui-field-label">Win streak</span>
               </div>
-              <div className="dash-stat-val" style={{ color: '#fef08a' }}>
-                {record.currentStreak}
-              </div>
-              <div className="dash-stat-subtext">Current streak</div>
-              <div className="dash-stat-subtext" style={{ marginTop: '0.5rem', fontSize: '0.8rem', fontWeight: 700 }}>
-                Best: {record.longestStreak} in a row
-              </div>
+              <strong className="ui-stat-value is-gold">{record.currentStreak}</strong>
+              <p className="ui-stat-meta">Current streak</p>
+              <p className="ui-stat-callout">Best: {record.longestStreak} in a row</p>
             </div>
 
-            <div className="dash-stat-card">
-              <div className="dash-stat-header">
-                <SparkleStarIcon size={22} />
-                <span className="dash-stat-label">Cards Pulled</span>
+            <div className="ui-stat-card">
+              <div className="ui-stat-top">
+                <span className="ui-stat-icon is-purple"><SparkleStarIcon size={22} /></span>
+                <span className="ui-field-label">Cards pulled</span>
               </div>
-              <div className="dash-stat-val">{mergedPulls.length}</div>
-              <div className="dash-stat-subtext">
-                {hasBackfilledCards
-                  ? 'Includes backfilled cards from your pre-tracking collection'
-                  : 'Recently obtained cards tracked'}
-              </div>
+              <strong className="ui-stat-value">{mergedPulls.length}</strong>
+              <p className="ui-stat-meta">
+                {hasBackfilledCards ? 'Includes pre-tracking collection cards' : 'Cards obtained while tracking was active'}
+              </p>
+              {collectionSummary.shiny > 0 && (
+                <p className="ui-stat-callout">{collectionSummary.shiny} shiny cards owned</p>
+              )}
             </div>
-          </div>
+          </section>
 
-          {/* Pre-tracking collection history explanation */}
           {hasBackfilledCards && (
-            <div className="card" style={{ marginTop: '1rem', padding: '0.75rem 1rem', background: 'rgba(56, 189, 248, 0.06)', border: '1px solid rgba(56, 189, 248, 0.2)' }}>
-              <div style={{ color: '#7dd3fc', fontSize: '0.85rem', lineHeight: 1.5 }}>
-                <strong>Showing card history from before tracking existed:</strong>{' '}
-                {collectionSummary.total} cards owned ({collectionSummary.normal} normal · {collectionSummary.power} power · {collectionSummary.ancient} ancient)
+            <section className="ui-panel ui-info-panel">
+              <strong>Showing card history from before tracking existed</strong>
+              <p>
+                {collectionSummary.total} cards owned ({collectionSummary.normal} normal, {collectionSummary.power} power, {collectionSummary.ancient} ancient)
                 {collectionSummary.shiny > 0 ? `, ${collectionSummary.shiny} shiny` : ''}
-                {collectionSummary.dupes > 0 ? `, ${collectionSummary.dupes} duplicates` : ''}. These were backfilled from your collection.
-                Battle records only exist for fights after analytics were introduced.
-              </div>
-            </div>
+                {collectionSummary.dupes > 0 ? `, ${collectionSummary.dupes} duplicates` : ''}.
+                These were backfilled from your collection. Battle records only include fights after analytics were introduced.
+              </p>
+            </section>
           )}
 
-          {/* Battles per day trend + most-fought */}
-          <div style={{ marginTop: '1.25rem' }} className="card batt-stats-card">
-            <h3 style={{ margin: '0 0 0.5rem 0', color: '#f8fafc', fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <ChartBarIcon size={20} /> Battles Per Day <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 400 }}>(last 14 days)</span>
-            </h3>
-            <div className="daily-bars" style={{ display: 'flex', alignItems: 'flex-end', gap: '4px', height: 120, marginTop: '0.75rem' }}>
+          <section className="ui-panel stats-chart-panel" aria-labelledby="battles-per-day-title">
+            <div className="ui-section-head">
+              <div>
+                <span className="home-eyebrow">Training volume</span>
+                <h2 id="battles-per-day-title">Battles per day</h2>
+                <p>Last 14 days of arena activity. Today is highlighted.</p>
+              </div>
+              <span className="ui-badge">{battlesPerDay.reduce((sum, day) => sum + day.count, 0)} recent battles</span>
+            </div>
+            <div className="stats-chart" role="img" aria-label="Bar chart of battles fought over the last 14 days">
               {battlesPerDay.map((day) => (
-                <div key={day.dateKey} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', minWidth: 0 }}>
-                  <span style={{ fontSize: '0.65rem', color: '#94a3b8' }}>{day.count > 0 ? day.count : ''}</span>
-                  <div
-                    className={`daily-bar ${day.isToday ? 'daily-bar-today' : ''}`}
-                    style={{
-                      width: '100%',
-                      height: `${Math.max(4, (day.count / maxDaily) * 80)}px`,
-                      borderRadius: '3px 3px 0 0',
-                      background: day.isToday ? 'linear-gradient(180deg, #f59e0b, #d97706)' : 'linear-gradient(180deg, #38bdf8, #0369a1)',
-                    }}
+                <div key={day.dateKey} className={`stats-chart-column ${day.isToday ? 'is-today' : ''}`}>
+                  <span className="stats-chart-value">{day.count > 0 ? day.count : ''}</span>
+                  <span
+                    className="stats-chart-bar"
+                    style={{ height: `${Math.max(4, (day.count / maxDaily) * 100)}%` }}
                   />
-                  <span style={{ fontSize: '0.6rem', color: '#64748b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '100%' }}>
-                    {day.label}
-                  </span>
+                  <span className="stats-chart-label">{day.label}</span>
                 </div>
               ))}
             </div>
-          </div>
+          </section>
 
-          {/* Battle Record Detail + Most Fought */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem', marginTop: '1.25rem' }}>
-            <div className="card" style={{ background: 'rgba(30, 41, 59, 0.7)' }}>
-              <h3 style={{ margin: '0 0 0.75rem 0', color: '#f8fafc', fontSize: '1.1rem' }}>Record Breakdown</h3>
-              <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-                <div style={{ flex: 1, minWidth: 90 }}>
-                  <div className="dash-stat-val" style={{ color: '#4ade80' }}>{record.wins}</div>
-                  <div className="dash-stat-label">Wins</div>
-                </div>
-                <div style={{ flex: 1, minWidth: 90 }}>
-                  <div className="dash-stat-val" style={{ color: '#f87171' }}>{record.losses}</div>
-                  <div className="dash-stat-label">Losses</div>
-                </div>
-                <div style={{ flex: 1, minWidth: 90 }}>
-                  <div className="dash-stat-val" style={{ color: '#94a3b8' }}>{record.draws}</div>
-                  <div className="dash-stat-label">Draws</div>
+          <div className="stats-two-col">
+            <section className="ui-panel" aria-labelledby="record-breakdown-title">
+              <div className="ui-section-head">
+                <div>
+                  <span className="home-eyebrow">Record</span>
+                  <h2 id="record-breakdown-title">Record breakdown</h2>
                 </div>
               </div>
-              {fastestWin && (
-                <div style={{ marginTop: '1rem', paddingTop: '0.75rem', borderTop: '1px solid #1e293b' }}>
-                  <div className="dash-stat-label" style={{ marginBottom: '0.4rem' }}>Fastest Victory</div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                    <div style={{ background: '#0f172a', borderRadius: '0.5rem', padding: '0.2rem 0.4rem' }}>
+              <div className="stats-record-grid">
+                <div className="ui-record-item is-win">
+                  <strong>{record.wins}</strong>
+                  <span>Wins</span>
+                </div>
+                <div className="ui-record-item is-loss">
+                  <strong>{record.losses}</strong>
+                  <span>Losses</span>
+                </div>
+                <div className="ui-record-item">
+                  <strong>{record.draws}</strong>
+                  <span>Draws</span>
+                </div>
+              </div>
+              {fastestWin ? (
+                <div className="stats-fastest-win">
+                  <span className="ui-field-label">Fastest victory</span>
+                  <div className="stats-fastest-win-row">
+                    <span className="stats-sprite-box">
                       <PokemonSprite id={fastestWin.opponentLead} size={40} />
-                    </div>
+                    </span>
                     <div>
-                      <div style={{ color: '#f8fafc', fontWeight: 700, fontSize: '0.95rem' }}>
-                        {formatTitle(pokemonById.get(Number(fastestWin.opponentLead))?.name || '??')} in {fastestWin.turns} moves
-                      </div>
-                      <div style={{ color: '#94a3b8', fontSize: '0.75rem' }}>
-                        {fastestWin.mode === 'friend' ? 'Friend match' : 'CPU battle'} · {formatDate(fastestWin.date)}
-                      </div>
+                      <strong>
+                        {formatTitle(pokemonById.get(Number(fastestWin.opponentLead))?.name || 'Unknown')} in {fastestWin.turns} moves
+                      </strong>
+                      <span>{fastestWin.mode === 'friend' ? 'Friend match' : 'CPU battle'} - {formatDate(fastestWin.date)}</span>
                     </div>
                   </div>
                 </div>
-              )}
-            </div>
-
-            <div className="card" style={{ background: 'rgba(30, 41, 59, 0.7)' }}>
-              <h3 style={{ margin: '0 0 0.75rem 0', color: '#f8fafc', fontSize: '1.1rem' }}>Most Fought Pokémon</h3>
-              {mostFought.length === 0 ? (
-                <p style={{ color: '#94a3b8', fontSize: '0.85rem' }}>No opponent data yet.</p>
               ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-                  {mostFought.map(({ pokemonId, count }, i) => (
-                    <div key={pokemonId} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                      <span style={{ color: '#64748b', fontWeight: 800, width: 16 }}>#{i + 1}</span>
-                      <div style={{ background: '#0f172a', borderRadius: '0.5rem', padding: '0.2rem 0.4rem' }}>
+                <p className="ui-inline-empty">Win a battle to record your fastest victory.</p>
+              )}
+            </section>
+
+            <section className="ui-panel" aria-labelledby="most-fought-title">
+              <div className="ui-section-head">
+                <div>
+                  <span className="home-eyebrow">Rivals</span>
+                  <h2 id="most-fought-title">Most fought Pokemon</h2>
+                </div>
+              </div>
+              {mostFought.length === 0 ? (
+                <p className="ui-inline-empty">No opponent data yet.</p>
+              ) : (
+                <div className="stats-opponent-list">
+                  {mostFought.map(({ pokemonId, count }, index) => (
+                    <div key={pokemonId} className="stats-opponent-row">
+                      <span className="stats-rank">#{index + 1}</span>
+                      <span className="stats-sprite-box">
                         <PokemonSprite id={pokemonId} size={36} />
+                      </span>
+                      <div className="stats-opponent-copy">
+                        <strong>{formatTitle(pokemonById.get(Number(pokemonId))?.name || 'Unknown')}</strong>
+                        <span className="ui-progress is-compact" aria-hidden="true">
+                          <span style={{ width: `${Math.round((count / mostFought[0].count) * 100)}%` }} />
+                        </span>
                       </div>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ color: '#f8fafc', fontWeight: 700, fontSize: '0.9rem' }}>
-                          {formatTitle(pokemonById.get(Number(pokemonId))?.name || '???')}
-                        </div>
-                        <div className="hp-bar-outer" style={{ height: '4px', marginTop: '0.25rem' }}>
-                          <div
-                            className="hp-bar-inner hp-orange"
-                            style={{ width: `${Math.round((count / mostFought[0].count) * 100)}%` }}
-                          />
-                        </div>
-                      </div>
-                      <span style={{ color: '#f59e0b', fontWeight: 800, fontSize: '0.9rem' }}>{count}</span>
+                      <span className="stats-opponent-count">{count}</span>
                     </div>
                   ))}
                 </div>
               )}
-            </div>
+            </section>
           </div>
 
+          <div className="stats-two-col stats-activity-grid">
+            <section className="ui-panel" aria-labelledby="recent-battles-title">
+              <div className="ui-section-head">
+                <div>
+                  <span className="home-eyebrow">Battle log</span>
+                  <h2 id="recent-battles-title">Recent battles</h2>
+                </div>
+                <Link to="/battle" className="ui-text-btn">Battle again</Link>
+              </div>
+              {recentBattles.length === 0 ? (
+                <p className="ui-inline-empty">No battles recorded yet.</p>
+              ) : (
+                <div className="ui-activity-list">
+                  {recentBattles.map((battle, index) => {
+                    const lead = Array.isArray(battle.opponent_team) ? battle.opponent_team[0] : null;
+                    return (
+                      <div key={battle.id || `${battle.created_at}-${index}`} className="ui-activity-row">
+                        <span className={`ui-history-result is-${battle.result}`}>
+                          {RESULT_LABEL[battle.result] || battle.result}
+                        </span>
+                        <span className="stats-sprite-box">
+                          <PokemonSprite id={lead} size={34} />
+                        </span>
+                        <div className="ui-activity-row-main">
+                          <strong>{battle.opponent_name || (battle.mode === 'friend' ? 'Friend battle' : 'CPU battle')}</strong>
+                          <span>
+                            {battle.mode === 'friend' ? 'Friend' : 'CPU'} - {battle.turns || 0} moves - {formatDate(new Date(battle.created_at))}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </section>
+
+            <section className="ui-panel" aria-labelledby="recent-pulls-title">
+              <div className="ui-section-head">
+                <div>
+                  <span className="home-eyebrow">Card feed</span>
+                  <h2 id="recent-pulls-title">Recent pulls</h2>
+                </div>
+                <span className="ui-badge">{mergedPulls.length} total</span>
+              </div>
+              {recentPulls.length === 0 ? (
+                <p className="ui-inline-empty">No card pulls recorded yet.</p>
+              ) : (
+                <div className="stats-pull-grid">
+                  {recentPulls.map((pull, index) => {
+                    const pkmn = pokemonById.get(Number(pull.pokemon_id));
+                    return (
+                      <div
+                        key={pull.id || `${pull.pokemon_id}-${pull.created_at}-${index}`}
+                        className={`stats-pull-card ${pull.is_shiny ? 'is-shiny' : ''}`}
+                      >
+                        <span className="stats-pull-sprite">
+                          <PokemonSprite id={pull.pokemon_id} size={48} />
+                        </span>
+                        <div className="stats-pull-copy">
+                          <strong>{pkmn ? formatTitle(pkmn.name) : 'Unknown'}</strong>
+                          <span className={`stats-pull-type is-${pull.card_type || 'normal'}`}>
+                            {PULL_TYPE_LABEL[pull.card_type] || 'Normal'}
+                          </span>
+                          <small>
+                            {pull.was_new ? 'New' : `${Math.max(1, Number(pull.star_level) || 1)} star`}
+                            {pull.is_shiny ? ' - Shiny' : ''}
+                            {pull.fromCollection ? ' - Backfilled' : ''}
+                          </small>
+                          <time dateTime={pull.created_at}>{formatTimeAgo(pull.created_at)}</time>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </section>
+          </div>
         </>
       )}
     </div>

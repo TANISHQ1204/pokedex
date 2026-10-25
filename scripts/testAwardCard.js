@@ -1,7 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { rollCardDrop } from '../src/game/drops.js';
+import { rollBattleDrop } from '../src/game/drops.js';
+import { MAX_STAR_LEVEL } from '../src/game/cardLevels.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -11,24 +12,23 @@ const pokemonList = JSON.parse(fs.readFileSync(pokemonDataPath, 'utf-8'));
 
 console.log('--- Testing Card Roll Drop Function ---');
 
-// Test 1: Empty collection -> All Pokemon eligible
-const drop1 = rollCardDrop([], pokemonList);
-console.log('Drop 1 (Empty Collection):', drop1.name, `(ID: ${drop1.id})`);
+const emptyDrop = rollBattleDrop([], pokemonList);
+console.log('Empty collection drop:', emptyDrop.pokemon.name, `(ID: ${emptyDrop.pokemon.id})`);
 
-// Test 2: User has maxed out IDs 1..1000 -> Only IDs 1001..1025 eligible
 const mockMaxedIds = Array.from({ length: 1000 }, (_, i) => i + 1);
 const mockMaxedCollection = mockMaxedIds.map((id) => ({
   pokemon_id: id,
-  star_level: 5,
-  dupes_collected: 20,
+  star_level: MAX_STAR_LEVEL,
+  dupes_collected: MAX_STAR_LEVEL - 1,
   is_shiny: true,
 }));
 
-const drop2 = rollCardDrop(mockMaxedCollection, pokemonList);
-console.log('Drop 2 (IDs 1-1000 maxed):', drop2.name, `(ID: ${drop2.id}) - Expected ID > 1000`);
+const maxedDrop = rollBattleDrop(mockMaxedCollection, pokemonList);
+console.log('IDs 1-1000 maxed drop:', maxedDrop.pokemon.name, `(ID: ${maxedDrop.pokemon.id})`);
 
-if (drop2.id > 1000) {
-  console.log('✅ Success! Maxed cards (IDs 1-1000) were properly excluded from drop pool.');
+if (maxedDrop.pokemon.id > 1000) {
+  console.log('PASS: 20-star maxed cards were excluded from the drop pool.');
 } else {
-  console.error('❌ Failed! Maxed cards were not excluded.');
+  console.error('FAIL: Maxed cards were not excluded.');
+  process.exit(1);
 }

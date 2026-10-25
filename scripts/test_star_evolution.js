@@ -1,76 +1,147 @@
 /**
- * Star evolution + never-downgrade invariant (mirrors awardCard Case C in
- * src/store/collection.js).
+ * Star evolution + migration invariants for the 20-star card system.
  *
  * Run: node scripts/test_star_evolution.js
- *
- * Verifies:
- *   1. New-card evolution: dupes 0-1 → 1★, 2-3 → 2★ ... 18 → 10★ (maxed).
- *   2. Existing 5★ pre-migration rows are NEVER downgraded by the new formula.
- *   3. Shiny unlocks exactly at SHINY_STAR_LEVEL (10★).
- *   4. Maxed rows stay maxed on further dupes.
  */
-import { MAX_STAR_LEVEL, SHINY_STAR_LEVEL } from '../src/game/cardLevels.js';
+import {
+  MAX_STAR_LEVEL,
+  SHINY_STAR_LEVEL,
+  starLevelFromDupes,
+} from '../src/game/cardLevels.js';
+import { migrateNormalCardRow } from '../src/game/starMigration.js';
 
 let failures = 0;
 
-function assert(cond, label) {
-  if (cond) {
-    console.log(`  ✅ ${label}`);
+function assert(condition, label) {
+  if (condition) {
+    console.log(`  PASS: ${label}`);
   } else {
     failures += 1;
-    console.error(`  ❌ FAIL: ${label}`);
+    console.error(`  FAIL: ${label}`);
   }
 }
 
-/** Exactly mirrors awardCard's Case C star computation. */
-function evolve(existingStar, existingDupes) {
-  const newDupes = (existingDupes || 0) + 1;
-  const formulaStar = Math.min(MAX_STAR_LEVEL, 1 + Math.floor(newDupes / 2));
-  const newStarLevel = Math.max(Number(existingStar) || 1, formulaStar);
-  const starUpgraded = newStarLevel > existingStar;
-  return { newDupes, newStarLevel, starUpgraded, becameShiny: newStarLevel >= SHINY_STAR_LEVEL };
+function evolve(existingStar, existingDupes, existingShiny = false) {
+  if (existingStar >= MAX_STAR_LEVEL) {
+    return {
+      newDupes: existingDupes,
+      newStarLevel: MAX_STAR_LEVEL,
+      starUpgraded: false,
+      becameShiny: false,
+      maxedOut: true,
+    };
+  }
+
+  const newDupes = Math.min(MAX_STAR_LEVEL - 1, existingDupes + 1);
+  const newStarLevel = starLevelFromDupes(newDupes, existingStar);
+  return {
+    newDupes,
+    newStarLevel,
+    starUpgraded: newStarLevel > existingStar,
+    becameShiny: !existingShiny && newStarLevel >= SHINY_STAR_LEVEL,
+    maxedOut: false,
+  };
 }
 
-console.log('\n--- Test A: fresh card evolves toward 10★ (1★ @1 dupe -> 10★ @18 dupes) ---\n');
-const freshSteps = [];
+console.log('\n--- Test A: 1 duplicate = 1 star, 19 duplicates = 20 stars ---\n');
 let dupes = 0;
 let star = 1;
-while (dupes < 20) {
-  dupes += 1;
-  const r = evolve(star, dupes - 1);
-  star = r.newStarLevel;
-  freshSteps.push([dupes, star]);
+const steps = [];
+for (let i = 0; i < 19; i += 1) {
+  const result = evolve(star, dupes);
+  dupes = result.newDupes;
+  star = result.newStarLevel;
+  steps.push({ dupes, star, upgraded: result.starUpgraded });
 }
-assert(freshSteps[0][1] === 1, `1st dupe stays 1★ (got ${freshSteps[0][1]}★)`);
-assert(freshSteps[1][1] === 2, `2nd dupe -> 2★ (got ${freshSteps[1][1]}★)`);
-assert(freshSteps[17][0] === 18 && freshSteps[17][1] === MAX_STAR_LEVEL, `18th dupe -> ${MAX_STAR_LEVEL}★ (got ${freshSteps[17][1]}★)`);
-assert(freshSteps[19][1] === MAX_STAR_LEVEL, `20th dupe stays capped at ${MAX_STAR_LEVEL}★ (got ${freshSteps[19][1]}★)`);
+assert(steps[0].star === 2 && steps[0].upgraded, 'First duplicate upgrades 1★ to 2★');
+assert(steps[18].star === MAX_STAR_LEVEL, '19th duplicate reaches 20★');
+assert(steps.every((step, idx) => step.star === idx + 2), 'Every duplicate adds exactly one star');
 
-console.log('\n--- Test B: pre-migration 5★ row is never downgraded ---\n');
-// Old system: 5★ @ 4 dupes. New formula at 4->5 dupes computes 1+floor(5/2)=3★.
-const premig = evolve(5, 4);
-assert(premig.newStarLevel === 5, `5★ row with dupe #5 stays 5★ (got ${premig.newStarLevel}★)`);
-assert(premig.newDupes === 5, `dupes still accumulate (5) after a carryover drop`);
-// It only upgrades once the formula surpasses stored star (dupes reaching >= 10).
-const premig8 = evolve(5, 9);
-assert(premig8.newStarLevel === 6, `5★ row upgrades to 6★ once formula overtakes (got ${premig8.newStarLevel}★)`);
+const blocked = evolve(MAX_STAR_LEVEL, 19);
+assert(blocked.maxedOut && blocked.newStarLevel === MAX_STAR_LEVEL, 'Maxed cards block further upgrades');
 
-console.log('\n--- Test C: shiny unlocks exactly at 10★ ---\n');
-const at9 = evolve(8, 15);
-assert(!at9.becameShiny && at9.newStarLevel === 9, `9★ is not shiny yet (got ${at9.newStarLevel}★)`);
-const at10 = evolve(9, 17);
-assert(at10.becameShiny && at10.newStarLevel === SHINY_STAR_LEVEL, `10★ unlocks shiny (got ${at10.newStarLevel}★)`);
+console.log('\n--- Test B: legacy rows are never downgraded ---\n');
+assert(starLevelFromDupes(4, 5) === 5, 'Legacy 5★ with 4 dupes stays 5★');
+const nextLegacy = evolve(5, 4);
+assert(nextLegacy.newStarLevel === 6, 'Legacy 5★ upgrades to 6★ on its next duplicate');
+assert(starLevelFromDupes(18, 19) === 19, 'Stored 19★ is preserved with 18 dupes');
 
-console.log('\n--- Test D: maxed rows are skipped (awardCard Case B) ---\n');
-// Guard in collection.js blocks any award at star_level >= MAX_STAR_LEVEL, so the
-// normal path never recomputes these — assert the formula can't push past cap anyway.
-const maxed = evolve(MAX_STAR_LEVEL, 10);
-assert(maxed.newStarLevel === MAX_STAR_LEVEL, `Formula never exceeds ${MAX_STAR_LEVEL}★ (got ${maxed.newStarLevel}★)`);
+console.log('\n--- Test C: shiny unlocks exactly at 20★ ---\n');
+const at19 = evolve(18, 17);
+assert(!at19.becameShiny && at19.newStarLevel === 19, '19★ is not shiny yet');
+const at20 = evolve(19, 18);
+assert(at20.becameShiny && at20.newStarLevel === SHINY_STAR_LEVEL, '20★ unlocks shiny');
+
+console.log('\n--- Test D: migration preserves legacy progress ---\n');
+const legacyMax = migrateNormalCardRow(
+  {
+    id: 1,
+    user_id: 'u1',
+    pokemon_id: 25,
+    star_level: 10,
+    dupes_collected: 18,
+    is_shiny: true,
+  },
+  '2026-01-01T00:00:00.000Z'
+);
+assert(legacyMax?.star_level === 20, 'Legacy maxed 10★ becomes 20★');
+assert(legacyMax?.dupes_collected === 19, 'Legacy maxed card gets 19 dupes');
+assert(legacyMax?.is_shiny === true, 'Legacy shiny is preserved');
+
+const legacyFive = migrateNormalCardRow({
+  id: 2,
+  user_id: 'u1',
+  pokemon_id: 6,
+  star_level: 5,
+  dupes_collected: 4,
+  is_shiny: false,
+});
+assert(legacyFive === null, 'Legacy 5★ with matching dupes requires no downgrade write');
+
+const alreadyCurrent = migrateNormalCardRow({
+  id: 3,
+  user_id: 'u1',
+  pokemon_id: 7,
+  star_level: 9,
+  dupes_collected: 8,
+  is_shiny: false,
+});
+assert(alreadyCurrent === null, 'Already-valid rows are not rewritten on a second pass');
+
+const special = migrateNormalCardRow({
+  id: 4,
+  star_level: 10,
+  dupes_collected: 18,
+  is_power_card: true,
+});
+assert(special === null, 'Power Cards are untouched');
+
+console.log('\n--- Test E: migration is idempotent ---\n');
+const currentTen = migrateNormalCardRow({
+  id: 5,
+  user_id: 'u1',
+  pokemon_id: 150,
+  star_level: 10,
+  dupes_collected: 9,
+  is_shiny: false,
+});
+assert(currentTen === null, 'A current 10★ card stays at 10★');
+
+const migrated = migrateNormalCardRow({
+  id: 6,
+  user_id: 'u1',
+  pokemon_id: 151,
+  star_level: 8,
+  dupes_collected: 3,
+  is_shiny: false,
+});
+assert(migrated?.dupes_collected === 7, 'Migration raises duplicate count to match star level');
+const secondPass = migrateNormalCardRow(migrated);
+assert(secondPass === null, 'Second migration pass makes no changes');
 
 if (failures === 0) {
-  console.log('\n✅ ALL STAR EVOLUTION TESTS PASSED — no downgrade, cap respected, shiny at 10★.');
+  console.log('\nALL 20-STAR EVOLUTION AND MIGRATION TESTS PASSED');
 } else {
-  console.error(`\n❌ ${failures} STAR EVOLUTION TEST(S) FAILED.`);
+  console.error(`\n${failures} TEST(S) FAILED`);
   process.exit(1);
 }
