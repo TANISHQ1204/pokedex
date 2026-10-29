@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { fullPokemonList } from '../utils/pokemonCatalog.js';
+import { BADGE_FAMILIES, getBadgeFamilyMeta } from '../data/awards.js';
 
 const DEX_FILTERS = [
   { id: 'all', label: 'All', min: 1, max: 11000 },
@@ -38,11 +39,10 @@ const TROPHY_COLORS = {
   locked: '#64748b',
 };
 
-const BADGE_FILTERS = [
-  { id: 'all', label: 'All badges' },
-  { id: 'regional', label: 'Regional' },
-  { id: 'mastery', label: 'Mastery' },
-];
+const BADGE_FILTERS = BADGE_FAMILIES.map((family) => ({
+  id: family.id,
+  label: family.id === 'all' ? 'All badges' : family.label,
+}));
 
 const TABS = [
   { id: 'dex', label: 'Pokédex', accent: '#38bdf8', link: '/collection', cta: 'Open collection' },
@@ -127,6 +127,7 @@ export default function HomeProgressTabs({ collectionMap, stats, isLoading }) {
     const group = stats.badgeGroups?.[badgeFilter] || { total: 0, unlocked: 0 };
     const percent = group.total ? Math.round((group.unlocked / group.total) * 100) : 0;
     const label = BADGE_FILTERS.find((item) => item.id === badgeFilter)?.label || 'Badges';
+    const meta = getBadgeFamilyMeta(badgeFilter);
     return {
       value: group.unlocked,
       total: group.total,
@@ -138,8 +139,10 @@ export default function HomeProgressTabs({ collectionMap, stats, isLoading }) {
           ? 'Mastery badges require every card in the set to reach the 20-star shiny cap.'
           : badgeFilter === 'regional'
             ? 'Regional badges track complete Pokédex sets across each region.'
-            : 'Badges are earned by completing regional and 20-star mastery collections.',
-      accent: badgeFilter === 'mastery' ? '#f472b6' : badgeFilter === 'regional' ? '#4ade80' : '#fbbf24',
+            : badgeFilter === 'all'
+              ? 'Badges are earned through regional dexes, gym rosters, lore sets, and trainer milestones.'
+              : `${meta.label} badges track their own collection or milestone challenge.`,
+      accent: meta.accent,
     };
   }, [stats, badgeFilter]);
 

@@ -8,9 +8,24 @@ import { MAX_STAR_LEVEL } from './cardLevels.js';
  */
 function normalizeCollectionMap(playerCollection) {
   if (!playerCollection) return new Map();
-  if (playerCollection instanceof Map) return playerCollection;
 
   const map = new Map();
+  if (playerCollection instanceof Map) {
+    playerCollection.forEach((entry, key) => {
+      if (
+        entry &&
+        !entry.is_power_card &&
+        !entry.isPowerCard &&
+        !entry.is_ancient_card &&
+        !entry.isAncientCard
+      ) {
+        const id = Number(entry.pokemon_id ?? key);
+        if (Number.isFinite(id)) map.set(id, entry);
+      }
+    });
+    return map;
+  }
+
   if (Array.isArray(playerCollection)) {
     playerCollection.forEach((entry) => {
       if (

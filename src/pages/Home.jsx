@@ -5,8 +5,12 @@ import { getUserCollection } from '../store/collection';
 import { getTrophyTier } from '../game/trophies';
 import { getBadgeStatus } from '../game/badges';
 import { TYPE_CHART } from '../game/battle';
-import collectionsList from '../data/collections.json' with { type: 'json' };
-import badgesList from '../data/badges.json' with { type: 'json' };
+import {
+  allCollections,
+  allBadges,
+  BADGE_FAMILIES,
+  getBadgeFamily,
+} from '../data/awards.js';
 import { getPokemonById, fullPokemonList } from '../utils/pokemonCatalog.js';
 import { isNormalRecord } from '../utils/cardTypes';
 import { MAX_STAR_LEVEL, SHINY_STAR_LEVEL, starTierClass } from '../game/cardLevels.js';
@@ -141,21 +145,25 @@ export default function Home() {
       diamond: 0,
       master: 0,
     };
-    collectionsList.forEach((col) => {
+    allCollections.forEach((col) => {
       const tier = getTrophyTier(col, collectionMap).tier;
       if (trophyCounts[tier] != null) trophyCounts[tier]++;
     });
-    const totalTrophies = collectionsList.length;
+    const totalTrophies = allCollections.length;
     const trophiesUnlocked = totalTrophies - trophyCounts.locked;
 
     const badgeGroups = {
       all: { total: 0, unlocked: 0 },
-      regional: { total: 0, unlocked: 0 },
-      mastery: { total: 0, unlocked: 0 },
     };
-    badgesList.forEach((badge) => {
-      const isMastery = badge.criteria === 'star20' || badge.criteria === 'star10';
-      const group = isMastery ? badgeGroups.mastery : badgeGroups.regional;
+    BADGE_FAMILIES.forEach((family) => {
+      if (family.id !== 'all') {
+        badgeGroups[family.id] = { total: 0, unlocked: 0 };
+      }
+    });
+    allBadges.forEach((badge) => {
+      const family = getBadgeFamily(badge);
+      if (!badgeGroups[family]) badgeGroups[family] = { total: 0, unlocked: 0 };
+      const group = badgeGroups[family];
       const isUnlocked = getBadgeStatus(badge, collectionMap).isUnlocked;
       group.total++;
       badgeGroups.all.total++;
@@ -174,7 +182,7 @@ export default function Home() {
       trophiesUnlocked,
       badgeGroups,
       badgesUnlocked: badgeGroups.all.unlocked,
-      totalBadges: badgesList.length,
+      totalBadges: allBadges.length,
     };
   }, [collectionMap]);
 

@@ -1,0 +1,3801 @@
+[
+  {
+    "id": "lore_gym_kanto_boulder",
+    "name": "Kanto Boulder Gym Set",
+    "category": "gym",
+    "description": "Brock's rock-type gym roster. Complete the set to earn the Boulder Badge.",
+    "pokemonIds": [
+      74,
+      75,
+      76,
+      95,
+      248,
+      719,
+      1022,
+      639,
+      377,
+      793
+    ]
+  },
+  {
+    "id": "lore_gym_kanto_cascade",
+    "name": "Kanto Cascade Gym Set",
+    "category": "gym",
+    "description": "Misty's water-type gym roster. Complete the set to earn the Cascade Badge.",
+    "pokemonIds": [
+      54,
+      55,
+      120,
+      121,
+      484,
+      382,
+      490,
+      721,
+      1009,
+      245
+    ]
+  },
+  {
+    "id": "lore_gym_kanto_thunder",
+    "name": "Kanto Thunder Gym Set",
+    "category": "gym",
+    "description": "Lt. Surge's electric-type gym roster. Complete the set to earn the Thunder Badge.",
+    "pokemonIds": [
+      25,
+      26,
+      81,
+      82,
+      100,
+      101,
+      644,
+      1008,
+      807,
+      1021
+    ]
+  },
+  {
+    "id": "lore_gym_kanto_rainbow",
+    "name": "Kanto Rainbow Gym Set",
+    "category": "gym",
+    "description": "Erika's grass-type gym roster. Complete the set to earn the Rainbow Badge.",
+    "pokemonIds": [
+      43,
+      44,
+      45,
+      69,
+      70,
+      71,
+      114,
+      893,
+      251,
+      492
+    ]
+  },
+  {
+    "id": "lore_gym_kanto_soul",
+    "name": "Kanto Soul Gym Set",
+    "category": "gym",
+    "description": "Koga's poison-type gym roster. Complete the set to earn the Soul Badge.",
+    "pokemonIds": [
+      23,
+      24,
+      41,
+      42,
+      88,
+      89,
+      109,
+      110,
+      890,
+      1025
+    ]
+  },
+  {
+    "id": "lore_gym_kanto_marsh",
+    "name": "Kanto Marsh Gym Set",
+    "category": "gym",
+    "description": "Sabrina's psychic-type gym roster. Complete the set to earn the Marsh Badge.",
+    "pokemonIds": [
+      63,
+      64,
+      65,
+      96,
+      97,
+      122,
+      791,
+      792,
+      150,
+      249
+    ]
+  },
+  {
+    "id": "lore_gym_kanto_volcano",
+    "name": "Kanto Volcano Gym Set",
+    "category": "gym",
+    "description": "Blaine's fire-type gym roster. Complete the set to earn the Volcano Badge.",
+    "pokemonIds": [
+      37,
+      38,
+      58,
+      59,
+      77,
+      78,
+      126,
+      250,
+      643,
+      494
+    ]
+  },
+  {
+    "id": "lore_gym_kanto_earth",
+    "name": "Kanto Earth Gym Set",
+    "category": "gym",
+    "description": "Giovanni's ground-type gym roster. Complete the set to earn the Earth Badge.",
+    "pokemonIds": [
+      27,
+      28,
+      31,
+      34,
+      50,
+      51,
+      111,
+      112,
+      383,
+      445
+    ]
+  },
+  {
+    "id": "lore_gym_johto_zephyr",
+    "name": "Johto Zephyr Gym Set",
+    "category": "gym",
+    "description": "Falkner's flying-type gym roster. Complete the set to earn the Zephyr Badge.",
+    "pokemonIds": [
+      16,
+      17,
+      18,
+      21,
+      22,
+      164,
+      717,
+      249,
+      250,
+      384
+    ]
+  },
+  {
+    "id": "lore_gym_johto_hive",
+    "name": "Johto Hive Gym Set",
+    "category": "gym",
+    "description": "Bugsy's bug-type gym roster. Complete the set to earn the Hive Badge.",
+    "pokemonIds": [
+      10,
+      11,
+      12,
+      123,
+      204,
+      205,
+      649,
+      794,
+      988,
+      795
+    ]
+  },
+  {
+    "id": "lore_gym_johto_plain",
+    "name": "Johto Plain Gym Set",
+    "category": "gym",
+    "description": "Whitney's normal-type gym roster. Complete the set to earn the Plain Badge.",
+    "pokemonIds": [
+      35,
+      36,
+      39,
+      40,
+      52,
+      53,
+      241,
+      493,
+      289,
+      486
+    ]
+  },
+  {
+    "id": "lore_gym_johto_fog",
+    "name": "Johto Fog Gym Set",
+    "category": "gym",
+    "description": "Morty's ghost-type gym roster. Complete the set to earn the Fog Badge.",
+    "pokemonIds": [
+      92,
+      93,
+      94,
+      200,
+      201,
+      202,
+      487,
+      792,
+      802,
+      887
+    ]
+  },
+  {
+    "id": "lore_gym_johto_storm",
+    "name": "Johto Storm Gym Set",
+    "category": "gym",
+    "description": "Chuck's fighting-type gym roster. Complete the set to earn the Storm Badge.",
+    "pokemonIds": [
+      56,
+      57,
+      62,
+      66,
+      67,
+      68,
+      214,
+      1007,
+      889,
+      802
+    ]
+  },
+  {
+    "id": "lore_gym_johto_mineral",
+    "name": "Johto Mineral Gym Set",
+    "category": "gym",
+    "description": "Jasmine's steel-type gym roster. Complete the set to earn the Mineral Badge.",
+    "pokemonIds": [
+      81,
+      82,
+      208,
+      212,
+      227,
+      791,
+      483,
+      809,
+      385,
+      485
+    ]
+  },
+  {
+    "id": "lore_gym_johto_glacier",
+    "name": "Johto Glacier Gym Set",
+    "category": "gym",
+    "description": "Pryce's ice-type gym roster. Complete the set to earn the Glacier Badge.",
+    "pokemonIds": [
+      86,
+      87,
+      124,
+      131,
+      220,
+      221,
+      225,
+      362,
+      646,
+      998
+    ]
+  },
+  {
+    "id": "lore_gym_johto_rising",
+    "name": "Johto Rising Gym Set",
+    "category": "gym",
+    "description": "Clair's dragon-type gym roster. Complete the set to earn the Rising Badge.",
+    "pokemonIds": [
+      147,
+      148,
+      149,
+      230,
+      333,
+      334,
+      890,
+      487,
+      384,
+      483
+    ]
+  },
+  {
+    "id": "lore_gym_hoenn_stone",
+    "name": "Hoenn Stone Gym Set",
+    "category": "gym",
+    "description": "Roxanne's rock-type gym roster. Complete the set to earn the Stone Badge.",
+    "pokemonIds": [
+      74,
+      75,
+      76,
+      299,
+      304,
+      305,
+      306,
+      248,
+      719,
+      1022
+    ]
+  },
+  {
+    "id": "lore_gym_hoenn_knuckle",
+    "name": "Hoenn Knuckle Gym Set",
+    "category": "gym",
+    "description": "Brawly's fighting-type gym roster. Complete the set to earn the Knuckle Badge.",
+    "pokemonIds": [
+      56,
+      57,
+      62,
+      66,
+      67,
+      68,
+      296,
+      297,
+      1007,
+      889
+    ]
+  },
+  {
+    "id": "lore_gym_hoenn_dynamo",
+    "name": "Hoenn Dynamo Gym Set",
+    "category": "gym",
+    "description": "Wattson's electric-type gym roster. Complete the set to earn the Dynamo Badge.",
+    "pokemonIds": [
+      81,
+      82,
+      100,
+      101,
+      125,
+      239,
+      310,
+      644,
+      1008,
+      807
+    ]
+  },
+  {
+    "id": "lore_gym_hoenn_heat",
+    "name": "Hoenn Heat Gym Set",
+    "category": "gym",
+    "description": "Flannery's fire-type gym roster. Complete the set to earn the Heat Badge.",
+    "pokemonIds": [
+      37,
+      38,
+      58,
+      59,
+      77,
+      78,
+      126,
+      323,
+      250,
+      643
+    ]
+  },
+  {
+    "id": "lore_gym_hoenn_balance",
+    "name": "Hoenn Balance Gym Set",
+    "category": "gym",
+    "description": "Norman's normal-type gym roster. Complete the set to earn the Balance Badge.",
+    "pokemonIds": [
+      35,
+      36,
+      39,
+      40,
+      52,
+      53,
+      289,
+      293,
+      294,
+      295
+    ]
+  },
+  {
+    "id": "lore_gym_hoenn_feather",
+    "name": "Hoenn Feather Gym Set",
+    "category": "gym",
+    "description": "Winona's flying-type gym roster. Complete the set to earn the Feather Badge.",
+    "pokemonIds": [
+      16,
+      17,
+      18,
+      21,
+      22,
+      164,
+      277,
+      333,
+      334,
+      357
+    ]
+  },
+  {
+    "id": "lore_gym_hoenn_mind",
+    "name": "Hoenn Mind Gym Set",
+    "category": "gym",
+    "description": "Tate & Liza's psychic-type gym roster. Complete the set to earn the Mind Badge.",
+    "pokemonIds": [
+      63,
+      64,
+      65,
+      96,
+      97,
+      177,
+      178,
+      337,
+      338,
+      344
+    ]
+  },
+  {
+    "id": "lore_gym_hoenn_rain",
+    "name": "Hoenn Rain Gym Set",
+    "category": "gym",
+    "description": "Wallace's water-type gym roster. Complete the set to earn the Rain Badge.",
+    "pokemonIds": [
+      54,
+      55,
+      86,
+      87,
+      118,
+      119,
+      130,
+      131,
+      134,
+      350
+    ]
+  },
+  {
+    "id": "lore_gym_sinnoh_coal",
+    "name": "Sinnoh Coal Gym Set",
+    "category": "gym",
+    "description": "Roark's rock-type gym roster. Complete the set to earn the Coal Badge.",
+    "pokemonIds": [
+      74,
+      75,
+      76,
+      95,
+      246,
+      247,
+      248,
+      408,
+      409,
+      719
+    ]
+  },
+  {
+    "id": "lore_gym_sinnoh_forest",
+    "name": "Sinnoh Forest Gym Set",
+    "category": "gym",
+    "description": "Gardenia's grass-type gym roster. Complete the set to earn the Forest Badge.",
+    "pokemonIds": [
+      43,
+      44,
+      45,
+      69,
+      70,
+      71,
+      114,
+      182,
+      406,
+      407
+    ]
+  },
+  {
+    "id": "lore_gym_sinnoh_cobble",
+    "name": "Sinnoh Cobble Gym Set",
+    "category": "gym",
+    "description": "Maylene's fighting-type gym roster. Complete the set to earn the Cobble Badge.",
+    "pokemonIds": [
+      56,
+      57,
+      62,
+      66,
+      67,
+      68,
+      447,
+      448,
+      475,
+      1007
+    ]
+  },
+  {
+    "id": "lore_gym_sinnoh_fen",
+    "name": "Sinnoh Fen Gym Set",
+    "category": "gym",
+    "description": "Crasher Wake's water-type gym roster. Complete the set to earn the Fen Badge.",
+    "pokemonIds": [
+      54,
+      55,
+      86,
+      87,
+      118,
+      119,
+      130,
+      131,
+      134,
+      350
+    ]
+  },
+  {
+    "id": "lore_gym_sinnoh_relic",
+    "name": "Sinnoh Relic Gym Set",
+    "category": "gym",
+    "description": "Fantina's ghost-type gym roster. Complete the set to earn the Relic Badge.",
+    "pokemonIds": [
+      92,
+      93,
+      94,
+      200,
+      201,
+      202,
+      353,
+      354,
+      355,
+      356
+    ]
+  },
+  {
+    "id": "lore_gym_sinnoh_mine",
+    "name": "Sinnoh Mine Gym Set",
+    "category": "gym",
+    "description": "Byron's steel-type gym roster. Complete the set to earn the Mine Badge.",
+    "pokemonIds": [
+      81,
+      82,
+      208,
+      212,
+      227,
+      374,
+      375,
+      376,
+      410,
+      411
+    ]
+  },
+  {
+    "id": "lore_gym_sinnoh_icicle",
+    "name": "Sinnoh Icicle Gym Set",
+    "category": "gym",
+    "description": "Candice's ice-type gym roster. Complete the set to earn the Icicle Badge.",
+    "pokemonIds": [
+      86,
+      87,
+      124,
+      131,
+      220,
+      221,
+      225,
+      361,
+      362,
+      365
+    ]
+  },
+  {
+    "id": "lore_gym_sinnoh_beacon",
+    "name": "Sinnoh Beacon Gym Set",
+    "category": "gym",
+    "description": "Volkner's electric-type gym roster. Complete the set to earn the Beacon Badge.",
+    "pokemonIds": [
+      81,
+      82,
+      100,
+      101,
+      125,
+      135,
+      239,
+      310,
+      405,
+      466
+    ]
+  },
+  {
+    "id": "lore_gym_unova_trio",
+    "name": "Unova Trio Gym Set",
+    "category": "gym",
+    "description": "Cilan, Chili & Cress's grass-type gym roster. Complete the set to earn the Trio Badge.",
+    "pokemonIds": [
+      511,
+      512,
+      513,
+      514,
+      515,
+      516,
+      893,
+      251,
+      492,
+      1010
+    ]
+  },
+  {
+    "id": "lore_gym_unova_basic",
+    "name": "Unova Basic Gym Set",
+    "category": "gym",
+    "description": "Lenora's normal-type gym roster. Complete the set to earn the Basic Badge.",
+    "pokemonIds": [
+      506,
+      507,
+      508,
+      519,
+      520,
+      521,
+      572,
+      573,
+      493,
+      289
+    ]
+  },
+  {
+    "id": "lore_gym_unova_insect",
+    "name": "Unova Insect Gym Set",
+    "category": "gym",
+    "description": "Burgh's bug-type gym roster. Complete the set to earn the Insect Badge.",
+    "pokemonIds": [
+      540,
+      541,
+      542,
+      543,
+      544,
+      545,
+      557,
+      558,
+      649,
+      794
+    ]
+  },
+  {
+    "id": "lore_gym_unova_bolt",
+    "name": "Unova Bolt Gym Set",
+    "category": "gym",
+    "description": "Elesa's electric-type gym roster. Complete the set to earn the Bolt Badge.",
+    "pokemonIds": [
+      587,
+      595,
+      596,
+      602,
+      603,
+      604,
+      644,
+      1008,
+      807,
+      1021
+    ]
+  },
+  {
+    "id": "lore_gym_unova_quake",
+    "name": "Unova Quake Gym Set",
+    "category": "gym",
+    "description": "Clay's ground-type gym roster. Complete the set to earn the Quake Badge.",
+    "pokemonIds": [
+      524,
+      525,
+      526,
+      529,
+      530,
+      551,
+      552,
+      553,
+      383,
+      445
+    ]
+  },
+  {
+    "id": "lore_gym_unova_jet",
+    "name": "Unova Jet Gym Set",
+    "category": "gym",
+    "description": "Skyla's flying-type gym roster. Complete the set to earn the Jet Badge.",
+    "pokemonIds": [
+      519,
+      520,
+      521,
+      566,
+      567,
+      580,
+      581,
+      628,
+      630,
+      717
+    ]
+  },
+  {
+    "id": "lore_gym_unova_freeze",
+    "name": "Unova Freeze Gym Set",
+    "category": "gym",
+    "description": "Brycen's ice-type gym roster. Complete the set to earn the Freeze Badge.",
+    "pokemonIds": [
+      582,
+      583,
+      584,
+      613,
+      614,
+      615,
+      361,
+      362,
+      365,
+      646
+    ]
+  },
+  {
+    "id": "lore_gym_unova_legend",
+    "name": "Unova Legend Gym Set",
+    "category": "gym",
+    "description": "Drayden & Iris's dragon-type gym roster. Complete the set to earn the Legend Badge.",
+    "pokemonIds": [
+      610,
+      611,
+      612,
+      621,
+      622,
+      623,
+      633,
+      634,
+      635,
+      890
+    ]
+  },
+  {
+    "id": "lore_gym_kalos_bug",
+    "name": "Kalos Bug Gym Set",
+    "category": "gym",
+    "description": "Viola's bug-type gym roster. Complete the set to earn the Bug Badge.",
+    "pokemonIds": [
+      283,
+      284,
+      666,
+      742,
+      743,
+      649,
+      794,
+      988,
+      795,
+      637
+    ]
+  },
+  {
+    "id": "lore_gym_kalos_cliff",
+    "name": "Kalos Cliff Gym Set",
+    "category": "gym",
+    "description": "Grant's rock-type gym roster. Complete the set to earn the Cliff Badge.",
+    "pokemonIds": [
+      696,
+      697,
+      698,
+      699,
+      703,
+      248,
+      719,
+      1022,
+      639,
+      377
+    ]
+  },
+  {
+    "id": "lore_gym_kalos_rumble",
+    "name": "Kalos Rumble Gym Set",
+    "category": "gym",
+    "description": "Korrina's fighting-type gym roster. Complete the set to earn the Rumble Badge.",
+    "pokemonIds": [
+      447,
+      448,
+      475,
+      701,
+      1007,
+      889,
+      802,
+      784,
+      1006,
+      992
+    ]
+  },
+  {
+    "id": "lore_gym_kalos_plant",
+    "name": "Kalos Plant Gym Set",
+    "category": "gym",
+    "description": "Ramos's grass-type gym roster. Complete the set to earn the Plant Badge.",
+    "pokemonIds": [
+      672,
+      673,
+      710,
+      711,
+      893,
+      251,
+      492,
+      1010,
+      640,
+      986
+    ]
+  },
+  {
+    "id": "lore_gym_kalos_voltage",
+    "name": "Kalos Voltage Gym Set",
+    "category": "gym",
+    "description": "Clemont's electric-type gym roster. Complete the set to earn the Voltage Badge.",
+    "pokemonIds": [
+      694,
+      695,
+      702,
+      736,
+      737,
+      738,
+      644,
+      1008,
+      807,
+      1021
+    ]
+  },
+  {
+    "id": "lore_gym_kalos_fairy",
+    "name": "Kalos Fairy Gym Set",
+    "category": "gym",
+    "description": "Valerie's fairy-type gym roster. Complete the set to earn the Fairy Badge.",
+    "pokemonIds": [
+      682,
+      683,
+      684,
+      685,
+      700,
+      716,
+      888,
+      801,
+      719,
+      1006
+    ]
+  },
+  {
+    "id": "lore_gym_kalos_psychic",
+    "name": "Kalos Psychic Gym Set",
+    "category": "gym",
+    "description": "Olympia's psychic-type gym roster. Complete the set to earn the Psychic Badge.",
+    "pokemonIds": [
+      677,
+      678,
+      686,
+      687,
+      791,
+      792,
+      150,
+      249,
+      151,
+      251
+    ]
+  },
+  {
+    "id": "lore_gym_kalos_iceberg",
+    "name": "Kalos Iceberg Gym Set",
+    "category": "gym",
+    "description": "Wulfric's ice-type gym roster. Complete the set to earn the Iceberg Badge.",
+    "pokemonIds": [
+      712,
+      713,
+      714,
+      715,
+      460,
+      646,
+      998,
+      896,
+      144,
+      378
+    ]
+  },
+  {
+    "id": "lore_gym_galar_grass",
+    "name": "Galar Grass Gym Set",
+    "category": "gym",
+    "description": "Milo's grass-type gym roster. Complete the set to earn the Grass Badge.",
+    "pokemonIds": [
+      810,
+      811,
+      812,
+      829,
+      830,
+      840,
+      841,
+      842,
+      893,
+      251
+    ]
+  },
+  {
+    "id": "lore_gym_galar_water",
+    "name": "Galar Water Gym Set",
+    "category": "gym",
+    "description": "Nessa's water-type gym roster. Complete the set to earn the Water Badge.",
+    "pokemonIds": [
+      816,
+      817,
+      818,
+      833,
+      834,
+      846,
+      847,
+      484,
+      382,
+      490
+    ]
+  },
+  {
+    "id": "lore_gym_galar_fire",
+    "name": "Galar Fire Gym Set",
+    "category": "gym",
+    "description": "Kabu's fire-type gym roster. Complete the set to earn the Fire Badge.",
+    "pokemonIds": [
+      813,
+      814,
+      815,
+      837,
+      838,
+      839,
+      850,
+      851,
+      250,
+      643
+    ]
+  },
+  {
+    "id": "lore_gym_galar_fighting",
+    "name": "Galar Fighting Gym Set",
+    "category": "gym",
+    "description": "Bea's fighting-type gym roster. Complete the set to earn the Fighting Badge.",
+    "pokemonIds": [
+      674,
+      675,
+      739,
+      740,
+      852,
+      853,
+      1007,
+      889,
+      802,
+      784
+    ]
+  },
+  {
+    "id": "lore_gym_galar_ghost",
+    "name": "Galar Ghost Gym Set",
+    "category": "gym",
+    "description": "Allister's ghost-type gym roster. Complete the set to earn the Ghost Badge.",
+    "pokemonIds": [
+      854,
+      855,
+      856,
+      857,
+      858,
+      859,
+      860,
+      861,
+      487,
+      792
+    ]
+  },
+  {
+    "id": "lore_gym_galar_fairy",
+    "name": "Galar Fairy Gym Set",
+    "category": "gym",
+    "description": "Opal's fairy-type gym roster. Complete the set to earn the Fairy Badge.",
+    "pokemonIds": [
+      868,
+      869,
+      876,
+      858,
+      716,
+      888,
+      801,
+      719,
+      1006,
+      905
+    ]
+  },
+  {
+    "id": "lore_gym_galar_rock",
+    "name": "Galar Rock Gym Set",
+    "category": "gym",
+    "description": "Gordie's rock-type gym roster. Complete the set to earn the Rock Badge.",
+    "pokemonIds": [
+      874,
+      875,
+      839,
+      248,
+      719,
+      1022,
+      639,
+      377,
+      793,
+      995
+    ]
+  },
+  {
+    "id": "lore_gym_galar_dark",
+    "name": "Galar Dark Gym Set",
+    "category": "gym",
+    "description": "Piers's dark-type gym roster. Complete the set to earn the Dark Badge.",
+    "pokemonIds": [
+      862,
+      863,
+      877,
+      717,
+      893,
+      248,
+      635,
+      799,
+      491,
+      1005
+    ]
+  },
+  {
+    "id": "lore_gym_galar_dragon",
+    "name": "Galar Dragon Gym Set",
+    "category": "gym",
+    "description": "Raihan's dragon-type gym roster. Complete the set to earn the Dragon Badge.",
+    "pokemonIds": [
+      880,
+      881,
+      882,
+      883,
+      884,
+      887,
+      890,
+      487,
+      384,
+      483
+    ]
+  },
+  {
+    "id": "lore_gym_paldea_bug",
+    "name": "Paldea Bug Gym Set",
+    "category": "gym",
+    "description": "Katy's bug-type gym roster. Complete the set to earn the Bug Badge.",
+    "pokemonIds": [
+      917,
+      918,
+      919,
+      920,
+      649,
+      794,
+      988,
+      795,
+      637,
+      768
+    ]
+  },
+  {
+    "id": "lore_gym_paldea_grass",
+    "name": "Paldea Grass Gym Set",
+    "category": "gym",
+    "description": "Brassius's grass-type gym roster. Complete the set to earn the Grass Badge.",
+    "pokemonIds": [
+      928,
+      929,
+      930,
+      948,
+      949,
+      893,
+      251,
+      492,
+      1010,
+      640
+    ]
+  },
+  {
+    "id": "lore_gym_paldea_electric",
+    "name": "Paldea Electric Gym Set",
+    "category": "gym",
+    "description": "Iono's electric-type gym roster. Complete the set to earn the Electric Badge.",
+    "pokemonIds": [
+      921,
+      922,
+      923,
+      938,
+      939,
+      940,
+      644,
+      1008,
+      807,
+      1021
+    ]
+  },
+  {
+    "id": "lore_gym_paldea_water",
+    "name": "Paldea Water Gym Set",
+    "category": "gym",
+    "description": "Kofu's water-type gym roster. Complete the set to earn the Water Badge.",
+    "pokemonIds": [
+      976,
+      977,
+      978,
+      960,
+      961,
+      484,
+      382,
+      490,
+      721,
+      1009
+    ]
+  },
+  {
+    "id": "lore_gym_paldea_normal",
+    "name": "Paldea Normal Gym Set",
+    "category": "gym",
+    "description": "Larry's normal-type gym roster. Complete the set to earn the Normal Badge.",
+    "pokemonIds": [
+      924,
+      925,
+      926,
+      927,
+      981,
+      982,
+      493,
+      289,
+      486,
+      648
+    ]
+  },
+  {
+    "id": "lore_gym_paldea_ghost",
+    "name": "Paldea Ghost Gym Set",
+    "category": "gym",
+    "description": "Ryme's ghost-type gym roster. Complete the set to earn the Ghost Badge.",
+    "pokemonIds": [
+      971,
+      972,
+      973,
+      974,
+      975,
+      487,
+      792,
+      802,
+      887,
+      1025
+    ]
+  },
+  {
+    "id": "lore_gym_paldea_psychic",
+    "name": "Paldea Psychic Gym Set",
+    "category": "gym",
+    "description": "Tulip's psychic-type gym roster. Complete the set to earn the Psychic Badge.",
+    "pokemonIds": [
+      954,
+      955,
+      956,
+      981,
+      791,
+      792,
+      150,
+      249,
+      151,
+      251
+    ]
+  },
+  {
+    "id": "lore_gym_paldea_ice",
+    "name": "Paldea Ice Gym Set",
+    "category": "gym",
+    "description": "Grusha's ice-type gym roster. Complete the set to earn the Ice Badge.",
+    "pokemonIds": [
+      974,
+      975,
+      996,
+      997,
+      998,
+      646,
+      896,
+      144,
+      378,
+      1002
+    ]
+  },
+  {
+    "id": "lore_elite_kanto_lorelei",
+    "name": "Kanto Lorelei Elite Set",
+    "category": "elite",
+    "description": "Kanto Elite Four ice-type challenge led by Lorelei.",
+    "pokemonIds": [
+      86,
+      87,
+      124,
+      131,
+      646,
+      998,
+      896,
+      144
+    ]
+  },
+  {
+    "id": "lore_elite_kanto_bruno",
+    "name": "Kanto Bruno Elite Set",
+    "category": "elite",
+    "description": "Kanto Elite Four fighting-type challenge led by Bruno.",
+    "pokemonIds": [
+      56,
+      57,
+      67,
+      68,
+      95,
+      1007,
+      889,
+      802
+    ]
+  },
+  {
+    "id": "lore_elite_kanto_agatha",
+    "name": "Kanto Agatha Elite Set",
+    "category": "elite",
+    "description": "Kanto Elite Four ghost-type challenge led by Agatha.",
+    "pokemonIds": [
+      92,
+      93,
+      94,
+      24,
+      42,
+      487,
+      792,
+      802
+    ]
+  },
+  {
+    "id": "lore_elite_kanto_lance",
+    "name": "Kanto Lance Elite Set",
+    "category": "elite",
+    "description": "Kanto Elite Four dragon-type challenge led by Lance.",
+    "pokemonIds": [
+      130,
+      147,
+      148,
+      149,
+      890,
+      487,
+      384,
+      483
+    ]
+  },
+  {
+    "id": "lore_elite_johto_will",
+    "name": "Johto Will Elite Set",
+    "category": "elite",
+    "description": "Johto Elite Four psychic-type challenge led by Will.",
+    "pokemonIds": [
+      124,
+      178,
+      103,
+      791,
+      792,
+      150,
+      249,
+      151
+    ]
+  },
+  {
+    "id": "lore_elite_johto_koga",
+    "name": "Johto Koga Elite Set",
+    "category": "elite",
+    "description": "Johto Elite Four poison-type challenge led by Koga.",
+    "pokemonIds": [
+      49,
+      89,
+      110,
+      169,
+      890,
+      1025,
+      793,
+      994
+    ]
+  },
+  {
+    "id": "lore_elite_johto_bruno",
+    "name": "Johto Bruno Elite Set",
+    "category": "elite",
+    "description": "Johto Elite Four fighting-type challenge led by Bruno.",
+    "pokemonIds": [
+      95,
+      107,
+      68,
+      106,
+      1007,
+      889,
+      802,
+      784
+    ]
+  },
+  {
+    "id": "lore_elite_johto_karen",
+    "name": "Johto Karen Elite Set",
+    "category": "elite",
+    "description": "Johto Elite Four dark-type challenge led by Karen.",
+    "pokemonIds": [
+      197,
+      198,
+      229,
+      359,
+      717,
+      893,
+      248,
+      635
+    ]
+  },
+  {
+    "id": "lore_elite_hoenn_sidney",
+    "name": "Hoenn Sidney Elite Set",
+    "category": "elite",
+    "description": "Hoenn Elite Four dark-type challenge led by Sidney.",
+    "pokemonIds": [
+      262,
+      275,
+      359,
+      342,
+      717,
+      893,
+      248,
+      635
+    ]
+  },
+  {
+    "id": "lore_elite_hoenn_phoebe",
+    "name": "Hoenn Phoebe Elite Set",
+    "category": "elite",
+    "description": "Hoenn Elite Four ghost-type challenge led by Phoebe.",
+    "pokemonIds": [
+      354,
+      356,
+      477,
+      302,
+      487,
+      792,
+      802,
+      887
+    ]
+  },
+  {
+    "id": "lore_elite_hoenn_glacia",
+    "name": "Hoenn Glacia Elite Set",
+    "category": "elite",
+    "description": "Hoenn Elite Four ice-type challenge led by Glacia.",
+    "pokemonIds": [
+      362,
+      363,
+      364,
+      365,
+      646,
+      998,
+      896,
+      144
+    ]
+  },
+  {
+    "id": "lore_elite_hoenn_drake",
+    "name": "Hoenn Drake Elite Set",
+    "category": "elite",
+    "description": "Hoenn Elite Four dragon-type challenge led by Drake.",
+    "pokemonIds": [
+      334,
+      372,
+      373,
+      330,
+      890,
+      487,
+      384,
+      483
+    ]
+  },
+  {
+    "id": "lore_elite_sinnoh_aaron",
+    "name": "Sinnoh Aaron Elite Set",
+    "category": "elite",
+    "description": "Sinnoh Elite Four bug-type challenge led by Aaron.",
+    "pokemonIds": [
+      269,
+      267,
+      416,
+      214,
+      649,
+      794,
+      988,
+      795
+    ]
+  },
+  {
+    "id": "lore_elite_sinnoh_bertha",
+    "name": "Sinnoh Bertha Elite Set",
+    "category": "elite",
+    "description": "Sinnoh Elite Four ground-type challenge led by Bertha.",
+    "pokemonIds": [
+      340,
+      464,
+      450,
+      389,
+      383,
+      445,
+      718,
+      645
+    ]
+  },
+  {
+    "id": "lore_elite_sinnoh_flint",
+    "name": "Sinnoh Flint Elite Set",
+    "category": "elite",
+    "description": "Sinnoh Elite Four fire-type challenge led by Flint.",
+    "pokemonIds": [
+      78,
+      229,
+      136,
+      392,
+      250,
+      643,
+      494,
+      485
+    ]
+  },
+  {
+    "id": "lore_elite_sinnoh_lucian",
+    "name": "Sinnoh Lucian Elite Set",
+    "category": "elite",
+    "description": "Sinnoh Elite Four psychic-type challenge led by Lucian.",
+    "pokemonIds": [
+      203,
+      65,
+      282,
+      475,
+      791,
+      792,
+      150,
+      249
+    ]
+  },
+  {
+    "id": "lore_elite_unova_shauntal",
+    "name": "Unova Shauntal Elite Set",
+    "category": "elite",
+    "description": "Unova Elite Four ghost-type challenge led by Shauntal.",
+    "pokemonIds": [
+      623,
+      563,
+      609,
+      354,
+      487,
+      792,
+      802,
+      887
+    ]
+  },
+  {
+    "id": "lore_elite_unova_marshal",
+    "name": "Unova Marshal Elite Set",
+    "category": "elite",
+    "description": "Unova Elite Four fighting-type challenge led by Marshal.",
+    "pokemonIds": [
+      534,
+      620,
+      539,
+      537,
+      1007,
+      889,
+      802,
+      784
+    ]
+  },
+  {
+    "id": "lore_elite_unova_grimsley",
+    "name": "Unova Grimsley Elite Set",
+    "category": "elite",
+    "description": "Unova Elite Four dark-type challenge led by Grimsley.",
+    "pokemonIds": [
+      553,
+      510,
+      625,
+      359,
+      717,
+      893,
+      248,
+      635
+    ]
+  },
+  {
+    "id": "lore_elite_unova_caitlin",
+    "name": "Unova Caitlin Elite Set",
+    "category": "elite",
+    "description": "Unova Elite Four psychic-type challenge led by Caitlin.",
+    "pokemonIds": [
+      576,
+      579,
+      561,
+      282,
+      791,
+      792,
+      150,
+      249
+    ]
+  },
+  {
+    "id": "lore_elite_kalos_malva",
+    "name": "Kalos Malva Elite Set",
+    "category": "elite",
+    "description": "Kalos Elite Four fire-type challenge led by Malva.",
+    "pokemonIds": [
+      668,
+      663,
+      609,
+      655,
+      250,
+      643,
+      494,
+      485
+    ]
+  },
+  {
+    "id": "lore_elite_kalos_siebold",
+    "name": "Kalos Siebold Elite Set",
+    "category": "elite",
+    "description": "Kalos Elite Four water-type challenge led by Siebold.",
+    "pokemonIds": [
+      693,
+      689,
+      691,
+      350,
+      484,
+      382,
+      490,
+      721
+    ]
+  },
+  {
+    "id": "lore_elite_kalos_wikstrom",
+    "name": "Kalos Wikstrom Elite Set",
+    "category": "elite",
+    "description": "Kalos Elite Four steel-type challenge led by Wikstrom.",
+    "pokemonIds": [
+      681,
+      212,
+      306,
+      448,
+      791,
+      483,
+      809,
+      385
+    ]
+  },
+  {
+    "id": "lore_elite_kalos_drasna",
+    "name": "Kalos Drasna Elite Set",
+    "category": "elite",
+    "description": "Kalos Elite Four dragon-type challenge led by Drasna.",
+    "pokemonIds": [
+      621,
+      715,
+      373,
+      334,
+      890,
+      487,
+      384,
+      483
+    ]
+  },
+  {
+    "id": "lore_elite_alola_hala",
+    "name": "Alola Hala Elite Set",
+    "category": "elite",
+    "description": "Alola Elite Four fighting-type challenge led by Hala.",
+    "pokemonIds": [
+      740,
+      739,
+      297,
+      62,
+      1007,
+      889,
+      802,
+      784
+    ]
+  },
+  {
+    "id": "lore_elite_alola_olivia",
+    "name": "Alola Olivia Elite Set",
+    "category": "elite",
+    "description": "Alola Elite Four rock-type challenge led by Olivia.",
+    "pokemonIds": [
+      745,
+      526,
+      699,
+      248,
+      719,
+      1022,
+      639,
+      377
+    ]
+  },
+  {
+    "id": "lore_elite_alola_acerola",
+    "name": "Alola Acerola Elite Set",
+    "category": "elite",
+    "description": "Alola Elite Four ghost-type challenge led by Acerola.",
+    "pokemonIds": [
+      770,
+      778,
+      426,
+      94,
+      487,
+      792,
+      802,
+      887
+    ]
+  },
+  {
+    "id": "lore_elite_alola_kahili",
+    "name": "Alola Kahili Elite Set",
+    "category": "elite",
+    "description": "Alola Elite Four flying-type challenge led by Kahili.",
+    "pokemonIds": [
+      733,
+      628,
+      227,
+      279,
+      717,
+      249,
+      250,
+      384
+    ]
+  },
+  {
+    "id": "lore_elite_paldea_rika",
+    "name": "Paldea Rika Elite Set",
+    "category": "elite",
+    "description": "Paldea Elite Four ground-type challenge led by Rika.",
+    "pokemonIds": [
+      981,
+      323,
+      750,
+      844,
+      383,
+      445,
+      718,
+      645
+    ]
+  },
+  {
+    "id": "lore_elite_paldea_poppy",
+    "name": "Paldea Poppy Elite Set",
+    "category": "elite",
+    "description": "Paldea Elite Four steel-type challenge led by Poppy.",
+    "pokemonIds": [
+      959,
+      968,
+      823,
+      983,
+      791,
+      483,
+      809,
+      385
+    ]
+  },
+  {
+    "id": "lore_elite_paldea_larry",
+    "name": "Paldea Larry Elite Set",
+    "category": "elite",
+    "description": "Paldea Elite Four normal-type challenge led by Larry.",
+    "pokemonIds": [
+      973,
+      982,
+      925,
+      981,
+      493,
+      289,
+      486,
+      648
+    ]
+  },
+  {
+    "id": "lore_elite_paldea_hassel",
+    "name": "Paldea Hassel Elite Set",
+    "category": "elite",
+    "description": "Paldea Elite Four dragon-type challenge led by Hassel.",
+    "pokemonIds": [
+      998,
+      887,
+      715,
+      334,
+      890,
+      487,
+      384,
+      483
+    ]
+  },
+  {
+    "id": "lore_champion_kanto_blue",
+    "name": "Champion Blue",
+    "category": "champion",
+    "description": "The signature team of Champion Blue. Complete the set to claim champion honors.",
+    "pokemonIds": [
+      18,
+      65,
+      112,
+      59,
+      130,
+      9
+    ]
+  },
+  {
+    "id": "lore_champion_johto_lance",
+    "name": "Champion Lance",
+    "category": "champion",
+    "description": "The signature team of Champion Lance. Complete the set to claim champion honors.",
+    "pokemonIds": [
+      130,
+      149,
+      6,
+      142
+    ]
+  },
+  {
+    "id": "lore_champion_hoenn_steven",
+    "name": "Champion Steven",
+    "category": "champion",
+    "description": "The signature team of Champion Steven. Complete the set to claim champion honors.",
+    "pokemonIds": [
+      227,
+      344,
+      306,
+      346,
+      348,
+      376
+    ]
+  },
+  {
+    "id": "lore_champion_sinnoh_cynthia",
+    "name": "Champion Cynthia",
+    "category": "champion",
+    "description": "The signature team of Champion Cynthia. Complete the set to claim champion honors.",
+    "pokemonIds": [
+      442,
+      407,
+      468,
+      448,
+      350,
+      445
+    ]
+  },
+  {
+    "id": "lore_champion_unova_alder",
+    "name": "Champion Alder",
+    "category": "champion",
+    "description": "The signature team of Champion Alder. Complete the set to claim champion honors.",
+    "pokemonIds": [
+      617,
+      626,
+      621,
+      584,
+      589,
+      637
+    ]
+  },
+  {
+    "id": "lore_champion_unova_iris",
+    "name": "Champion Iris",
+    "category": "champion",
+    "description": "The signature team of Champion Iris. Complete the set to claim champion honors.",
+    "pokemonIds": [
+      635,
+      621,
+      567,
+      306,
+      131,
+      612
+    ]
+  },
+  {
+    "id": "lore_champion_kalos_diantha",
+    "name": "Champion Diantha",
+    "category": "champion",
+    "description": "The signature team of Champion Diantha. Complete the set to claim champion honors.",
+    "pokemonIds": [
+      701,
+      697,
+      699,
+      711,
+      706,
+      282
+    ]
+  },
+  {
+    "id": "lore_champion_alola_kukui",
+    "name": "Champion Kukui",
+    "category": "champion",
+    "description": "The signature team of Champion Kukui. Complete the set to claim champion honors.",
+    "pokemonIds": [
+      745,
+      628,
+      462,
+      143,
+      724,
+      738
+    ]
+  },
+  {
+    "id": "lore_champion_galar_leon",
+    "name": "Champion Leon",
+    "category": "champion",
+    "description": "The signature team of Champion Leon. Complete the set to claim champion honors.",
+    "pokemonIds": [
+      681,
+      815,
+      887,
+      612,
+      537,
+      6
+    ]
+  },
+  {
+    "id": "lore_champion_paldea_geeta",
+    "name": "Champion Geeta",
+    "category": "champion",
+    "description": "The signature team of Champion Geeta. Complete the set to claim champion honors.",
+    "pokemonIds": [
+      956,
+      673,
+      713,
+      983,
+      976,
+      970
+    ]
+  },
+  {
+    "id": "lore_villain_rocket",
+    "name": "Team Rocket",
+    "category": "villain",
+    "description": "Giovanni's Team Rocket command roster. Complete the set to expose the organization.",
+    "pokemonIds": [
+      112,
+      34,
+      31,
+      115,
+      53,
+      51
+    ]
+  },
+  {
+    "id": "lore_villain_aqua",
+    "name": "Team Aqua",
+    "category": "villain",
+    "description": "Archie's Team Aqua command roster. Complete the set to expose the organization.",
+    "pokemonIds": [
+      319,
+      262,
+      169,
+      365,
+      73,
+      382
+    ]
+  },
+  {
+    "id": "lore_villain_magma",
+    "name": "Team Magma",
+    "category": "villain",
+    "description": "Maxie's Team Magma command roster. Complete the set to expose the organization.",
+    "pokemonIds": [
+      323,
+      262,
+      169,
+      110,
+      76,
+      383
+    ]
+  },
+  {
+    "id": "lore_villain_galactic",
+    "name": "Team Galactic",
+    "category": "villain",
+    "description": "Cyrus's Team Galactic command roster. Complete the set to expose the organization.",
+    "pokemonIds": [
+      130,
+      169,
+      430,
+      461,
+      462,
+      229
+    ]
+  },
+  {
+    "id": "lore_villain_plasma",
+    "name": "Team Plasma",
+    "category": "villain",
+    "description": "Ghetsis's Team Plasma command roster. Complete the set to expose the organization.",
+    "pokemonIds": [
+      635,
+      563,
+      626,
+      604,
+      537,
+      625
+    ]
+  },
+  {
+    "id": "lore_villain_flare",
+    "name": "Team Flare",
+    "category": "villain",
+    "description": "Lysandre's Team Flare command roster. Complete the set to expose the organization.",
+    "pokemonIds": [
+      668,
+      701,
+      430,
+      130,
+      620,
+      717
+    ]
+  },
+  {
+    "id": "lore_villain_aether",
+    "name": "Aether Foundation",
+    "category": "villain",
+    "description": "Lusamine's Aether Foundation command roster. Complete the set to expose the organization.",
+    "pokemonIds": [
+      760,
+      350,
+      549,
+      429,
+      36,
+      428
+    ]
+  },
+  {
+    "id": "lore_villain_skull",
+    "name": "Team Skull",
+    "category": "villain",
+    "description": "Guzma's Team Skull command roster. Complete the set to expose the organization.",
+    "pokemonIds": [
+      768,
+      168,
+      127,
+      212,
+      284,
+      738
+    ]
+  },
+  {
+    "id": "lore_villain_macro",
+    "name": "Macro Cosmos",
+    "category": "villain",
+    "description": "Rose's Macro Cosmos command roster. Complete the set to expose the organization.",
+    "pokemonIds": [
+      879,
+      878,
+      858,
+      861,
+      809,
+      890
+    ]
+  },
+  {
+    "id": "lore_villain_yell",
+    "name": "Team Yell",
+    "category": "villain",
+    "description": "Piers's Team Yell command roster. Complete the set to expose the organization.",
+    "pokemonIds": [
+      560,
+      687,
+      435,
+      454,
+      862,
+      877
+    ]
+  },
+  {
+    "id": "lore_villain_star",
+    "name": "Team Star",
+    "category": "villain",
+    "description": "Penny's Team Star command roster. Complete the set to expose the organization.",
+    "pokemonIds": [
+      700,
+      135,
+      134,
+      136,
+      470,
+      197
+    ]
+  },
+  {
+    "id": "lore_frontier_silver",
+    "name": "Silver Symbol Set",
+    "category": "frontier",
+    "description": "Salon Maiden Anabel's signature roster for the Silver Symbol.",
+    "pokemonIds": [
+      65,
+      143,
+      244
+    ]
+  },
+  {
+    "id": "lore_frontier_gold",
+    "name": "Gold Symbol Set",
+    "category": "frontier",
+    "description": "Salon Maiden Anabel's signature roster for the Gold Symbol.",
+    "pokemonIds": [
+      65,
+      143,
+      244,
+      243,
+      245
+    ]
+  },
+  {
+    "id": "lore_frontier_ability",
+    "name": "Ability Symbol Set",
+    "category": "frontier",
+    "description": "Arena Tycoon Greta's signature roster for the Ability Symbol.",
+    "pokemonIds": [
+      214,
+      292,
+      197
+    ]
+  },
+  {
+    "id": "lore_frontier_knowledge",
+    "name": "Knowledge Symbol Set",
+    "category": "frontier",
+    "description": "Factory Head Noland's signature roster for the Knowledge Symbol.",
+    "pokemonIds": [
+      127,
+      303,
+      85
+    ]
+  },
+  {
+    "id": "lore_frontier_spirit",
+    "name": "Spirit Symbol Set",
+    "category": "frontier",
+    "description": "Palace Maven Spenser's signature roster for the Spirit Symbol.",
+    "pokemonIds": [
+      245,
+      169,
+      130
+    ]
+  },
+  {
+    "id": "lore_frontier_brave",
+    "name": "Brave Symbol Set",
+    "category": "frontier",
+    "description": "Pyramid King Brandon's signature roster for the Brave Symbol.",
+    "pokemonIds": [
+      377,
+      378,
+      379
+    ]
+  },
+  {
+    "id": "lore_frontier_tactics",
+    "name": "Tactics Symbol Set",
+    "category": "frontier",
+    "description": "Pike Queen Lucy's signature roster for the Tactics Symbol.",
+    "pokemonIds": [
+      336,
+      350,
+      213
+    ]
+  },
+  {
+    "id": "lore_contest_cool",
+    "name": "Cool Ribbon Showcase",
+    "category": "contest",
+    "description": "A curated cool contest roster drawn from fire, electric, dragon specialists.",
+    "pokemonIds": [
+      250,
+      643,
+      494,
+      485,
+      644,
+      1008,
+      807,
+      1021,
+      890,
+      487,
+      384,
+      483
+    ]
+  },
+  {
+    "id": "lore_contest_beauty",
+    "name": "Beauty Ribbon Showcase",
+    "category": "contest",
+    "description": "A curated beauty contest roster drawn from water, ice, fairy specialists.",
+    "pokemonIds": [
+      484,
+      382,
+      490,
+      721,
+      646,
+      998,
+      896,
+      144,
+      716,
+      888,
+      801,
+      719
+    ]
+  },
+  {
+    "id": "lore_contest_cute",
+    "name": "Cute Ribbon Showcase",
+    "category": "contest",
+    "description": "A curated cute contest roster drawn from normal, fairy specialists.",
+    "pokemonIds": [
+      493,
+      289,
+      486,
+      648,
+      716,
+      888,
+      801,
+      719
+    ]
+  },
+  {
+    "id": "lore_contest_smart",
+    "name": "Smart Ribbon Showcase",
+    "category": "contest",
+    "description": "A curated smart contest roster drawn from psychic, steel specialists.",
+    "pokemonIds": [
+      791,
+      792,
+      150,
+      249,
+      483,
+      809,
+      385
+    ]
+  },
+  {
+    "id": "lore_contest_tough",
+    "name": "Tough Ribbon Showcase",
+    "category": "contest",
+    "description": "A curated tough contest roster drawn from fighting, rock, ground specialists.",
+    "pokemonIds": [
+      1007,
+      889,
+      802,
+      784,
+      248,
+      719,
+      1022,
+      639,
+      383,
+      445,
+      718,
+      645
+    ]
+  },
+  {
+    "id": "lore_legendary_legendary_birds",
+    "name": "Legendary Birds",
+    "category": "legendary",
+    "description": "A legendary lore collection featuring Legendary Birds.",
+    "pokemonIds": [
+      144,
+      145,
+      146
+    ]
+  },
+  {
+    "id": "lore_legendary_legendary_beasts",
+    "name": "Legendary Beasts",
+    "category": "legendary",
+    "description": "A legendary lore collection featuring Legendary Beasts.",
+    "pokemonIds": [
+      243,
+      244,
+      245
+    ]
+  },
+  {
+    "id": "lore_legendary_tower_duo",
+    "name": "Tower Duo",
+    "category": "legendary",
+    "description": "A legendary lore collection featuring Tower Duo.",
+    "pokemonIds": [
+      249,
+      250
+    ]
+  },
+  {
+    "id": "lore_legendary_eon_duo",
+    "name": "Eon Duo",
+    "category": "legendary",
+    "description": "A legendary lore collection featuring Eon Duo.",
+    "pokemonIds": [
+      380,
+      381
+    ]
+  },
+  {
+    "id": "lore_legendary_superancient",
+    "name": "Superancient Trio",
+    "category": "legendary",
+    "description": "A legendary lore collection featuring Superancient Trio.",
+    "pokemonIds": [
+      382,
+      383,
+      384
+    ]
+  },
+  {
+    "id": "lore_legendary_regi_titans",
+    "name": "Regi Titans",
+    "category": "legendary",
+    "description": "A legendary lore collection featuring Regi Titans.",
+    "pokemonIds": [
+      377,
+      378,
+      379,
+      486,
+      894,
+      895
+    ]
+  },
+  {
+    "id": "lore_legendary_lake_trio",
+    "name": "Lake Guardians",
+    "category": "legendary",
+    "description": "A legendary lore collection featuring Lake Guardians.",
+    "pokemonIds": [
+      480,
+      481,
+      482
+    ]
+  },
+  {
+    "id": "lore_legendary_creation_trio",
+    "name": "Creation Trio",
+    "category": "legendary",
+    "description": "A legendary lore collection featuring Creation Trio.",
+    "pokemonIds": [
+      483,
+      484,
+      487
+    ]
+  },
+  {
+    "id": "lore_legendary_creation_quartet",
+    "name": "Creation Quartet",
+    "category": "legendary",
+    "description": "A legendary lore collection featuring Creation Quartet.",
+    "pokemonIds": [
+      483,
+      484,
+      487,
+      493
+    ]
+  },
+  {
+    "id": "lore_legendary_heatran",
+    "name": "Magma Colossus",
+    "category": "legendary",
+    "description": "A legendary lore collection featuring Magma Colossus.",
+    "pokemonIds": [
+      485
+    ]
+  },
+  {
+    "id": "lore_legendary_lunar_duo",
+    "name": "Lunar Duo",
+    "category": "legendary",
+    "description": "A legendary lore collection featuring Lunar Duo.",
+    "pokemonIds": [
+      488,
+      491
+    ]
+  },
+  {
+    "id": "lore_legendary_sea_guardians",
+    "name": "Sea Guardians",
+    "category": "legendary",
+    "description": "A legendary lore collection featuring Sea Guardians.",
+    "pokemonIds": [
+      489,
+      490
+    ]
+  },
+  {
+    "id": "lore_legendary_gratitude",
+    "name": "Gratitude Pokemon",
+    "category": "legendary",
+    "description": "A legendary lore collection featuring Gratitude Pokemon.",
+    "pokemonIds": [
+      492
+    ]
+  },
+  {
+    "id": "lore_legendary_swords_of_justice",
+    "name": "Swords of Justice",
+    "category": "legendary",
+    "description": "A legendary lore collection featuring Swords of Justice.",
+    "pokemonIds": [
+      638,
+      639,
+      640,
+      647
+    ]
+  },
+  {
+    "id": "lore_legendary_forces_of_nature",
+    "name": "Forces of Nature",
+    "category": "legendary",
+    "description": "A legendary lore collection featuring Forces of Nature.",
+    "pokemonIds": [
+      641,
+      642,
+      645,
+      905
+    ]
+  },
+  {
+    "id": "lore_legendary_tao_trio",
+    "name": "Tao Trio",
+    "category": "legendary",
+    "description": "A legendary lore collection featuring Tao Trio.",
+    "pokemonIds": [
+      643,
+      644,
+      646
+    ]
+  },
+  {
+    "id": "lore_legendary_aura_trio",
+    "name": "Aura Trio",
+    "category": "legendary",
+    "description": "A legendary lore collection featuring Aura Trio.",
+    "pokemonIds": [
+      716,
+      717,
+      718
+    ]
+  },
+  {
+    "id": "lore_legendary_life_death",
+    "name": "Life & Death",
+    "category": "legendary",
+    "description": "A legendary lore collection featuring Life & Death.",
+    "pokemonIds": [
+      716,
+      717
+    ]
+  },
+  {
+    "id": "lore_legendary_order",
+    "name": "Order Pokemon",
+    "category": "legendary",
+    "description": "A legendary lore collection featuring Order Pokemon.",
+    "pokemonIds": [
+      718
+    ]
+  },
+  {
+    "id": "lore_legendary_guardian_deities",
+    "name": "Guardian Deities",
+    "category": "legendary",
+    "description": "A legendary lore collection featuring Guardian Deities.",
+    "pokemonIds": [
+      785,
+      786,
+      787,
+      788
+    ]
+  },
+  {
+    "id": "lore_legendary_cosmog_line",
+    "name": "Cosmog Line",
+    "category": "legendary",
+    "description": "A legendary lore collection featuring Cosmog Line.",
+    "pokemonIds": [
+      789,
+      790,
+      791,
+      792
+    ]
+  },
+  {
+    "id": "lore_legendary_light_trio",
+    "name": "Light Trio",
+    "category": "legendary",
+    "description": "A legendary lore collection featuring Light Trio.",
+    "pokemonIds": [
+      791,
+      792,
+      800
+    ]
+  },
+  {
+    "id": "lore_legendary_mythic_alola",
+    "name": "Alola Mythicals",
+    "category": "legendary",
+    "description": "A legendary lore collection featuring Alola Mythicals.",
+    "pokemonIds": [
+      801,
+      802,
+      807
+    ]
+  },
+  {
+    "id": "lore_legendary_meltan_line",
+    "name": "Meltan Line",
+    "category": "legendary",
+    "description": "A legendary lore collection featuring Meltan Line.",
+    "pokemonIds": [
+      808,
+      809
+    ]
+  },
+  {
+    "id": "lore_legendary_hero_duo",
+    "name": "Hero Duo",
+    "category": "legendary",
+    "description": "A legendary lore collection featuring Hero Duo.",
+    "pokemonIds": [
+      888,
+      889
+    ]
+  },
+  {
+    "id": "lore_legendary_darkest_day",
+    "name": "Darkest Day",
+    "category": "legendary",
+    "description": "A legendary lore collection featuring Darkest Day.",
+    "pokemonIds": [
+      888,
+      889,
+      890
+    ]
+  },
+  {
+    "id": "lore_legendary_kubfu_line",
+    "name": "Kubfu Line",
+    "category": "legendary",
+    "description": "A legendary lore collection featuring Kubfu Line.",
+    "pokemonIds": [
+      891,
+      892
+    ]
+  },
+  {
+    "id": "lore_legendary_steed_duo",
+    "name": "Steed Duo",
+    "category": "legendary",
+    "description": "A legendary lore collection featuring Steed Duo.",
+    "pokemonIds": [
+      896,
+      897,
+      898
+    ]
+  },
+  {
+    "id": "lore_legendary_ruinous_quartet",
+    "name": "Treasures of Ruin",
+    "category": "legendary",
+    "description": "A legendary lore collection featuring Treasures of Ruin.",
+    "pokemonIds": [
+      1001,
+      1002,
+      1003,
+      1004
+    ]
+  },
+  {
+    "id": "lore_legendary_ride_duo",
+    "name": "Ride Legendaries",
+    "category": "legendary",
+    "description": "A legendary lore collection featuring Ride Legendaries.",
+    "pokemonIds": [
+      1007,
+      1008
+    ]
+  },
+  {
+    "id": "lore_legendary_loyal_three",
+    "name": "Loyal Three",
+    "category": "legendary",
+    "description": "A legendary lore collection featuring Loyal Three.",
+    "pokemonIds": [
+      1014,
+      1015,
+      1016
+    ]
+  },
+  {
+    "id": "lore_legendary_ogre",
+    "name": "Ogre Clan",
+    "category": "legendary",
+    "description": "A legendary lore collection featuring Ogre Clan.",
+    "pokemonIds": [
+      1017
+    ]
+  },
+  {
+    "id": "lore_legendary_terastal",
+    "name": "Terastal Legend",
+    "category": "legendary",
+    "description": "A legendary lore collection featuring Terastal Legend.",
+    "pokemonIds": [
+      1024
+    ]
+  },
+  {
+    "id": "lore_legendary_peach",
+    "name": "Peach Legend",
+    "category": "legendary",
+    "description": "A legendary lore collection featuring Peach Legend.",
+    "pokemonIds": [
+      1025
+    ]
+  },
+  {
+    "id": "lore_legendary_victini",
+    "name": "Victory Pokemon",
+    "category": "legendary",
+    "description": "A legendary lore collection featuring Victory Pokemon.",
+    "pokemonIds": [
+      494
+    ]
+  },
+  {
+    "id": "lore_legendary_keldeo",
+    "name": "Colt Pokemon",
+    "category": "legendary",
+    "description": "A legendary lore collection featuring Colt Pokemon.",
+    "pokemonIds": [
+      647
+    ]
+  },
+  {
+    "id": "lore_legendary_meloetta",
+    "name": "Melody Pokemon",
+    "category": "legendary",
+    "description": "A legendary lore collection featuring Melody Pokemon.",
+    "pokemonIds": [
+      648
+    ]
+  },
+  {
+    "id": "lore_legendary_genesect",
+    "name": "Paleozoic Pokemon",
+    "category": "legendary",
+    "description": "A legendary lore collection featuring Paleozoic Pokemon.",
+    "pokemonIds": [
+      649
+    ]
+  },
+  {
+    "id": "lore_legendary_diancie",
+    "name": "Jewel Pokemon",
+    "category": "legendary",
+    "description": "A legendary lore collection featuring Jewel Pokemon.",
+    "pokemonIds": [
+      719
+    ]
+  },
+  {
+    "id": "lore_legendary_hoopa",
+    "name": "Mischief Pokemon",
+    "category": "legendary",
+    "description": "A legendary lore collection featuring Mischief Pokemon.",
+    "pokemonIds": [
+      720
+    ]
+  },
+  {
+    "id": "lore_legendary_volcanion",
+    "name": "Steam Pokemon",
+    "category": "legendary",
+    "description": "A legendary lore collection featuring Steam Pokemon.",
+    "pokemonIds": [
+      721
+    ]
+  },
+  {
+    "id": "lore_legendary_zarude",
+    "name": "Rogue Monkey",
+    "category": "legendary",
+    "description": "A legendary lore collection featuring Rogue Monkey.",
+    "pokemonIds": [
+      893
+    ]
+  },
+  {
+    "id": "lore_mythical_gen_1",
+    "name": "Gen 1 Mythicals",
+    "category": "mythical",
+    "description": "Mythical Pokemon of generation 1: Mew.",
+    "pokemonIds": [
+      151
+    ]
+  },
+  {
+    "id": "lore_mythical_gen_2",
+    "name": "Gen 2 Mythicals",
+    "category": "mythical",
+    "description": "Mythical Pokemon of generation 2: Celebi.",
+    "pokemonIds": [
+      251
+    ]
+  },
+  {
+    "id": "lore_mythical_gen_3",
+    "name": "Gen 3 Mythicals",
+    "category": "mythical",
+    "description": "Mythical Pokemon of generation 3: Jirachi & Deoxys.",
+    "pokemonIds": [
+      385,
+      386
+    ]
+  },
+  {
+    "id": "lore_mythical_gen_4",
+    "name": "Gen 4 Mythicals",
+    "category": "mythical",
+    "description": "Mythical Pokemon of generation 4: Sinnoh Mythicals.",
+    "pokemonIds": [
+      489,
+      490,
+      491,
+      492,
+      493
+    ]
+  },
+  {
+    "id": "lore_mythical_gen_5",
+    "name": "Gen 5 Mythicals",
+    "category": "mythical",
+    "description": "Mythical Pokemon of generation 5: Unova Mythicals.",
+    "pokemonIds": [
+      494,
+      647,
+      648,
+      649
+    ]
+  },
+  {
+    "id": "lore_mythical_gen_6",
+    "name": "Gen 6 Mythicals",
+    "category": "mythical",
+    "description": "Mythical Pokemon of generation 6: Kalos Mythicals.",
+    "pokemonIds": [
+      719,
+      720,
+      721
+    ]
+  },
+  {
+    "id": "lore_mythical_gen_7",
+    "name": "Gen 7 Mythicals",
+    "category": "mythical",
+    "description": "Mythical Pokemon of generation 7: Alola Mythicals.",
+    "pokemonIds": [
+      801,
+      802,
+      807
+    ]
+  },
+  {
+    "id": "lore_mythical_gen_8",
+    "name": "Gen 8 Mythicals",
+    "category": "mythical",
+    "description": "Mythical Pokemon of generation 8: Galar Mythicals.",
+    "pokemonIds": [
+      808,
+      809,
+      893
+    ]
+  },
+  {
+    "id": "lore_mythical_gen_9",
+    "name": "Gen 9 Mythicals",
+    "category": "mythical",
+    "description": "Mythical Pokemon of generation 9: Paldea Mythicals.",
+    "pokemonIds": [
+      1025
+    ]
+  },
+  {
+    "id": "lore_mascot_kanto",
+    "name": "Kanto Mascots",
+    "category": "mascot",
+    "description": "The box-legendary mascots of Kanto.",
+    "pokemonIds": [
+      3,
+      6,
+      9,
+      25,
+      133,
+      150
+    ]
+  },
+  {
+    "id": "lore_mascot_johto",
+    "name": "Johto Mascots",
+    "category": "mascot",
+    "description": "The box-legendary mascots of Johto.",
+    "pokemonIds": [
+      249,
+      250,
+      251
+    ]
+  },
+  {
+    "id": "lore_mascot_hoenn",
+    "name": "Hoenn Mascots",
+    "category": "mascot",
+    "description": "The box-legendary mascots of Hoenn.",
+    "pokemonIds": [
+      382,
+      383,
+      384
+    ]
+  },
+  {
+    "id": "lore_mascot_sinnoh",
+    "name": "Sinnoh Mascots",
+    "category": "mascot",
+    "description": "The box-legendary mascots of Sinnoh.",
+    "pokemonIds": [
+      483,
+      484,
+      487,
+      493
+    ]
+  },
+  {
+    "id": "lore_mascot_unova",
+    "name": "Unova Mascots",
+    "category": "mascot",
+    "description": "The box-legendary mascots of Unova.",
+    "pokemonIds": [
+      643,
+      644,
+      646
+    ]
+  },
+  {
+    "id": "lore_mascot_kalos",
+    "name": "Kalos Mascots",
+    "category": "mascot",
+    "description": "The box-legendary mascots of Kalos.",
+    "pokemonIds": [
+      716,
+      717,
+      718
+    ]
+  },
+  {
+    "id": "lore_mascot_alola",
+    "name": "Alola Mascots",
+    "category": "mascot",
+    "description": "The box-legendary mascots of Alola.",
+    "pokemonIds": [
+      791,
+      792,
+      800
+    ]
+  },
+  {
+    "id": "lore_mascot_galar",
+    "name": "Galar Mascots",
+    "category": "mascot",
+    "description": "The box-legendary mascots of Galar.",
+    "pokemonIds": [
+      888,
+      889,
+      890
+    ]
+  },
+  {
+    "id": "lore_mascot_paldea",
+    "name": "Paldea Mascots",
+    "category": "mascot",
+    "description": "The box-legendary mascots of Paldea.",
+    "pokemonIds": [
+      1007,
+      1008,
+      1024
+    ]
+  },
+  {
+    "id": "lore_starter_gen_1",
+    "name": "Gen 1 Starter Legacy",
+    "category": "starter",
+    "description": "Every fully evolved starter line from generation 1.",
+    "pokemonIds": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ]
+  },
+  {
+    "id": "lore_starter_gen_2",
+    "name": "Gen 2 Starter Legacy",
+    "category": "starter",
+    "description": "Every fully evolved starter line from generation 2.",
+    "pokemonIds": [
+      152,
+      153,
+      154,
+      155,
+      156,
+      157,
+      158,
+      159,
+      160
+    ]
+  },
+  {
+    "id": "lore_starter_gen_3",
+    "name": "Gen 3 Starter Legacy",
+    "category": "starter",
+    "description": "Every fully evolved starter line from generation 3.",
+    "pokemonIds": [
+      252,
+      253,
+      254,
+      255,
+      256,
+      257,
+      258,
+      259,
+      260
+    ]
+  },
+  {
+    "id": "lore_starter_gen_4",
+    "name": "Gen 4 Starter Legacy",
+    "category": "starter",
+    "description": "Every fully evolved starter line from generation 4.",
+    "pokemonIds": [
+      387,
+      388,
+      389,
+      390,
+      391,
+      392,
+      393,
+      394,
+      395
+    ]
+  },
+  {
+    "id": "lore_starter_gen_5",
+    "name": "Gen 5 Starter Legacy",
+    "category": "starter",
+    "description": "Every fully evolved starter line from generation 5.",
+    "pokemonIds": [
+      495,
+      496,
+      497,
+      498,
+      499,
+      500,
+      501,
+      502,
+      503
+    ]
+  },
+  {
+    "id": "lore_starter_gen_6",
+    "name": "Gen 6 Starter Legacy",
+    "category": "starter",
+    "description": "Every fully evolved starter line from generation 6.",
+    "pokemonIds": [
+      650,
+      651,
+      652,
+      653,
+      654,
+      655,
+      656,
+      657,
+      658
+    ]
+  },
+  {
+    "id": "lore_starter_gen_7",
+    "name": "Gen 7 Starter Legacy",
+    "category": "starter",
+    "description": "Every fully evolved starter line from generation 7.",
+    "pokemonIds": [
+      722,
+      723,
+      724,
+      725,
+      726,
+      727,
+      728,
+      729,
+      730
+    ]
+  },
+  {
+    "id": "lore_starter_gen_8",
+    "name": "Gen 8 Starter Legacy",
+    "category": "starter",
+    "description": "Every fully evolved starter line from generation 8.",
+    "pokemonIds": [
+      810,
+      811,
+      812,
+      813,
+      814,
+      815,
+      816,
+      817,
+      818
+    ]
+  },
+  {
+    "id": "lore_starter_gen_9",
+    "name": "Gen 9 Starter Legacy",
+    "category": "starter",
+    "description": "Every fully evolved starter line from generation 9.",
+    "pokemonIds": [
+      906,
+      907,
+      908,
+      909,
+      910,
+      911,
+      912,
+      913,
+      914
+    ]
+  },
+  {
+    "id": "lore_starter_legacy",
+    "name": "Starter Legacy",
+    "category": "starter",
+    "description": "Every starter family from Kanto to Paldea.",
+    "pokemonIds": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      152,
+      153,
+      154,
+      155,
+      156,
+      157,
+      158,
+      159,
+      160,
+      252,
+      253,
+      254,
+      255,
+      256,
+      257,
+      258,
+      259,
+      260,
+      387,
+      388,
+      389,
+      390,
+      391,
+      392,
+      393,
+      394,
+      395,
+      495,
+      496,
+      497,
+      498,
+      499,
+      500,
+      501,
+      502,
+      503,
+      650,
+      651,
+      652,
+      653,
+      654,
+      655,
+      656,
+      657,
+      658,
+      722,
+      723,
+      724,
+      725,
+      726,
+      727,
+      728,
+      729,
+      730,
+      810,
+      811,
+      812,
+      813,
+      814,
+      815,
+      816,
+      817,
+      818,
+      906,
+      907,
+      908,
+      909,
+      910,
+      911,
+      912,
+      913,
+      914
+    ]
+  },
+  {
+    "id": "lore_fossil_kanto",
+    "name": "Kanto Fossils",
+    "category": "fossil",
+    "description": "Revived fossil families from Kanto.",
+    "pokemonIds": [
+      138,
+      139,
+      140,
+      141,
+      142
+    ]
+  },
+  {
+    "id": "lore_fossil_hoenn",
+    "name": "Hoenn Fossils",
+    "category": "fossil",
+    "description": "Revived fossil families from Hoenn.",
+    "pokemonIds": [
+      345,
+      346,
+      347,
+      348
+    ]
+  },
+  {
+    "id": "lore_fossil_sinnoh",
+    "name": "Sinnoh Fossils",
+    "category": "fossil",
+    "description": "Revived fossil families from Sinnoh.",
+    "pokemonIds": [
+      408,
+      409,
+      410,
+      411
+    ]
+  },
+  {
+    "id": "lore_fossil_unova",
+    "name": "Unova Fossils",
+    "category": "fossil",
+    "description": "Revived fossil families from Unova.",
+    "pokemonIds": [
+      564,
+      565,
+      566,
+      567
+    ]
+  },
+  {
+    "id": "lore_fossil_kalos",
+    "name": "Kalos Fossils",
+    "category": "fossil",
+    "description": "Revived fossil families from Kalos.",
+    "pokemonIds": [
+      696,
+      697,
+      698,
+      699
+    ]
+  },
+  {
+    "id": "lore_fossil_galar",
+    "name": "Galar Fossils",
+    "category": "fossil",
+    "description": "Revived fossil families from Galar.",
+    "pokemonIds": [
+      880,
+      881,
+      882,
+      883
+    ]
+  },
+  {
+    "id": "lore_fossil_revival",
+    "name": "Fossil Revival",
+    "category": "fossil",
+    "description": "Every resurrected fossil Pokemon across the generations.",
+    "pokemonIds": [
+      138,
+      139,
+      140,
+      141,
+      142,
+      345,
+      346,
+      347,
+      348,
+      408,
+      409,
+      410,
+      411,
+      564,
+      565,
+      566,
+      567,
+      696,
+      697,
+      698,
+      699,
+      880,
+      881,
+      882,
+      883
+    ]
+  },
+  {
+    "id": "lore_pseudo_dragonite",
+    "name": "Dragonite Line",
+    "category": "pseudo",
+    "description": "The complete Dragonite Line family.",
+    "pokemonIds": [
+      147,
+      148,
+      149
+    ]
+  },
+  {
+    "id": "lore_pseudo_tyranitar",
+    "name": "Tyranitar Line",
+    "category": "pseudo",
+    "description": "The complete Tyranitar Line family.",
+    "pokemonIds": [
+      246,
+      247,
+      248
+    ]
+  },
+  {
+    "id": "lore_pseudo_salamence",
+    "name": "Salamence Line",
+    "category": "pseudo",
+    "description": "The complete Salamence Line family.",
+    "pokemonIds": [
+      371,
+      372,
+      373
+    ]
+  },
+  {
+    "id": "lore_pseudo_metagross",
+    "name": "Metagross Line",
+    "category": "pseudo",
+    "description": "The complete Metagross Line family.",
+    "pokemonIds": [
+      374,
+      375,
+      376
+    ]
+  },
+  {
+    "id": "lore_pseudo_garchomp",
+    "name": "Garchomp Line",
+    "category": "pseudo",
+    "description": "The complete Garchomp Line family.",
+    "pokemonIds": [
+      443,
+      444,
+      445
+    ]
+  },
+  {
+    "id": "lore_pseudo_hydreigon",
+    "name": "Hydreigon Line",
+    "category": "pseudo",
+    "description": "The complete Hydreigon Line family.",
+    "pokemonIds": [
+      633,
+      634,
+      635
+    ]
+  },
+  {
+    "id": "lore_pseudo_goodra",
+    "name": "Goodra Line",
+    "category": "pseudo",
+    "description": "The complete Goodra Line family.",
+    "pokemonIds": [
+      704,
+      705,
+      706
+    ]
+  },
+  {
+    "id": "lore_pseudo_kommoo",
+    "name": "Kommo-o Line",
+    "category": "pseudo",
+    "description": "The complete Kommo-o Line family.",
+    "pokemonIds": [
+      782,
+      783,
+      784
+    ]
+  },
+  {
+    "id": "lore_pseudo_dragapult",
+    "name": "Dragapult Line",
+    "category": "pseudo",
+    "description": "The complete Dragapult Line family.",
+    "pokemonIds": [
+      885,
+      886,
+      887
+    ]
+  },
+  {
+    "id": "lore_pseudo_baxcalibur",
+    "name": "Baxcalibur Line",
+    "category": "pseudo",
+    "description": "The complete Baxcalibur Line family.",
+    "pokemonIds": [
+      996,
+      997,
+      998
+    ]
+  },
+  {
+    "id": "lore_pseudo_apex",
+    "name": "Pseudo-Legend Apex",
+    "category": "pseudo",
+    "description": "Every pseudo-legendary family in one apex collection.",
+    "pokemonIds": [
+      147,
+      148,
+      149,
+      246,
+      247,
+      248,
+      371,
+      372,
+      373,
+      374,
+      375,
+      376,
+      443,
+      444,
+      445,
+      633,
+      634,
+      635,
+      704,
+      705,
+      706,
+      782,
+      783,
+      784,
+      885,
+      886,
+      887,
+      996,
+      997,
+      998
+    ]
+  },
+  {
+    "id": "lore_eevee_prism",
+    "name": "Eeveelution Prism",
+    "category": "eevee",
+    "description": "Eevee and every Eeveelution in one rainbow family.",
+    "pokemonIds": [
+      133,
+      134,
+      135,
+      136,
+      196,
+      197,
+      470,
+      471,
+      700
+    ]
+  },
+  {
+    "id": "lore_baby_bond",
+    "name": "Baby Pokemon Bond",
+    "category": "baby",
+    "description": "Every baby Pokemon that grows through friendship and care.",
+    "pokemonIds": [
+      172,
+      173,
+      174,
+      175,
+      236,
+      238,
+      239,
+      240,
+      298,
+      360,
+      406,
+      433,
+      438,
+      439,
+      440,
+      446,
+      458,
+      848
+    ]
+  },
+  {
+    "id": "lore_ultra_beast_rift",
+    "name": "Ultra Beast Rift",
+    "category": "ultrabeast",
+    "description": "Every Ultra Beast that crossed through the Ultra Wormholes.",
+    "pokemonIds": [
+      793,
+      794,
+      795,
+      796,
+      797,
+      798,
+      799,
+      803,
+      804,
+      805,
+      806
+    ]
+  },
+  {
+    "id": "lore_paradox_past",
+    "name": "Ancient Paradox",
+    "category": "paradox",
+    "description": "Prehistoric Paradox Pokemon summoned from ancient dreams.",
+    "pokemonIds": [
+      984,
+      985,
+      986,
+      987,
+      988,
+      989,
+      1005,
+      1009,
+      1020,
+      1021
+    ]
+  },
+  {
+    "id": "lore_paradox_future",
+    "name": "Future Paradox",
+    "category": "paradox",
+    "description": "Futuristic Paradox Pokemon built from tomorrow's technology.",
+    "pokemonIds": [
+      990,
+      991,
+      992,
+      993,
+      994,
+      995,
+      1006,
+      1010,
+      1022,
+      1023
+    ]
+  },
+  {
+    "id": "lore_paradox_anomaly",
+    "name": "Paradox Anomaly",
+    "category": "paradox",
+    "description": "Every ancient and future Paradox Pokemon in one anomaly.",
+    "pokemonIds": [
+      984,
+      985,
+      986,
+      987,
+      988,
+      989,
+      1005,
+      1009,
+      1020,
+      1021,
+      990,
+      991,
+      992,
+      993,
+      994,
+      995,
+      1006,
+      1010,
+      1022,
+      1023
+    ]
+  },
+  {
+    "id": "lore_regional_alolan",
+    "name": "Alolan Regional Forms",
+    "category": "regional",
+    "description": "Every Alolan regional variant family.",
+    "pokemonIds": [
+      19,
+      20,
+      26,
+      27,
+      28,
+      37,
+      38,
+      50,
+      51,
+      52,
+      53,
+      74,
+      75,
+      76,
+      88,
+      89,
+      103,
+      105
+    ]
+  },
+  {
+    "id": "lore_regional_galarian",
+    "name": "Galarian Regional Forms",
+    "category": "regional",
+    "description": "Every Galarian regional variant family.",
+    "pokemonIds": [
+      52,
+      77,
+      78,
+      79,
+      80,
+      83,
+      110,
+      122,
+      144,
+      145,
+      146,
+      199,
+      222,
+      263,
+      264,
+      554,
+      555,
+      562,
+      618
+    ]
+  },
+  {
+    "id": "lore_regional_hisuian",
+    "name": "Hisuian Regional Forms",
+    "category": "regional",
+    "description": "Every Hisuian regional variant family.",
+    "pokemonIds": [
+      58,
+      59,
+      100,
+      101,
+      157,
+      211,
+      215,
+      503,
+      549,
+      570,
+      571,
+      628,
+      705,
+      706,
+      713,
+      724
+    ]
+  },
+  {
+    "id": "lore_regional_paldean",
+    "name": "Paldean Regional Forms",
+    "category": "regional",
+    "description": "Every Paldean regional variant family.",
+    "pokemonIds": [
+      128,
+      194
+    ]
+  },
+  {
+    "id": "lore_regional_all",
+    "name": "Regional Variant Atlas",
+    "category": "regional",
+    "description": "Every Alolan, Galarian, Hisuian and Paldean regional variant.",
+    "pokemonIds": [
+      19,
+      20,
+      26,
+      27,
+      28,
+      37,
+      38,
+      50,
+      51,
+      52,
+      53,
+      74,
+      75,
+      76,
+      88,
+      89,
+      103,
+      105,
+      77,
+      78,
+      79,
+      80,
+      83,
+      110,
+      122,
+      144,
+      145,
+      146,
+      199,
+      222,
+      263,
+      264,
+      554,
+      555,
+      562,
+      618,
+      58,
+      59,
+      100,
+      101,
+      157,
+      211,
+      215,
+      503,
+      549,
+      570,
+      571,
+      628,
+      705,
+      706,
+      713,
+      724,
+      128,
+      194
+    ]
+  },
+  {
+    "id": "lore_mega_gen_1",
+    "name": "Gen 1 Mega Evolution",
+    "category": "mega",
+    "description": "Generation 1 Pokemon capable of Mega Evolution.",
+    "pokemonIds": [
+      3,
+      6,
+      9,
+      65,
+      94,
+      115,
+      127,
+      130,
+      142,
+      150,
+      80,
+      18,
+      15
+    ]
+  },
+  {
+    "id": "lore_mega_gen_2",
+    "name": "Gen 2 Mega Evolution",
+    "category": "mega",
+    "description": "Generation 2 Pokemon capable of Mega Evolution.",
+    "pokemonIds": [
+      181,
+      212,
+      214,
+      229,
+      248,
+      208
+    ]
+  },
+  {
+    "id": "lore_mega_gen_3",
+    "name": "Gen 3 Mega Evolution",
+    "category": "mega",
+    "description": "Generation 3 Pokemon capable of Mega Evolution.",
+    "pokemonIds": [
+      257,
+      282,
+      303,
+      306,
+      308,
+      310,
+      354,
+      359,
+      380,
+      381,
+      260,
+      254,
+      302,
+      334,
+      319,
+      362,
+      376,
+      384,
+      323,
+      373
+    ]
+  },
+  {
+    "id": "lore_mega_gen_4",
+    "name": "Gen 4 Mega Evolution",
+    "category": "mega",
+    "description": "Generation 4 Pokemon capable of Mega Evolution.",
+    "pokemonIds": [
+      445,
+      448,
+      460,
+      475,
+      428
+    ]
+  },
+  {
+    "id": "lore_mega_gen_5",
+    "name": "Gen 5 Mega Evolution",
+    "category": "mega",
+    "description": "Generation 5 Pokemon capable of Mega Evolution.",
+    "pokemonIds": [
+      531
+    ]
+  },
+  {
+    "id": "lore_mega_gen_6",
+    "name": "Gen 6 Mega Evolution",
+    "category": "mega",
+    "description": "Generation 6 Pokemon capable of Mega Evolution.",
+    "pokemonIds": [
+      719
+    ]
+  },
+  {
+    "id": "lore_mega_all",
+    "name": "Mega Evolution Archive",
+    "category": "mega",
+    "description": "Every Pokemon with a Mega Evolution.",
+    "pokemonIds": [
+      3,
+      6,
+      9,
+      65,
+      94,
+      115,
+      127,
+      130,
+      142,
+      150,
+      181,
+      212,
+      214,
+      229,
+      248,
+      257,
+      282,
+      303,
+      306,
+      308,
+      310,
+      354,
+      359,
+      445,
+      448,
+      460,
+      380,
+      381,
+      260,
+      254,
+      302,
+      334,
+      475,
+      531,
+      319,
+      80,
+      208,
+      18,
+      362,
+      719,
+      376,
+      384,
+      323,
+      428,
+      373,
+      15
+    ]
+  },
+  {
+    "id": "lore_gmax_gen_1",
+    "name": "Gen 1 Gigantamax",
+    "category": "gmax",
+    "description": "Generation 1 Pokemon with a Gigantamax form.",
+    "pokemonIds": [
+      3,
+      6,
+      9,
+      12,
+      25,
+      52,
+      68,
+      94,
+      99,
+      131,
+      133,
+      143
+    ]
+  },
+  {
+    "id": "lore_gmax_gen_5",
+    "name": "Gen 5 Gigantamax",
+    "category": "gmax",
+    "description": "Generation 5 Pokemon with a Gigantamax form.",
+    "pokemonIds": [
+      569
+    ]
+  },
+  {
+    "id": "lore_gmax_gen_7",
+    "name": "Gen 7 Gigantamax",
+    "category": "gmax",
+    "description": "Generation 7 Pokemon with a Gigantamax form.",
+    "pokemonIds": [
+      809
+    ]
+  },
+  {
+    "id": "lore_gmax_gen_8",
+    "name": "Gen 8 Gigantamax",
+    "category": "gmax",
+    "description": "Generation 8 Pokemon with a Gigantamax form.",
+    "pokemonIds": [
+      812,
+      815,
+      818,
+      823,
+      826,
+      834,
+      839,
+      841,
+      842,
+      844,
+      849,
+      851,
+      858,
+      861,
+      869,
+      879,
+      884,
+      892
+    ]
+  },
+  {
+    "id": "lore_gmax_all",
+    "name": "Gigantamax Colossus",
+    "category": "gmax",
+    "description": "Every Pokemon capable of Gigantamax.",
+    "pokemonIds": [
+      3,
+      6,
+      9,
+      12,
+      25,
+      52,
+      68,
+      94,
+      99,
+      131,
+      133,
+      143,
+      569,
+      809,
+      812,
+      815,
+      818,
+      823,
+      826,
+      834,
+      839,
+      841,
+      842,
+      844,
+      849,
+      851,
+      858,
+      861,
+      869,
+      879,
+      884,
+      892
+    ]
+  }
+]

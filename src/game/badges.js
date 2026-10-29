@@ -1,5 +1,5 @@
 import { getCollectionProgress } from './trophies.js';
-import { MAX_STAR_LEVEL } from './cardLevels.js';
+import { MAX_STAR_LEVEL, SHINY_STAR_LEVEL } from './cardLevels.js';
 
 /**
  * Normalizes the player collection into a Map of pokemon_id -> normal record.
@@ -7,8 +7,24 @@ import { MAX_STAR_LEVEL } from './cardLevels.js';
  */
 function normalizeMap(playerCollection) {
   if (!playerCollection) return new Map();
-  if (playerCollection instanceof Map) return playerCollection;
+
   const map = new Map();
+  if (playerCollection instanceof Map) {
+    playerCollection.forEach((entry, key) => {
+      if (
+        entry &&
+        !entry.is_power_card &&
+        !entry.isPowerCard &&
+        !entry.is_ancient_card &&
+        !entry.isAncientCard
+      ) {
+        const id = Number(entry.pokemon_id ?? key);
+        if (Number.isFinite(id)) map.set(id, entry);
+      }
+    });
+    return map;
+  }
+
   if (Array.isArray(playerCollection)) {
     playerCollection.forEach((entry) => {
       if (
@@ -32,8 +48,10 @@ function normalizeMap(playerCollection) {
  *
  * Legacy badges { pokemonIds } unlock when 100% of the set is owned.
  * Star-mastery badges { criteria: 'star20', pokemonIds } also require every
- * member of the set to reach MAX_STAR_LEVEL (20★). `star10` is accepted as a
- * legacy alias so older saved badge data keeps working.
+ * member of the set to reach MAX_STAR_LEVEL (20 stars). `star10` is accepted as
+ * a legacy alias so older saved badge data keeps working.
+ * Milestone badges use { criteria: 'ownedCount' | 'shinyCount' | 'maxedCount',
+ * threshold } and only count normal (non-Power, non-Ancient) records.
  *
  * @param {Object} badge - { id, name, region, badgeIcon, pokemonIds, [criteria] }
  * @param {Array|Map} playerCollection - User's collection records
@@ -56,6 +74,40 @@ export function getBadgeStatus(badge, playerCollection) {
       masteredCount,
       totalCount,
       progressPercent: Math.round((masteredCount / totalCount) * 100),
+    };
+  }
+
+  if (badge?.criteria === 'ownedCount' || badge?.criteria === 'shinyCount' || badge?.criteria === 'maxedCount') {
+    const map = normalizeMap(playerCollection);
+    const threshold = Math.max(1, Math.floor(Number(badge.threshold) || 1));
+    let currentCount = 0;
+
+    if (badge.criteria === 'shinyCount') {
+      map.forEach((entry) => {
+        if (
+          entry.is_shiny ||
+          entry.isShiny ||
+          Number(entry.star_level) >= SHINY_STAR_LEVEL
+        ) {
+          currentCount++;
+        }
+      });
+    } else if (badge.criteria === 'maxedCount') {
+      map.forEach((entry) => {
+        if (Number(entry.star_level) >= MAX_STAR_LEVEL) currentCount++;
+      });
+    } else {
+      currentCount = map.size;
+    }
+
+    return {
+      isUnlocked: currentCount >= threshold,
+      ownedCount: currentCount,
+      masteredCount: currentCount,
+      totalCount: threshold,
+      currentCount,
+      threshold,
+      progressPercent: Math.min(100, Math.round((currentCount / threshold) * 100)),
     };
   }
 

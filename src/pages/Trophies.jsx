@@ -3,12 +3,13 @@ import { useAuth } from '../context/AuthContext';
 import { getUserCollection } from '../store/collection';
 import useDialogFocus from '../hooks/useDialogFocus';
 import { getTrophyTier } from '../game/trophies';
-import collectionsList from '../data/collections.json' with { type: 'json' };
+import { allCollections, COLLECTION_CATEGORIES, getCollectionCategoryMeta } from '../data/awards.js';
 import pokemonList from '../data/pokemon.json' with { type: 'json' };
-import { TrophyIcon } from '../components/icons/GameIcons';
+import { AwardEmblemIcon, TrophyIcon } from '../components/icons/GameIcons';
 import PokemonDetailModal from '../components/PokemonDetailModal';
 import StarMeter from '../components/StarMeter';
 import { SHINY_STAR_LEVEL, starTierClass } from '../game/cardLevels.js';
+import { isNormalRecord } from '../utils/cardTypes';
 
 const COLLECTIONS_PER_PAGE = 24;
 
@@ -67,7 +68,9 @@ export default function Trophies() {
       const data = await getUserCollection(user.id);
       const map = new Map();
       data.forEach((entry) => {
-        map.set(Number(entry.pokemon_id), entry);
+        if (isNormalRecord(entry)) {
+          map.set(Number(entry.pokemon_id), entry);
+        }
       });
       setCollectionMap(map);
     } catch (err) {
@@ -83,14 +86,28 @@ export default function Trophies() {
   }, [loadCollection]);
 
   const collectionsWithTrophies = useMemo(() => {
-    return collectionsList.map((col) => {
+    return allCollections.map((col) => {
       const trophyInfo = getTrophyTier(col, collectionMap);
       return {
         ...col,
         trophyInfo,
+        theme: getCollectionCategoryMeta(col.category),
       };
     });
   }, [collectionMap]);
+
+  const categoryOptions = useMemo(() => {
+    const counts = new Map();
+    collectionsWithTrophies.forEach((col) => {
+      counts.set(col.category, (counts.get(col.category) || 0) + 1);
+    });
+    return COLLECTION_CATEGORIES
+      .filter((category) => category.id === 'all' || counts.has(category.id))
+      .map((category) => ({
+        ...category,
+        count: category.id === 'all' ? collectionsWithTrophies.length : counts.get(category.id),
+      }));
+  }, [collectionsWithTrophies]);
 
   const summary = useMemo(() => {
     let platinum = 0;
@@ -212,21 +229,18 @@ export default function Trophies() {
           <span className="ui-badge">{filteredCollections.length} results</span>
         </div>
 
-        <div className="gen-shortcuts" role="group" aria-label="Collection categories">
-          {[
-            { label: 'All Collections', value: 'all' },
-            { label: 'Type Masters', value: 'type' },
-            { label: 'Rarity & BST', value: 'rarity' },
-            { label: 'Evolution Families', value: 'family' },
-          ].map((tab) => (
+        <div className="gen-shortcuts award-filter-rail" role="group" aria-label="Collection categories">
+          {categoryOptions.map((tab) => (
             <button
-              key={tab.value}
+              key={tab.id}
               type="button"
-              className={`gen-badge-btn ${categoryFilter === tab.value ? 'active' : ''}`}
-              onClick={() => setCategoryFilter(tab.value)}
-              aria-pressed={categoryFilter === tab.value}
+              className={`gen-badge-btn award-filter-btn ${categoryFilter === tab.id ? 'active' : ''}`}
+              style={{ '--award-accent': tab.accent }}
+              onClick={() => setCategoryFilter(tab.id)}
+              aria-pressed={categoryFilter === tab.id}
             >
-              {tab.label}
+              <span className="gen-badge-title">{tab.label}</span>
+              <span className="gen-badge-count">{tab.count}</span>
             </button>
           ))}
         </div>
@@ -290,26 +304,37 @@ export default function Trophies() {
         ) : (
           <div className="trophies-grid">
             {paginatedCollections.map((col) => {
-              const { trophyInfo } = col;
+              const { trophyInfo, theme } = col;
               const { progress } = trophyInfo;
 
               return (
                 <button
                   key={col.id}
                   type="button"
-                  className={`trophy-card ${trophyInfo.tier}`}
+                  className={`trophy-card award-themed-card ${trophyInfo.tier}`}
+                  style={{ '--award-accent': theme.accent }}
                   onClick={() => setSelectedCollection(col)}
                   aria-label={`${col.name}, ${trophyInfo.tierName} trophy, ${progress.progressPercent}% complete`}
                 >
                   <div className="trophy-card-header">
-                    <span className={`trophy-category-tag ${col.category}`}>{col.category.toUpperCase()}</span>
+                    <span className="trophy-category-tag">{theme.label}</span>
                     <span className="trophy-icon-badge" style={{ color: trophyInfo.color }}>
-                      <TrophyIcon size={20} tier={trophyInfo.tier} />
+                      <TrophyIcon size={16} tier={trophyInfo.tier} />
                       {trophyInfo.tierName}
                     </span>
                   </div>
 
-                  <h3 className="trophy-card-title">{col.name}</h3>
+                  <div className="trophy-card-main">
+                    <span className="trophy-emblem-mark" aria-hidden="true">
+                      <AwardEmblemIcon
+                        size={38}
+                        design={theme.design}
+                        color={theme.accent}
+                        isUnlocked={trophyInfo.tier !== 'locked'}
+                      />
+                    </span>
+                    <h3 className="trophy-card-title">{col.name}</h3>
+                  </div>
 
                   <div className="trophy-card-stats">
                     <span>{progress.ownedCount} / {progress.totalCount} cards</span>
@@ -363,15 +388,29 @@ export default function Trophies() {
             <div className="modal-header detail-modal-head">
               <div>
                 <div className="detail-modal-id-row">
-                  <span className={`trophy-category-tag ${selectedCollection.category}`}>
-                    {selectedCollection.category.toUpperCase()}
+                  <span
+                    className="trophy-category-tag"
+                    style={{
+                      color: selectedCollection.theme.accent,
+                      borderColor: selectedCollection.theme.accent,
+                    }}
+                  >
+                    {selectedCollection.theme.label}
                   </span>
                   <span className="detail-trophy-tier" style={{ color: selectedCollection.trophyInfo.color }}>
                     <TrophyIcon size={20} tier={selectedCollection.trophyInfo.tier} />
                     {selectedCollection.trophyInfo.tierName}
                   </span>
                 </div>
-                <h2 className="modal-title" id="collection-detail-title">{selectedCollection.name}</h2>
+                <div className="detail-award-title-row">
+                  <AwardEmblemIcon
+                    size={34}
+                    design={selectedCollection.theme.design}
+                    color={selectedCollection.theme.accent}
+                    isUnlocked={selectedCollection.trophyInfo.tier !== 'locked'}
+                  />
+                  <h2 className="modal-title" id="collection-detail-title">{selectedCollection.name}</h2>
+                </div>
               </div>
               <button
                 type="button"

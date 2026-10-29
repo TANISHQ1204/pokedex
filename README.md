@@ -16,7 +16,9 @@ Repository: https://github.com/TANISHQ1204/pokedex
 - Game modes: Mystery Draft, Deal or No Deal, and Dex Battle.
 - Daily arcade rotation with Link Lab, Type Weaver, Catch Rush, and Memory Dex.
 - Arcade rewards that grant 1-3 cards per run.
-- Regional badges, collection trophies, and completion tracking.
+- Expanded badge case covering regional dexes, gyms, Elite Four, champions, villain teams, Battle Frontier, contests, type mastery, legendaries, and trainer milestones.
+- Lore trophy hall spanning starters, fossils, pseudo-legendaries, Eeveelutions, babies, regional forms, Mega Evolutions, Gigantamax forms, Ultra Beasts, and Paradox Pokemon.
+- Badge and trophy search, category filters, pagination, themed emblem designs, and completion tracking.
 - Battle history, recent pulls, win rates, and activity statistics.
 - Responsive layouts, keyboard controls, focus management, reduced-motion support, and a skip link.
 - Special Power and Ancient card data remains available behind the hidden `/special-collection` route.
@@ -113,6 +115,10 @@ Command-line writes with the anon key are limited by row-level security and may 
 | `node scripts/test_star_evolution.js` | Run star progression tests |
 | `node scripts/test_arcade_core.js` | Run arcade scoring and reward tests |
 | `node scripts/test_tcg_theme.js` | Run theme and visual-contract tests |
+| `node scripts/testTrophies.js` | Run trophy tier and collection progress tests |
+| `node scripts/testBadges.js` | Run badge unlock and mastery tests |
+| `node scripts/testLoreAwards.js` | Run lore trophy/badge data and milestone tests |
+| `node scripts/generateLoreAwards.js` | Regenerate lore collections and badges from base data |
 
 Tests are standalone Node scripts rather than an npm test runner. Run individual files directly with `node`. The legacy `scripts/test_card_independence.js` suite is intentionally excluded because Power/Ancient drops are no longer part of the normal battle drop pool.
 
@@ -122,7 +128,7 @@ Tests are standalone Node scripts rather than an npm test runner. Run individual
 src/
   components/   Shared UI, cards, battle views, modals, navigation
   context/      Supabase authentication context
-  data/         Pokemon, badges, learnsets, species, and evolution data
+  data/         Pokemon, base/lore badges and trophies, learnsets, species, and evolution data
   game/         Battle, card, arcade, trophy, and progression logic
   hooks/        Reusable interaction and timing hooks
   pages/        Route-level screens

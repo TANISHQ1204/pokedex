@@ -9220,3 +9220,249 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+/* ==========================================================================
+   LORE AWARD THEMES
+   ========================================================================== */
+
+.award-filter-rail {
+  align-items: stretch;
+  gap: 0.45rem;
+}
+
+.award-filter-btn {
+  min-height: 2.4rem;
+  border-color: color-mix(in srgb, var(--award-accent, #38bdf8) 34%, #334155);
+  background: linear-gradient(180deg, rgba(30, 41, 59, 0.96), rgba(15, 23, 42, 0.96));
+  color: #cbd5e1;
+}
+
+.award-filter-btn:hover {
+  border-color: var(--award-accent, #38bdf8);
+  color: #f8fafc;
+}
+
+.award-filter-btn.active {
+  border-color: var(--award-accent, #38bdf8);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--award-accent, #38bdf8) 24%, #0f172a), rgba(15, 23, 42, 0.98));
+  color: #f8fafc;
+  box-shadow:
+    inset 0 -2px 0 var(--award-accent, #38bdf8),
+    0 0 14px color-mix(in srgb, var(--award-accent, #38bdf8) 20%, transparent);
+}
+
+.award-filter-btn.active .gen-badge-count {
+  color: var(--award-accent, #fbbf24);
+}
+
+.award-themed-card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.award-themed-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  height: 2px;
+  border-radius: 0 0 2px 2px;
+  background: linear-gradient(90deg, transparent, var(--award-accent, #38bdf8), transparent);
+  opacity: 0.85;
+  z-index: 1;
+}
+
+.award-themed-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--award-accent, #38bdf8) 12%, transparent), transparent 55%);
+  opacity: 0.9;
+  z-index: -1;
+}
+
+.award-themed-card:hover {
+  box-shadow:
+    0 10px 26px color-mix(in srgb, var(--award-accent, #38bdf8) 16%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--award-accent, #38bdf8) 26%, transparent);
+}
+
+.trophy-card-main {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin: 0.15rem 0 0.55rem;
+}
+
+.trophy-emblem-mark {
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.7rem;
+  border: 1px solid color-mix(in srgb, var(--award-accent, #38bdf8) 36%, #334155);
+  background:
+    radial-gradient(circle at 35% 25%, color-mix(in srgb, var(--award-accent, #38bdf8) 24%, transparent), transparent 62%),
+    #0f172a;
+  box-shadow: inset 0 0 14px rgba(0, 0, 0, 0.5);
+}
+
+.trophy-card-main .trophy-card-title {
+  margin: 0;
+  min-width: 0;
+}
+
+.trophy-category-tag {
+  color: var(--award-accent, #38bdf8);
+  border-color: color-mix(in srgb, var(--award-accent, #38bdf8) 55%, #334155);
+  background: color-mix(in srgb, var(--award-accent, #38bdf8) 11%, #0f172a);
+  letter-spacing: 0.02em;
+}
+
+.award-emblem {
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.45));
+}
+
+.detail-award-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-top: 0.2rem;
+}
+
+.badge-toolbar {
+  margin: 0.75rem 0 0.85rem;
+}
+
+.badge-family-tag {
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--award-accent, #fbbf24);
+  background: color-mix(in srgb, var(--award-accent, #fbbf24) 13%, #0f172a);
+  border: 1px solid color-mix(in srgb, var(--award-accent, #fbbf24) 36%, #334155);
+  border-radius: 999px;
+  padding: 0.1rem 0.45rem;
+  margin-bottom: 0.35rem;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.badge-case-slot.unlocked {
+  border-color: color-mix(in srgb, var(--award-accent, #f59e0b) 66%, #334155);
+  background:
+    radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--award-accent, #f59e0b) 16%, transparent), transparent 62%),
+    radial-gradient(circle at center, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%);
+}
+
+.badge-case-slot.unlocked:hover {
+  border-color: var(--award-accent, #fbbf24);
+  box-shadow:
+    0 0 24px color-mix(in srgb, var(--award-accent, #fbbf24) 36%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--award-accent, #fbbf24) 30%, transparent);
+}
+
+.badge-case-slot.unlocked .badge-slot-icon-wrapper {
+  border-color: color-mix(in srgb, var(--award-accent, #f59e0b) 72%, #334155);
+  background:
+    radial-gradient(circle, color-mix(in srgb, var(--award-accent, #f59e0b) 22%, transparent) 0%, #0f172a 72%);
+}
+
+.badge-case-slot .badge-slot-icon-wrapper {
+  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.badge-case-slot.unlocked:hover .badge-slot-icon-wrapper {
+  transform: translateY(-1px) scale(1.04);
+}
+
+.milestone-detail-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  text-align: center;
+  padding: 1.25rem;
+  border: 1px solid color-mix(in srgb, var(--award-accent, #fbbf24) 28%, #334155);
+  border-radius: 0.85rem;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(251, 191, 36, 0.1), transparent 68%),
+    #0f172a;
+}
+
+.milestone-detail-panel strong {
+  font-size: 2rem;
+  line-height: 1;
+  color: #fef08a;
+}
+
+.milestone-detail-panel strong small {
+  font-size: 1rem;
+  color: #94a3b8;
+  font-weight: 700;
+}
+
+.milestone-detail-panel p {
+  margin: 0.25rem 0 0;
+  max-width: 48ch;
+  color: #94a3b8;
+  font-size: 0.82rem;
+}
+
+@media (max-width: 640px) {
+  .trophies-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .badge-case-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 0.8rem;
+  }
+
+  .badge-case-wrapper {
+    padding: 0.9rem;
+  }
+
+  .badge-case-slot {
+    padding: 0.75rem 0.6rem;
+  }
+
+  .badge-slot-icon-wrapper {
+    width: 52px;
+    height: 52px;
+  }
+
+  .badge-family-tag {
+    font-size: 0.52rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .badge-case-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .award-filter-btn {
+    flex: 1 1 calc(50% - 0.45rem);
+    font-size: 0.7rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .award-themed-card,
+  .badge-case-slot,
+  .badge-case-slot .badge-slot-icon-wrapper,
+  .badge-case-slot.unlocked:hover .badge-slot-icon-wrapper {
+    transition: none !important;
+    transform: none !important;
+  }
+}
