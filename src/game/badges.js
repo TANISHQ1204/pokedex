@@ -1,5 +1,20 @@
 import { getCollectionProgress } from './trophies.js';
 import { MAX_STAR_LEVEL, SHINY_STAR_LEVEL } from './cardLevels.js';
+import { getBadgeFamily } from '../data/awards.js';
+
+export const MILESTONE_CRITERIA = new Set(['ownedCount', 'shinyCount', 'maxedCount']);
+
+const MASTERY_EXEMPT_FAMILIES = new Set(['regional', 'milestone']);
+
+/**
+ * Badges that stay ownership/threshold-based instead of requiring every member
+ * of the set to reach MAX_STAR_LEVEL.
+ */
+export function badgeRequiresMastery(badge) {
+  if (!badge) return false;
+  if (MILESTONE_CRITERIA.has(badge.criteria)) return false;
+  return !MASTERY_EXEMPT_FAMILIES.has(getBadgeFamily(badge));
+}
 
 /**
  * Normalizes the player collection into a Map of pokemon_id -> normal record.
@@ -46,38 +61,24 @@ function normalizeMap(playerCollection) {
 /**
  * Calculates badge status (earned / locked) for a badge object.
  *
- * Legacy badges { pokemonIds } unlock when 100% of the set is owned.
- * Star-mastery badges { criteria: 'star20', pokemonIds } also require every
- * member of the set to reach MAX_STAR_LEVEL (20 stars). `star10` is accepted as
- * a legacy alias so older saved badge data keeps working.
  * Milestone badges use { criteria: 'ownedCount' | 'shinyCount' | 'maxedCount',
  * threshold } and only count normal (non-Power, non-Ancient) records.
  *
+ * Regional Champion badges stay ownership-based: 100% of the set owned.
+ *
+ * Every other badge requires mastery: every member of the set must be owned and
+ * reach MAX_STAR_LEVEL (20 stars). This includes legacy { pokemonIds } badges,
+ * lore set badges, Champion-family badges, and `star20` mastery badges.
+ *
  * @param {Object} badge - { id, name, region, badgeIcon, pokemonIds, [criteria] }
  * @param {Array|Map} playerCollection - User's collection records
- * @returns {Object} { isUnlocked, ownedCount, masteredCount, totalCount, progressPercent }
+ * @returns {Object} { isUnlocked, ownedCount, masteredCount, totalCount, progressPercent, requirement }
  */
 export function getBadgeStatus(badge, playerCollection) {
   const progress = getCollectionProgress(badge, playerCollection);
   const ids = Array.isArray(badge?.pokemonIds) ? badge.pokemonIds : [];
 
-  if (badge?.criteria === 'star20' || badge?.criteria === 'star10') {
-    const map = normalizeMap(playerCollection);
-    const masteredCount = ids.filter((id) => {
-      const entry = map.get(Number(id));
-      return entry && Number(entry.star_level) >= MAX_STAR_LEVEL;
-    }).length;
-    const totalCount = ids.length || 1;
-    return {
-      isUnlocked: masteredCount === totalCount,
-      ownedCount: progress.ownedCount,
-      masteredCount,
-      totalCount,
-      progressPercent: Math.round((masteredCount / totalCount) * 100),
-    };
-  }
-
-  if (badge?.criteria === 'ownedCount' || badge?.criteria === 'shinyCount' || badge?.criteria === 'maxedCount') {
+  if (MILESTONE_CRITERIA.has(badge?.criteria)) {
     const map = normalizeMap(playerCollection);
     const threshold = Math.max(1, Math.floor(Number(badge.threshold) || 1));
     let currentCount = 0;
@@ -108,6 +109,24 @@ export function getBadgeStatus(badge, playerCollection) {
       currentCount,
       threshold,
       progressPercent: Math.min(100, Math.round((currentCount / threshold) * 100)),
+      requirement: 'milestone',
+    };
+  }
+
+  if (badgeRequiresMastery(badge)) {
+    const map = normalizeMap(playerCollection);
+    const masteredCount = ids.filter((id) => {
+      const entry = map.get(Number(id));
+      return entry && Number(entry.star_level) >= MAX_STAR_LEVEL;
+    }).length;
+    const totalCount = ids.length || 1;
+    return {
+      isUnlocked: masteredCount === totalCount,
+      ownedCount: progress.ownedCount,
+      masteredCount,
+      totalCount,
+      progressPercent: Math.round((masteredCount / totalCount) * 100),
+      requirement: 'mastery',
     };
   }
 
@@ -117,5 +136,6 @@ export function getBadgeStatus(badge, playerCollection) {
     masteredCount: 0,
     totalCount: progress.totalCount,
     progressPercent: progress.progressPercent,
+    requirement: 'ownership',
   };
 }

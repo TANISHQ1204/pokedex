@@ -3,6 +3,8 @@ import { SHINY_STAR_LEVEL, unlockedMoveCount, starTierClass } from '../game/card
 import { computePokemonStats, tierName } from '../game/balance.js';
 import PokemonImage from './PokemonImage';
 import StarMeter from './StarMeter';
+import { AwardEmblemIcon } from './icons/GameIcons';
+import { isHallInductee } from '../game/hallOfFame.js';
 import learnsets from '../data/learnsets.json' with { type: 'json' };
 import useDialogFocus from '../hooks/useDialogFocus';
 
@@ -37,6 +39,7 @@ export default function PokemonDetailModal({
 }) {
   const isOwned = Boolean(entry);
   const starLevel = entry?.star_level || 0;
+  const isHallOfFamer = cardType === 'normal' && isHallInductee(entry);
   const [previewShiny, setPreviewShiny] = useState(isOwned && (entry?.is_shiny || starLevel >= SHINY_STAR_LEVEL));
   const dialogRef = useRef(null);
 
@@ -146,6 +149,12 @@ export default function PokemonDetailModal({
                     </div>
                     {!entry.is_shiny && starLevel >= SHINY_STAR_LEVEL && (
                       <div className="detail-shiny-unlocked">Shiny unlocked</div>
+                    )}
+                    {isHallOfFamer && (
+                      <div className="detail-hall-of-fame">
+                        <AwardEmblemIcon size={16} design="crown" color="#fbbf24" isUnlocked />
+                        Hall of Fame inductee
+                      </div>
                     )}
                   </>
                 )

@@ -9466,3 +9466,537 @@ body {
     transform: none !important;
   }
 }
+
+/* Hall of Fame */
+.detail-badge-requirement {
+  margin: -0.35rem 0 0.85rem;
+  color: #fbbf24;
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.badge-roster-maxed {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0.18rem;
+  padding: 0.1rem 0.35rem;
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  border-radius: 999px;
+  background: rgba(251, 191, 36, 0.12);
+  color: #fef08a;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.55rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.hof-card-seal {
+  position: absolute;
+  top: -6px;
+  right: -7px;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.16rem;
+  padding: 0.12rem 0.32rem;
+  border: 1px solid rgba(251, 191, 36, 0.75);
+  border-radius: 999px;
+  background: linear-gradient(135deg, #4a2b06, #1e293b);
+  color: #fef08a;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.52rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  box-shadow: 0 0 10px rgba(251, 191, 36, 0.35);
+}
+
+.detail-hall-of-fame {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.55rem;
+  padding: 0.28rem 0.55rem;
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  border-radius: 999px;
+  background: rgba(251, 191, 36, 0.1);
+  color: #fef08a;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.hall-of-fame-hero .ui-hero-stat-card {
+  border-color: rgba(251, 191, 36, 0.32);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(251, 191, 36, 0.15), transparent 66%),
+    rgba(15, 23, 42, 0.82);
+  box-shadow: inset 0 1px 0 rgba(251, 191, 36, 0.14);
+}
+
+.hall-of-fame-toolbar {
+  grid-template-columns: minmax(220px, 1.5fr) repeat(4, minmax(130px, 0.7fr));
+}
+
+.hof-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(225px, 1fr));
+  gap: 1rem;
+}
+
+.hof-plaque {
+  width: 100%;
+  min-height: 23rem;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  border: 1px solid color-mix(in srgb, var(--award-accent, #fbbf24) 32%, #334155);
+  border-radius: 0.9rem;
+  background:
+    radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--award-accent, #fbbf24) 13%, transparent), transparent 58%),
+    linear-gradient(180deg, rgba(30, 41, 59, 0.92), rgba(15, 23, 42, 0.97));
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hof-plaque:hover {
+  transform: translateY(-4px);
+  border-color: color-mix(in srgb, var(--award-accent, #fbbf24) 70%, #f8fafc);
+  box-shadow:
+    0 12px 28px color-mix(in srgb, var(--award-accent, #fbbf24) 20%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--award-accent, #fbbf24) 30%, transparent);
+}
+
+.hof-plaque:focus-visible {
+  outline: 2px solid #7dd3fc;
+  outline-offset: 2px;
+  box-shadow: var(--ui-focus);
+}
+
+.hof-plaque-top,
+.hof-plaque-footer {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.hof-plaque-seal {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid rgba(251, 191, 36, 0.42);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(251, 191, 36, 0.18), rgba(15, 23, 42, 0.92));
+}
+
+.hof-plaque-number {
+  color: #fbbf24;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.hof-plaque-portrait {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 9.4rem;
+  margin: 0.75rem 0 0.65rem;
+  border: 1px solid color-mix(in srgb, var(--award-accent, #fbbf24) 24%, #334155);
+  border-radius: 0.75rem;
+  background:
+    radial-gradient(ellipse at 50% 84%, color-mix(in srgb, var(--award-accent, #fbbf24) 28%, transparent), transparent 58%),
+    linear-gradient(180deg, rgba(2, 6, 23, 0.45), rgba(15, 23, 42, 0.9));
+  overflow: hidden;
+}
+
+.hof-plaque-spotlight {
+  position: absolute;
+  inset: -20% 8% 20%;
+  background: radial-gradient(ellipse at 50% 20%, rgba(254, 240, 138, 0.22), transparent 62%);
+  pointer-events: none;
+}
+
+.hof-plaque-sprite {
+  position: relative;
+  z-index: 1;
+  width: 8.5rem;
+  height: 8.5rem;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.45));
+  transition: transform 0.2s ease;
+}
+
+.hof-plaque:hover .hof-plaque-sprite {
+  transform: translateY(-3px) scale(1.04);
+}
+
+.hof-plaque-star {
+  position: absolute;
+  right: 0.5rem;
+  bottom: 0.5rem;
+  z-index: 2;
+  padding: 0.16rem 0.4rem;
+  border: 1px solid rgba(251, 191, 36, 0.55);
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.88);
+  color: #fef08a;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.62rem;
+  font-weight: 900;
+}
+
+.hof-plaque-body {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.hof-plaque-name {
+  display: block;
+  color: var(--ui-text);
+  font-size: 1.08rem;
+  font-weight: 850;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.hof-plaque-epithet {
+  display: block;
+  color: #fde68a;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.045em;
+  text-transform: uppercase;
+}
+
+.hof-plaque-types,
+.hof-plaque-honors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.28rem;
+}
+
+.hof-plaque-honors {
+  align-content: flex-start;
+  min-height: 1.5rem;
+  margin-top: 0.15rem;
+}
+
+.hof-honor-chip {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  padding: 0.14rem 0.36rem;
+  border: 1px solid color-mix(in srgb, var(--honor-accent, #38bdf8) 42%, #334155);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--honor-accent, #38bdf8) 10%, #0f172a);
+  color: color-mix(in srgb, var(--honor-accent, #38bdf8) 55%, #f8fafc);
+  font-size: 0.58rem;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hof-honor-empty {
+  color: #94a3b8;
+  font-size: 0.64rem;
+  font-style: italic;
+}
+
+.hof-plaque-footer {
+  flex-wrap: wrap;
+  margin-top: 0.75rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.16);
+  color: #94a3b8;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.035em;
+  text-transform: uppercase;
+}
+
+.hof-dossier {
+  max-width: 980px;
+  width: min(96vw, 980px);
+  padding: 1.25rem;
+}
+
+.hof-dossier-class {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.18rem 0.5rem;
+  border: 1px solid rgba(251, 191, 36, 0.42);
+  border-radius: 999px;
+  background: rgba(251, 191, 36, 0.1);
+  color: #fef08a;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.hof-dossier-epithet {
+  margin: 0.25rem 0 0;
+  color: #fbbf24;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.86rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.hof-dossier-body {
+  display: grid;
+  grid-template-columns: minmax(210px, 280px) minmax(0, 1fr);
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.hof-dossier-portrait {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  padding: 0.85rem;
+  border: 1px solid rgba(251, 191, 36, 0.22);
+  border-radius: 0.85rem;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(251, 191, 36, 0.1), transparent 60%),
+    #0f172a;
+}
+
+.hof-dossier-image {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 13rem;
+  margin: 0;
+  border: 1px solid rgba(251, 191, 36, 0.2);
+  border-radius: 0.75rem;
+  background:
+    radial-gradient(ellipse at 50% 80%, rgba(251, 191, 36, 0.18), transparent 60%),
+    linear-gradient(180deg, rgba(2, 6, 23, 0.4), rgba(15, 23, 42, 0.9));
+  overflow: hidden;
+}
+
+.hof-dossier-glow {
+  position: absolute;
+  inset: -10% 5% 15%;
+  background: radial-gradient(ellipse at 50% 15%, rgba(254, 240, 138, 0.24), transparent 62%);
+  pointer-events: none;
+}
+
+.hof-dossier-image img {
+  position: relative;
+  z-index: 1;
+  width: 12rem;
+  height: 12rem;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.5));
+}
+
+.hof-dossier-star {
+  position: absolute;
+  right: 0.6rem;
+  bottom: 0.6rem;
+  z-index: 2;
+  padding: 0.18rem 0.45rem;
+  border: 1px solid rgba(251, 191, 36, 0.55);
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.88);
+  color: #fef08a;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 900;
+}
+
+.hof-dossier-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.55rem;
+  color: #94a3b8;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.hof-dossier-types {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.hof-dossier-view-card {
+  width: 100%;
+  margin-top: 0.15rem;
+}
+
+.hof-dossier-info {
+  min-width: 0;
+}
+
+.hof-dossier-induction {
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+  margin-bottom: 1rem;
+  padding: 0.8rem 0.9rem;
+  border: 1px solid rgba(251, 191, 36, 0.2);
+  border-radius: 0.75rem;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(251, 191, 36, 0.1), transparent 65%),
+    #0f172a;
+}
+
+.hof-dossier-induction strong {
+  color: #fef08a;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.hof-dossier-induction small {
+  color: #94a3b8;
+  font-size: 0.72rem;
+  line-height: 1.5;
+}
+
+.hof-dossier-honors-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.65rem;
+}
+
+.hof-honor-groups {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.hof-honor-group {
+  padding: 0.7rem 0.8rem;
+  border: 1px solid color-mix(in srgb, var(--honor-accent, #38bdf8) 26%, #334155);
+  border-left: 3px solid var(--honor-accent, #38bdf8);
+  border-radius: 0.65rem;
+  background: color-mix(in srgb, var(--honor-accent, #38bdf8) 6%, #0f172a);
+}
+
+.hof-honor-group h3 {
+  margin: 0 0 0.4rem;
+  color: color-mix(in srgb, var(--honor-accent, #38bdf8) 58%, #f8fafc);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.hof-honor-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.hof-honor-ribbon {
+  display: inline-flex;
+  padding: 0.18rem 0.45rem;
+  border: 1px solid color-mix(in srgb, var(--honor-accent, #38bdf8) 32%, #334155);
+  border-radius: 0.35rem;
+  background: rgba(15, 23, 42, 0.7);
+  color: #cbd5e1;
+  font-size: 0.68rem;
+}
+
+@media (max-width: 1100px) {
+  .hall-of-fame-toolbar {
+    grid-template-columns: minmax(220px, 1.5fr) repeat(2, minmax(140px, 0.8fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .hall-of-fame-toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .hof-grid {
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  }
+
+  .hof-dossier-body {
+    grid-template-columns: 1fr;
+  }
+
+  .hof-dossier-portrait {
+    max-width: 360px;
+    width: 100%;
+    margin: 0 auto;
+  }
+}
+
+@media (max-width: 520px) {
+  .hof-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hof-plaque {
+    min-height: 0;
+  }
+
+  .hof-plaque-portrait {
+    height: 8.5rem;
+  }
+
+  .hof-plaque-sprite {
+    width: 7.5rem;
+    height: 7.5rem;
+  }
+
+  .hof-dossier {
+    padding: 0.9rem;
+  }
+
+  .hof-dossier-image img {
+    width: 9.5rem;
+    height: 9.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hof-plaque,
+  .hof-plaque-sprite {
+    transition: none !important;
+  }
+
+  .hof-plaque:hover,
+  .hof-plaque:hover .hof-plaque-sprite {
+    transform: none !important;
+  }
+}

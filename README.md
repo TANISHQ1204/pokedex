@@ -16,9 +16,10 @@ Repository: https://github.com/TANISHQ1204/pokedex
 - Game modes: Mystery Draft, Deal or No Deal, and Dex Battle.
 - Daily arcade rotation with Link Lab, Type Weaver, Catch Rush, and Memory Dex.
 - Arcade rewards that grant 1-3 cards per run.
-- Expanded badge case covering regional dexes, gyms, Elite Four, champions, villain teams, Battle Frontier, contests, type mastery, legendaries, and trainer milestones.
+- Expanded badge case covering regional dexes, gyms, Elite Four, champions, villain teams, Battle Frontier, contests, type mastery, legendaries, and trainer milestones. Regional Champion badges and milestones stay ownership-based; every other badge requires full 20-star mastery.
+- Hall of Fame plaques for every normal card at 20 stars, including alternate forms, with generated epithets, collection honor ribbons, induction records, and gold seals in the Collection and Pokemon detail views.
 - Lore trophy hall spanning starters, fossils, pseudo-legendaries, Eeveelutions, babies, regional forms, Mega Evolutions, Gigantamax forms, Ultra Beasts, and Paradox Pokemon.
-- Badge and trophy search, category filters, pagination, themed emblem designs, and completion tracking.
+- Badge, trophy, and Hall of Fame search, category filters, pagination, themed emblem designs, and completion tracking.
 - Battle history, recent pulls, win rates, and activity statistics.
 - Responsive layouts, keyboard controls, focus management, reduced-motion support, and a skip link.
 - Special Power and Ancient card data remains available behind the hidden `/special-collection` route.
@@ -117,6 +118,7 @@ Command-line writes with the anon key are limited by row-level security and may 
 | `node scripts/test_tcg_theme.js` | Run theme and visual-contract tests |
 | `node scripts/testTrophies.js` | Run trophy tier and collection progress tests |
 | `node scripts/testBadges.js` | Run badge unlock and mastery tests |
+| `node scripts/testHallOfFame.js` | Run Hall of Fame eligibility, honors, and induction tests |
 | `node scripts/testLoreAwards.js` | Run lore trophy/badge data and milestone tests |
 | `node scripts/generateLoreAwards.js` | Regenerate lore collections and badges from base data |
 
@@ -137,7 +139,7 @@ src/
 scripts/        Migrations, data generators, and standalone tests
 ```
 
-Main routes include `/home`, `/arcade`, `/battle`, `/game-modes`, `/collection`, `/trophies`, `/badges`, `/stats`, `/friends`, `/account`, and `/match/:matchId`.
+Main routes include `/home`, `/arcade`, `/battle`, `/game-modes`, `/collection`, `/trophies`, `/badges`, `/hall-of-fame`, `/stats`, `/friends`, `/account`, and `/match/:matchId`.
 
 ## Production Build
 

@@ -135,13 +135,13 @@ export default function HomeProgressTabs({ collectionMap, stats, isLoading }) {
       unit: `of ${group.total}`,
       detail: `${group.unlocked} of ${group.total} ${label.toLowerCase()} earned`,
       description:
-        badgeFilter === 'mastery'
-          ? 'Mastery badges require every card in the set to reach the 20-star shiny cap.'
+        badgeFilter === 'milestone'
+          ? 'Milestone badges unlock at fixed collection thresholds and never require star mastery.'
           : badgeFilter === 'regional'
-            ? 'Regional badges track complete Pokédex sets across each region.'
+            ? 'Regional Champion badges unlock when every card in that regional dex is owned.'
             : badgeFilter === 'all'
-              ? 'Badges are earned through regional dexes, gym rosters, lore sets, and trainer milestones.'
-              : `${meta.label} badges track their own collection or milestone challenge.`,
+              ? 'Regional Champion badges and milestones track ownership. Every other badge requires every card in its set to reach 20 stars.'
+              : `${meta.label} badges require every card in their set to reach 20 stars.`,
       accent: meta.accent,
     };
   }, [stats, badgeFilter]);

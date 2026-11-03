@@ -13,11 +13,10 @@ import pokemonList from '../data/pokemon.json' with { type: 'json' };
 import { AwardEmblemIcon, GymBadgeIcon } from '../components/icons/GameIcons';
 import PokemonDetailModal from '../components/PokemonDetailModal';
 import StarMeter from '../components/StarMeter';
-import { SHINY_STAR_LEVEL, starTierClass } from '../game/cardLevels.js';
+import { MAX_STAR_LEVEL, SHINY_STAR_LEVEL, starTierClass } from '../game/cardLevels.js';
 import { isNormalRecord } from '../utils/cardTypes';
 
 const BADGES_PER_PAGE = 24;
-const MILESTONE_CRITERIA = new Set(['ownedCount', 'shinyCount', 'maxedCount']);
 
 function formatTitle(str) {
   if (!str) return '';
@@ -178,16 +177,17 @@ export default function Badges() {
     setSearchQuery('');
   };
 
-  const selectedIsMilestone = selectedBadge && MILESTONE_CRITERIA.has(selectedBadge.criteria);
+  const selectedIsMilestone = selectedBadge?.status.requirement === 'milestone';
+  const selectedRequiresMastery = selectedBadge?.status.requirement === 'mastery';
 
   return (
     <div className="page-container home-page batch-page badges-page">
       <section className="ui-page-hero">
         <div className="ui-page-hero-copy">
           <span className="home-eyebrow"><GymBadgeIcon size={18} color="#fbbf24" /> League Badge Case</span>
-          <h1>Collect the league.</h1>
+          <h1>Master the league.</h1>
           <p>
-            Complete regional dexes, gym rosters, lore sets, and mastery challenges to earn all {allBadges.length} badge case collectibles.
+            Complete regional dexes for Champion badges, then raise every card in gym, lore, type, and Champion sets to 20 stars to earn all {allBadges.length} badge case collectibles.
           </p>
           <div className="home-hero-meta">
             <span><span className="home-status-dot" /> {summary.unlocked} earned</span>
@@ -211,7 +211,7 @@ export default function Badges() {
           <div>
             <span className="home-eyebrow">Badge case</span>
             <h2 id="badge-browser-title">Official league display</h2>
-            <p>Champion badges, gym challenges, lore collections, and trainer milestones.</p>
+            <p>Regional Champion badges and trainer milestones stay ownership-based. Every other badge requires full 20-star mastery.</p>
           </div>
           <span className="ui-badge">{filteredBadges.length} badges</span>
         </div>
@@ -286,6 +286,8 @@ export default function Badges() {
               {paginatedBadges.map((badge) => {
                 const { status } = badge;
                 const isUnlocked = status.isUnlocked;
+                const progressValue = status.requirement === 'mastery' ? status.masteredCount : status.ownedCount;
+                const progressLabel = status.requirement === 'mastery' ? 'mastered' : 'earned';
 
                 return (
                   <button
@@ -294,7 +296,7 @@ export default function Badges() {
                     className={`badge-case-slot award-themed-card badge-family-${badge.family} ${isUnlocked ? 'unlocked' : 'locked'}`}
                     style={{ '--award-accent': badge.gemColor }}
                     onClick={() => setSelectedBadge(badge)}
-                    aria-label={`${badge.name}, ${isUnlocked ? 'earned' : `${status.progressPercent}% complete`}`}
+                    aria-label={`${badge.name}, ${isUnlocked ? 'earned' : `${status.progressPercent}% ${progressLabel}`}`}
                   >
                     <span className="badge-slot-icon-wrapper">
                       <AwardEmblemIcon
@@ -314,7 +316,7 @@ export default function Badges() {
                     ) : (
                       <span className="badge-progress-box">
                         <span className="badge-progress-text">
-                          {status.ownedCount}/{status.totalCount} ({status.progressPercent}%)
+                          {progressValue}/{status.totalCount} ({status.progressPercent}%)
                         </span>
                         <span className="ui-progress is-compact" aria-hidden="true">
                           <span style={{ width: `${status.progressPercent}%` }} />
@@ -388,10 +390,23 @@ export default function Badges() {
 
             <div className="collection-progress-card detail-progress-card">
               <p className="detail-badge-description">{selectedBadge.description}</p>
+              {selectedRequiresMastery && (
+                <p className="detail-badge-requirement">
+                  Every card in this set must reach 20 stars to earn this badge.
+                </p>
+              )}
               <div className="detail-progress-head">
                 <span>
-                  {selectedIsMilestone ? milestoneCriteriaLabel(selectedBadge.criteria) : 'Set completion'}:{' '}
-                  <strong>{selectedBadge.status.ownedCount} / {selectedBadge.status.totalCount}</strong>
+                  {selectedIsMilestone
+                    ? milestoneCriteriaLabel(selectedBadge.criteria)
+                    : selectedRequiresMastery
+                      ? 'Mastery completion'
+                      : 'Set completion'}:{' '}
+                  <strong>
+                    {(selectedRequiresMastery ? selectedBadge.status.masteredCount : selectedBadge.status.ownedCount)}
+                    {' / '}
+                    {selectedBadge.status.totalCount}
+                  </strong>
                 </span>
                 <strong className={selectedBadge.status.isUnlocked ? 'is-success' : ''}>
                   {selectedBadge.status.isUnlocked ? 'Earned' : `${selectedBadge.status.progressPercent}%`}
@@ -400,6 +415,11 @@ export default function Badges() {
               <div className="ui-progress is-gold" aria-hidden="true">
                 <span style={{ width: `${selectedBadge.status.progressPercent}%` }} />
               </div>
+              {selectedRequiresMastery && (
+                <small>
+                  {selectedBadge.status.ownedCount} of {selectedBadge.status.totalCount} owned - {selectedBadge.status.masteredCount} at 20 stars
+                </small>
+              )}
             </div>
 
             {selectedIsMilestone ? (
@@ -428,6 +448,7 @@ export default function Badges() {
                     const entry = collectionMap.get(id);
                     const isOwned = Boolean(entry);
                     const starLevel = entry?.star_level || 0;
+                    const isMaxed = isOwned && starLevel >= MAX_STAR_LEVEL;
                     const isShiny = entry?.is_shiny || starLevel >= SHINY_STAR_LEVEL;
                     const spriteSrc = isOwned ? (isShiny ? pokemon.sprites.shiny : pokemon.sprites.normal) : pokemon.sprites.normal;
 
@@ -437,7 +458,7 @@ export default function Badges() {
                         type="button"
                         className={`collection-card ${isOwned ? `owned ${starTierClass(starLevel)}` : 'unowned star-tier-0'}`}
                         onClick={() => setSelectedPokemon(pokemon)}
-                        aria-label={isOwned ? `${formatTitle(pokemon.name)}, star level ${starLevel}` : `${formatTitle(pokemon.name)}, unowned`}
+                        aria-label={isOwned ? `${formatTitle(pokemon.name)}, star level ${starLevel}${isMaxed ? ', maxed' : ''}` : `${formatTitle(pokemon.name)}, unowned`}
                       >
                         <span className="card-top-id">#{String(pokemon.id).padStart(4, '0')}</span>
                         <span className="card-image-wrapper">
@@ -446,7 +467,10 @@ export default function Badges() {
                         <span className="card-info">
                           <span className="card-name">{isOwned ? formatTitle(pokemon.name) : '???'}</span>
                           {isOwned ? (
-                            <StarMeter starLevel={starLevel} size="compact" showCount={false} />
+                            <>
+                              <StarMeter starLevel={starLevel} size="compact" showCount={false} />
+                              {isMaxed && <span className="badge-roster-maxed">20 star mastered</span>}
+                            </>
                           ) : (
                             <span className="unowned-badge">Unowned</span>
                           )}

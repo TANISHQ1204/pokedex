@@ -7,6 +7,7 @@ import {
   CardsIcon,
   TrophyIcon,
   GymBadgeIcon,
+  AwardEmblemIcon,
   UsersFriendsIcon,
   ChartBarIcon,
   GamepadIcon,
@@ -93,6 +94,9 @@ export default function Navbar() {
           </NavLink>
           <NavLink to="/badges" className={({ isActive }) => (isActive ? 'active' : '')} onClick={closeMenu}>
             <GymBadgeIcon size={18} color="#f59e0b" /> Badges
+          </NavLink>
+          <NavLink to="/hall-of-fame" className={({ isActive }) => (isActive ? 'active' : '')} onClick={closeMenu}>
+            <AwardEmblemIcon size={18} design="crown" color="#fbbf24" /> Hall of Fame
           </NavLink>
           <NavLink to="/stats" className={({ isActive }) => (isActive ? 'active' : '')} onClick={closeMenu}>
             <ChartBarIcon size={18} /> Stats

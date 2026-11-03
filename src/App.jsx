@@ -11,6 +11,7 @@ import Battle from './pages/Battle';
 import Collection from './pages/Collection';
 import Trophies from './pages/Trophies';
 import Badges from './pages/Badges';
+import HallOfFame from './pages/HallOfFame';
 import Account from './pages/Account';
 import Friends from './pages/Friends';
 import SpecialCollection from './pages/SpecialCollection';
@@ -225,6 +226,14 @@ export default function App() {
           element={
             <ProtectedRoute>
               <Badges />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/hall-of-fame"
+          element={
+            <ProtectedRoute>
+              <HallOfFame />
             </ProtectedRoute>
           }
         />

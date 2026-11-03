@@ -5,8 +5,9 @@ import { fullPokemonList, displayName, isAltForm } from '../utils/pokemonCatalog
 import { glowBaseFor } from '../utils/glow';
 import PokemonDetailModal from '../components/PokemonDetailModal';
 import StarMeter from '../components/StarMeter';
-import { CardsIcon, SparkleStarIcon } from '../components/icons/GameIcons';
+import { AwardEmblemIcon, CardsIcon, SparkleStarIcon } from '../components/icons/GameIcons';
 import { MAX_STAR_LEVEL, SHINY_STAR_LEVEL, STAR_TIERS, STAR_TIER_COLORS, starTierClass } from '../game/cardLevels.js';
+import { isHallInductee } from '../game/hallOfFame.js';
 
 const ITEMS_PER_PAGE = 48;
 
@@ -394,6 +395,7 @@ export default function Collection() {
               const isOwned = Boolean(entry);
               const starLevel = entry?.star_level || 0;
               const isShiny = entry?.is_shiny || starLevel >= SHINY_STAR_LEVEL;
+              const isInductee = isHallInductee(entry);
               const spriteSrc = isOwned ? (isShiny ? p.sprites.shiny : p.sprites.normal) : p.sprites.normal;
               const tierClass = isOwned ? starTierClass(starLevel) : 'star-tier-0';
               const rarityClass = isOwned ? rarityClassFor(starLevel, isShiny) : '';
@@ -407,7 +409,7 @@ export default function Collection() {
                   onClick={() => setSelectedPokemon(p)}
                   data-glow
                   style={{ '--base': glowBaseFor(p.types) }}
-                  aria-label={isOwned ? `${displayName(p)}, star level ${starLevel}${isShiny ? ', shiny' : ''}` : `${formatTitle(p.name)}, unowned`}
+                  aria-label={isOwned ? `${displayName(p)}, star level ${starLevel}${isShiny ? ', shiny' : ''}${isInductee ? ', Hall of Fame inductee' : ''}` : `${formatTitle(p.name)}, unowned`}
                 >
                   <span className="card-glow-overlay" data-glow aria-hidden="true" />
                   <span className="card-top-id stat-number-condensed">
@@ -423,6 +425,12 @@ export default function Collection() {
                       loading="lazy"
                     />
                     {isShiny && isOwned && <span className="shiny-sparkle-badge"><SparkleStarIcon size={11} /> Shiny</span>}
+                    {isInductee && (
+                      <span className="hof-card-seal" title="Hall of Fame inductee">
+                        <AwardEmblemIcon size={12} design="crown" color="#fbbf24" isUnlocked />
+                        HOF
+                      </span>
+                    )}
                   </span>
 
                   <span className="card-info">
