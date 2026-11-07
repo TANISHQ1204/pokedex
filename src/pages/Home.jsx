@@ -14,6 +14,7 @@ import {
 import { getPokemonById, fullPokemonList } from '../utils/pokemonCatalog.js';
 import { isNormalRecord } from '../utils/cardTypes';
 import { MAX_STAR_LEVEL, SHINY_STAR_LEVEL, starTierClass } from '../game/cardLevels.js';
+import { computeDexTierProgress } from '../game/dexProgress.js';
 import { fetchRecentPulls, fetchBattleHistory, computeBattleRecord, summarizePulls, formatTimeAgo, mergeCollectionPulls } from '../store/stats';
 import { getDailyArcadeGame, getQuickPlayGames } from '../game/arcadeGames';
 import { loadArcadeProgress } from '../store/arcadeProgress';
@@ -128,6 +129,7 @@ export default function Home() {
     const completionPercent = fullPokemonList.length
       ? Math.round((totalOwned / fullPokemonList.length) * 100)
       : 0;
+    const dexTier = computeDexTierProgress(collectionMap, fullPokemonList);
 
     let maxedShinyCount = 0;
     collectionMap.forEach((entry) => {
@@ -176,6 +178,7 @@ export default function Home() {
     return {
       totalOwned,
       completionPercent,
+      dexTier,
       maxedShinyCount,
       trophyCounts,
       totalTrophies,
@@ -284,11 +287,16 @@ export default function Home() {
         <Link to="/collection" className="home-metric">
           <span className="home-metric-icon"><PokedexBookIcon size={20} /></span>
           <span className="home-metric-copy">
-            <span className="home-metric-label">Pokédex</span>
-            <strong>{isLoading ? '—' : stats.totalOwned} <small>/ {fullPokemonList.length}</small></strong>
-            <span className="home-metric-track"><span style={{ width: `${isLoading ? 0 : stats.completionPercent}%` }} /></span>
+            <span className="home-metric-label">
+              {stats.dexTier.tier > 1 ? `Pokédex · ${stats.dexTier.label}` : 'Pokédex'}
+            </span>
+            <strong>{isLoading ? '—' : stats.dexTier.achieved} <small>/ {stats.dexTier.total}</small></strong>
+            <span className="home-metric-track"><span style={{ width: `${isLoading ? 0 : stats.dexTier.percent}%` }} /></span>
+            {!isLoading && stats.dexTier.tier > 1 && (
+              <span className="home-metric-note">{stats.dexTier.remaining} to {stats.dexTier.tier}★</span>
+            )}
           </span>
-          <span className="home-metric-value">{isLoading ? '—' : `${stats.completionPercent}%`}</span>
+          <span className="home-metric-value">{isLoading ? '—' : `${stats.dexTier.percent}%`}</span>
         </Link>
 
         <Link to="/trophies" className="home-metric">

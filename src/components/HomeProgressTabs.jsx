@@ -2,6 +2,8 @@ import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { fullPokemonList } from '../utils/pokemonCatalog.js';
 import { BADGE_FAMILIES, getBadgeFamilyMeta } from '../data/awards.js';
+import { computeDexTierProgress } from '../game/dexProgress.js';
+import { MAX_STAR_LEVEL } from '../game/cardLevels.js';
 
 const DEX_FILTERS = [
   { id: 'all', label: 'All', min: 1, max: 11000 },
@@ -78,16 +80,28 @@ export default function HomeProgressTabs({ collectionMap, stats, isLoading }) {
       const id = Number(pokemon.id);
       return id >= filter.min && id <= filter.max;
     });
-    const owned = entries.reduce(
-      (count, pokemon) => count + (collectionMap.has(Number(pokemon.id)) ? 1 : 0),
-      0
-    );
+
+    const tier = computeDexTierProgress(collectionMap, entries);
+    const detail = tier.isMaxed
+      ? 'Every card is 20★ — Shiny Master complete'
+      : tier.tier === 1
+        ? `${tier.owned} of ${tier.total} cards collected`
+        : `${tier.achieved} of ${tier.total} cards at ${tier.tier}★+`;
+
+    const description = tier.isMaxed
+      ? 'Your entire Pokédex is maxed. This tracker has reached Shiny Master.'
+      : tier.tier === 1
+        ? `Collect every card to unlock Tier 2. ${tier.remaining} still to find.`
+        : tier.tier >= MAX_STAR_LEVEL
+          ? `Base set complete. Max out ${tier.remaining} more card${tier.remaining === 1 ? '' : 's'} at ${MAX_STAR_LEVEL}★ to reach Shiny Master.`
+          : `Base set complete. Upgrade ${tier.remaining} more card${tier.remaining === 1 ? '' : 's'} to ${tier.tier}★ to advance to the next tier.`;
+
     return {
-      owned,
-      total: entries.length,
-      remaining: entries.length - owned,
-      percent: entries.length ? Math.round((owned / entries.length) * 100) : 0,
+      ...tier,
       filterLabel: filter.label,
+      detail,
+      description,
+      unit: tier.tier === 1 ? 'complete' : `to ${tier.tier}★`,
     };
   }, [collectionMap, dexFilter]);
 
@@ -229,12 +243,13 @@ export default function HomeProgressTabs({ collectionMap, stats, isLoading }) {
             percent={isLoading ? 0 : view.percent}
             accent={accent}
             value={isLoading ? '—' : `${view.percent}%`}
-            unit={activeTab === 'trophies' ? 'tier share' : 'complete'}
+            unit={activeTab === 'trophies' ? 'tier share' : view.unit || 'complete'}
           />
 
           <div className="progress-panel-copy">
             <span className="progress-panel-kicker">
               {tab.label} · {filterLabel}
+              {activeTab === 'dex' && view.tier > 1 ? ` · ${view.tierLabel}` : ''}
             </span>
             <h3>{isLoading ? 'Loading your progress…' : view.detail}</h3>
             <div className="progress-track" aria-hidden="true">

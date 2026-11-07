@@ -1,3 +1,5 @@
+import { MAX_STAR_LEVEL, SHINY_STAR_LEVEL } from '../game/cardLevels.js';
+
 /**
  * Pure helpers for classifying collection records by card type.
  *
@@ -53,4 +55,89 @@ export function findPowerRecord(rows) {
 export function findAncientRecord(rows) {
   if (!Array.isArray(rows)) return null;
   return rows.find(isAncientRecord) || null;
+}
+
+function recordStar(r) {
+  return Math.max(1, Math.min(MAX_STAR_LEVEL, Math.floor(Number(r?.star_level) || 1)));
+}
+
+function recordDupes(r) {
+  return Math.max(0, Math.floor(Number(r?.dupes_collected) || 0));
+}
+
+function recordTime(r) {
+  const raw = r?.updated_at || r?.created_at;
+  const time = raw ? new Date(raw).getTime() : 0;
+  return Number.isFinite(time) ? time : 0;
+}
+
+function betterNormalRow(candidate, current) {
+  if (!current) return true;
+  if (recordStar(candidate) !== recordStar(current)) return recordStar(candidate) > recordStar(current);
+  if (recordDupes(candidate) !== recordDupes(current)) return recordDupes(candidate) > recordDupes(current);
+  if (Boolean(candidate?.is_shiny) !== Boolean(current?.is_shiny)) return Boolean(candidate?.is_shiny);
+  return recordTime(candidate) > recordTime(current);
+}
+
+function betterSpecialRow(candidate, current) {
+  if (!current) return true;
+  if (Boolean(candidate?.is_shiny) !== Boolean(current?.is_shiny)) return Boolean(candidate?.is_shiny);
+  return recordTime(candidate) > recordTime(current);
+}
+
+/**
+ * Collapse duplicate rows for the same Pokemon + card type into a single record.
+ *
+ * Duplicate rows were historically created when the upsert conflict target did
+ * not match the database's partial unique indexes. For normal cards each extra
+ * row represents at least one additional pull, so the merged star level uses the
+ * row count as a conservative floor while still preserving the best stored star.
+ * Power/Ancient rows are never merged with normal rows.
+ *
+ * @param {Array} rows - Raw collection rows from Supabase
+ * @returns {Array} One record per (pokemon_id, card type), ordered by pokemon_id
+ */
+export function mergeCollectionRecords(rows) {
+  if (!Array.isArray(rows)) return [];
+
+  const groups = new Map();
+  rows.forEach((row) => {
+    if (!row || row.pokemon_id == null) return;
+    const type = cardTypeOf(row);
+    const key = `${type}:${Number(row.pokemon_id)}`;
+    const existing = groups.get(key);
+    if (existing) existing.push(row);
+    else groups.set(key, [row]);
+  });
+
+  const merged = [];
+  groups.forEach((groupRows) => {
+    const type = cardTypeOf(groupRows[0]);
+    if (type === 'normal') {
+      const keeper = groupRows.reduce(
+        (best, row) => (betterNormalRow(row, best) ? row : best),
+        null
+      );
+      const maxStar = Math.max(...groupRows.map(recordStar));
+      const maxDupes = Math.max(...groupRows.map(recordDupes));
+      const starLevel = Math.min(MAX_STAR_LEVEL, Math.max(maxStar, groupRows.length));
+      const dupesCollected = Math.min(MAX_STAR_LEVEL - 1, Math.max(maxDupes, starLevel - 1));
+      merged.push({
+        ...keeper,
+        star_level: starLevel,
+        dupes_collected: dupesCollected,
+        is_shiny:
+          groupRows.some((row) => Boolean(row?.is_shiny)) || starLevel >= SHINY_STAR_LEVEL,
+      });
+      return;
+    }
+
+    const keeper = groupRows.reduce(
+      (best, row) => (betterSpecialRow(row, best) ? row : best),
+      null
+    );
+    merged.push({ ...keeper });
+  });
+
+  return merged.sort((a, b) => Number(a.pokemon_id) - Number(b.pokemon_id));
 }

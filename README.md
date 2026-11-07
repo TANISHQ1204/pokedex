@@ -84,6 +84,10 @@ After that, apply these migrations in the Supabase Dashboard SQL Editor:
 
    Creates `battle_history` and `card_pulls`, their indexes, and owner-scoped row-level security policies. These tables begin recording activity after creation; historical battles cannot be rebuilt.
 
+3. `scripts/dedupe_collections.sql`
+
+   One-time repair for collections that accumulated duplicate rows when an upsert could not match the partial unique indexes. Run the audit query first, then the apply block. It merges duplicate normal-card rows, recovers star progress from the row count, preserves Power/Ancient rows, and recreates the partial unique indexes.
+
 For authentication, enable the Google provider and/or email magic links in Supabase, and allow your local and production URLs as redirect targets.
 
 The older `scripts/migrate_star_levels.sql` and `scripts/migrate_star_levels_10.js` files are obsolete. Do not run them against the current 20-star schema.

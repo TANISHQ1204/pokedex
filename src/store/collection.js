@@ -1,5 +1,10 @@
 import { supabase, isSupabaseConfigured } from './supabaseClient';
-import { findNormalRecord, findPowerRecord, findAncientRecord } from '../utils/cardTypes';
+import {
+  findNormalRecord,
+  findPowerRecord,
+  findAncientRecord,
+  mergeCollectionRecords,
+} from '../utils/cardTypes';
 import {
   MAX_STAR_LEVEL,
   SHINY_STAR_LEVEL,
@@ -16,29 +21,39 @@ const MOCK_COLLECTION_KEY = 'pokedex_mock_normal_collection';
 export async function getUserCollection(userId) {
   if (!userId) return [];
 
-  const { data, error } = await supabase
-    .from('collections')
-    .select('*')
-    .eq('user_id', userId)
-    .order('pokemon_id', { ascending: true });
+  // Page through the table so large collections (or duplicate-row buildup) are
+  // never truncated by the API's default row cap.
+  const PAGE_SIZE = 1000;
+  const rows = [];
+  let from = 0;
 
-  if (error) {
-    console.error('Error fetching user collection:', error.message);
-    throw error;
+  while (true) {
+    const { data, error } = await supabase
+      .from('collections')
+      .select('*')
+      .eq('user_id', userId)
+      .order('pokemon_id', { ascending: true })
+      .order('id', { ascending: true })
+      .range(from, from + PAGE_SIZE - 1);
+
+    if (error) {
+      console.error('Error fetching user collection:', error.message);
+      throw error;
+    }
+
+    const page = data || [];
+    rows.push(...page);
+    if (page.length < PAGE_SIZE) break;
+    from += PAGE_SIZE;
   }
 
-  return data || [];
+  // Merge any duplicate rows produced by the old upsert bug so every page sees
+  // stable, recovered progression instead of stale first-row values.
+  return mergeCollectionRecords(rows);
 }
 
-/**
- * Add or update a card entry in the user's collection (upsert by user_id + pokemon_id).
- */
-export async function upsertCollectionEntry(entry) {
-  if (!entry.user_id || !entry.pokemon_id) {
-    throw new Error('user_id and pokemon_id are required to upsert collection entry');
-  }
-
-  const payload = {
+function buildCollectionPayload(entry) {
+  return {
     user_id: entry.user_id,
     pokemon_id: entry.pokemon_id,
     star_level: entry.star_level ?? 1,
@@ -48,29 +63,74 @@ export async function upsertCollectionEntry(entry) {
     is_ancient_card: entry.is_ancient_card ?? false,
     updated_at: new Date().toISOString(),
   };
+}
+
+/**
+ * Insert a brand-new card row. Used only when no matching row of that card type
+ * exists, so a normal award can never overwrite a Power/Ancient record.
+ */
+export async function insertCollectionEntry(entry) {
+  if (!entry.user_id || !entry.pokemon_id) {
+    throw new Error('user_id and pokemon_id are required to insert collection entry');
+  }
 
   const { data, error } = await supabase
     .from('collections')
-    .upsert(payload, { onConflict: entry.is_power_card ? 'user_id,pokemon_id,is_power_card' : (entry.is_ancient_card ? 'user_id,pokemon_id,is_ancient_card' : 'user_id,pokemon_id') })
+    .insert(buildCollectionPayload(entry))
     .select()
     .single();
 
   if (error) {
-    // If table schema unique constraint doesn't include is_power_card yet, fallback to normal upsert
-    console.warn('Upsert notice (retrying basic payload if needed):', error.message);
-    const { data: retryData, error: retryErr } = await supabase
-      .from('collections')
-      .upsert(payload)
-      .select()
-      .single();
-    if (retryErr) {
-      console.error('Error upserting collection entry:', retryErr.message);
-      throw retryErr;
-    }
-    return retryData;
+    console.error('Error inserting collection entry:', error.message);
+    throw error;
   }
 
   return data;
+}
+
+/**
+ * Update an existing collection row by its primary key. This avoids relying on
+ * an onConflict target, which cannot match the database's partial unique indexes.
+ */
+export async function updateCollectionEntry(id, patch) {
+  if (id == null) {
+    throw new Error('A collection row id is required to update an entry');
+  }
+
+  const payload = { ...patch, updated_at: new Date().toISOString() };
+  const { data, error } = await supabase
+    .from('collections')
+    .update(payload)
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error updating collection entry:', error.message);
+    throw error;
+  }
+
+  return data;
+}
+
+/**
+ * Backwards-compatible entry point: update by id when provided, else insert.
+ */
+export async function upsertCollectionEntry(entry) {
+  if (entry?.id != null) {
+    return updateCollectionEntry(entry.id, entry);
+  }
+  return insertCollectionEntry(entry);
+}
+
+async function deleteExtraCollectionRows(ids) {
+  const extraIds = (ids || []).filter((id) => id != null);
+  if (extraIds.length === 0) return;
+
+  const { error } = await supabase.from('collections').delete().in('id', extraIds);
+  if (error) {
+    console.warn('Could not remove duplicate collection rows:', error.message);
+  }
 }
 
 /**
@@ -110,11 +170,16 @@ export async function awardCard(userId, pokemonId) {
     throw fetchErr;
   }
 
-  const existing = findNormalRecord(existingRows);
+  // Merge duplicate rows first so a stale first row can never freeze progression.
+  const mergedRows = mergeCollectionRecords(existingRows || []);
+  const existing = findNormalRecord(mergedRows);
+  const normalRowIds = (existingRows || [])
+    .filter((row) => row && !row.is_power_card && !row.is_ancient_card && row.id != null)
+    .map((row) => row.id);
 
   // Case A: User does not own this card yet
   if (!existing) {
-    const newEntry = await upsertCollectionEntry({
+    const newEntry = await insertCollectionEntry({
       user_id: userId,
       pokemon_id: pokemonId,
       star_level: 1,
@@ -132,9 +197,20 @@ export async function awardCard(userId, pokemonId) {
 
   // Case B: Card is already maxed out at MAX_STAR_LEVEL (20) stars
   if (existing.star_level >= MAX_STAR_LEVEL) {
+    // Persist the recovered merged values on the keeper row before returning.
+    const maxedEntry = existing.id != null
+      ? await updateCollectionEntry(existing.id, {
+          star_level: existing.star_level,
+          dupes_collected: existing.dupes_collected,
+          is_shiny: existing.is_shiny,
+        })
+      : existing;
+
+    await deleteExtraCollectionRows(normalRowIds.filter((id) => id !== existing.id));
+
     return {
       isNew: false,
-      entry: existing,
+      entry: maxedEntry,
       starUpgraded: false,
       becameShiny: false,
       maxedOut: true,
@@ -149,13 +225,21 @@ export async function awardCard(userId, pokemonId) {
   const starUpgraded = newStarLevel > (Number(existing.star_level) || 1);
   const becameShiny = !existing.is_shiny && newStarLevel >= SHINY_STAR_LEVEL;
 
-  const updatedEntry = await upsertCollectionEntry({
-    user_id: userId,
-    pokemon_id: pokemonId,
-    star_level: newStarLevel,
-    dupes_collected: newDupes,
-    is_shiny: becameShiny || existing.is_shiny,
-  });
+  const updatedEntry = existing.id != null
+    ? await updateCollectionEntry(existing.id, {
+        star_level: newStarLevel,
+        dupes_collected: newDupes,
+        is_shiny: becameShiny || existing.is_shiny,
+      })
+    : await insertCollectionEntry({
+        user_id: userId,
+        pokemon_id: pokemonId,
+        star_level: newStarLevel,
+        dupes_collected: newDupes,
+        is_shiny: becameShiny || existing.is_shiny,
+      });
+
+  await deleteExtraCollectionRows(normalRowIds.filter((id) => id !== existing.id));
 
   return {
     isNew: false,
@@ -185,8 +269,13 @@ export async function awardPowerCard(userId, pokemonId) {
     .eq('user_id', userId)
     .eq('pokemon_id', pokemonId);
 
-  const existing = findPowerRecord(existingRows);
+  const mergedRows = mergeCollectionRecords(existingRows || []);
+  const existing = findPowerRecord(mergedRows);
   if (!fetchErr && existing) {
+    const powerRowIds = (existingRows || [])
+      .filter((row) => row && row.is_power_card && row.id != null)
+      .map((row) => row.id);
+    await deleteExtraCollectionRows(powerRowIds.filter((id) => id !== existing.id));
     return {
       isNew: false,
       entry: existing,
@@ -195,7 +284,7 @@ export async function awardPowerCard(userId, pokemonId) {
     };
   }
 
-  const newEntry = await upsertCollectionEntry({
+  const newEntry = await insertCollectionEntry({
     user_id: userId,
     pokemon_id: pokemonId,
     star_level: 1,
@@ -231,8 +320,13 @@ export async function awardAncientCard(userId, pokemonId) {
     .eq('user_id', userId)
     .eq('pokemon_id', pokemonId);
 
-  const existing = findAncientRecord(existingRows);
+  const mergedRows = mergeCollectionRecords(existingRows || []);
+  const existing = findAncientRecord(mergedRows);
   if (!fetchErr && existing) {
+    const ancientRowIds = (existingRows || [])
+      .filter((row) => row && row.is_ancient_card && row.id != null)
+      .map((row) => row.id);
+    await deleteExtraCollectionRows(ancientRowIds.filter((id) => id !== existing.id));
     return {
       isNew: false,
       entry: existing,
@@ -241,7 +335,7 @@ export async function awardAncientCard(userId, pokemonId) {
     };
   }
 
-  const newEntry = await upsertCollectionEntry({
+  const newEntry = await insertCollectionEntry({
     user_id: userId,
     pokemon_id: pokemonId,
     star_level: 1,
