@@ -5,6 +5,7 @@ import { fullPokemonList, displayName, isAltForm } from '../utils/pokemonCatalog
 import { glowBaseFor } from '../utils/glow';
 import PokemonDetailModal from '../components/PokemonDetailModal';
 import StarMeter from '../components/StarMeter';
+import TierCardFx from '../components/TierCardFx';
 import { AwardEmblemIcon, CardsIcon, SparkleStarIcon } from '../components/icons/GameIcons';
 import { MAX_STAR_LEVEL, SHINY_STAR_LEVEL, STAR_TIERS, STAR_TIER_COLORS, starTierClass } from '../game/cardLevels.js';
 import { isHallInductee } from '../game/hallOfFame.js';
@@ -412,6 +413,7 @@ export default function Collection() {
                   aria-label={isOwned ? `${displayName(p)}, star level ${starLevel}${isShiny ? ', shiny' : ''}${isInductee ? ', Hall of Fame inductee' : ''}` : `${formatTitle(p.name)}, unowned`}
                 >
                   <span className="card-glow-overlay" data-glow aria-hidden="true" />
+                  <TierCardFx />
                   <span className="card-top-id stat-number-condensed">
                     #{String(p.id).padStart(4, '0')}
                     {isAltForm(p) && <span className="form-badge-mark"> + {p.generation ? `Gen ${p.generation}` : 'Form'}</span>}

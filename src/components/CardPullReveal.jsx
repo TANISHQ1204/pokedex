@@ -3,6 +3,7 @@ import PowerCard from './PowerCard';
 import AncientCard from './AncientCard';
 import PokemonDetailModal from './PokemonDetailModal';
 import StarMeter from './StarMeter';
+import TierCardFx from './TierCardFx';
 import { glowBaseFor } from '../utils/glow';
 import { spriteCdnUrl } from '../utils/sprites';
 import { MAX_STAR_LEVEL, starTierClass } from '../game/cardLevels.js';
@@ -245,6 +246,7 @@ export default function CardPullReveal({
                 style={{ '--base': glowBaseFor(pokemon.types) }}
               >
                 <span className="card-glow-overlay" data-glow aria-hidden="true" />
+                <TierCardFx />
                 {isShinyUnlocked && <span className="shiny-sparkle-overlay" aria-hidden="true" />}
 
                 <div className="card-front-head">
