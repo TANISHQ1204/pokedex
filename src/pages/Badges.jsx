@@ -13,7 +13,6 @@ import pokemonList from '../data/pokemon.json' with { type: 'json' };
 import { AwardEmblemIcon, GymBadgeIcon } from '../components/icons/GameIcons';
 import PokemonDetailModal from '../components/PokemonDetailModal';
 import StarMeter from '../components/StarMeter';
-import TierCardFx from '../components/TierCardFx';
 import { MAX_STAR_LEVEL, SHINY_STAR_LEVEL, starTierClass } from '../game/cardLevels.js';
 import { isNormalRecord } from '../utils/cardTypes';
 
@@ -461,7 +460,6 @@ export default function Badges() {
                         onClick={() => setSelectedPokemon(pokemon)}
                         aria-label={isOwned ? `${formatTitle(pokemon.name)}, star level ${starLevel}${isMaxed ? ', maxed' : ''}` : `${formatTitle(pokemon.name)}, unowned`}
                       >
-                        <TierCardFx />
                         <span className="card-top-id">#{String(pokemon.id).padStart(4, '0')}</span>
                         <span className="card-image-wrapper">
                           <img src={spriteSrc} alt="" className={isOwned ? '' : 'card-silhouette'} loading="lazy" />

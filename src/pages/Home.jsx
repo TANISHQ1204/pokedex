@@ -21,7 +21,6 @@ import { loadArcadeProgress } from '../store/arcadeProgress';
 import PokemonDetailModal from '../components/PokemonDetailModal';
 import PokemonImage from '../components/PokemonImage';
 import StarMeter from '../components/StarMeter';
-import TierCardFx from '../components/TierCardFx';
 import HomeProgressTabs from '../components/HomeProgressTabs';
 import ArcadeGameCard from '../components/ArcadeGameCard';
 import {
@@ -394,7 +393,6 @@ export default function Home() {
                     className={`showcase-card ${cardType === 'power' ? 'showcase-power' : cardType === 'ancient' ? 'showcase-ancient' : ''} ${tierClass}`.trim()}
                     onClick={() => setSelectedShowcase({ pkmn, cardType, entry })}
                   >
-                    <TierCardFx />
                     <div className="card-top-id">#{String(pkmn.id).padStart(4, '0')}</div>
                     <div className="showcase-card-image">
                       <PokemonImage pokemon={pkmn} isShiny={isShiny} alt={formatTitle(pkmn.name)} />

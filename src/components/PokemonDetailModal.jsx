@@ -3,7 +3,6 @@ import { SHINY_STAR_LEVEL, unlockedMoveCount, starTierClass } from '../game/card
 import { computePokemonStats, tierName } from '../game/balance.js';
 import PokemonImage from './PokemonImage';
 import StarMeter from './StarMeter';
-import TierCardFx from './TierCardFx';
 import { AwardEmblemIcon } from './icons/GameIcons';
 import { isHallInductee } from '../game/hallOfFame.js';
 import learnsets from '../data/learnsets.json' with { type: 'json' };
@@ -101,7 +100,6 @@ export default function PokemonDetailModal({
         <div className="modal-body detail-modal-body">
           <div className="modal-left detail-art-column">
             <div className={`modal-image-card detail-image-card ${isOwned && cardType === 'normal' ? starTierClass(starLevel) : ''}`}>
-              <TierCardFx />
               <PokemonImage
                 pokemon={pokemon}
                 isShiny={isShinyActive}
