@@ -54,12 +54,45 @@ from pg_policies
 where schemaname = 'public' and tablename = 'collections'
 order by policyname;
 
--- 5. Non-destructive INSERT probe (rolls back, writes nothing).
---    Replace <your-user-id> with your auth.users id. If this errors,
---    the error text is the root cause of the 3-card claim failure.
+-- 5a. Non-destructive constraint probe (rolls back, writes nothing).
+--     Runs as the postgres role, which BYPASSES row level security, so this
+--     isolates the constraint path. No user id needed — one is auto-detected
+--     from your existing rows (or auth.users).
+--       * FAILS with an FK/CHECK error -> constraint rejects the row -> APPLY B
+--       * SUCCEEDS -> constraints are fine; RLS is the prime suspect -> run 5b
 begin;
 insert into public.collections (user_id, pokemon_id, star_level, dupes_collected, is_shiny)
-values ('<your-user-id>', 10001, 1, 0, false)
+select u.user_id, 10001, 1, 0, false
+from (
+  select user_id from public.collections
+  union all
+  select id from auth.users
+  limit 1
+) u
+returning id, pokemon_id;
+rollback;
+
+-- 5b. Non-destructive RLS probe (rolls back, writes nothing).
+--     Replays the exact INSERT the app performs: an authenticated session
+--     carrying the user's JWT. If this errors, the error text IS the root
+--     cause of the 3-card claim failure.
+begin;
+select set_config(
+  'request.jwt.claims',
+  coalesce(
+    (select json_build_object('sub', user_id, 'role', 'authenticated')::text
+     from public.collections limit 1),
+    (select json_build_object('sub', id, 'role', 'authenticated')::text
+     from auth.users limit 1)
+  ),
+  true
+);
+set local role authenticated;
+insert into public.collections (user_id, pokemon_id, star_level, dupes_collected, is_shiny)
+values (
+  (current_setting('request.jwt.claims')::json->>'sub')::uuid,
+  10001, 1, 0, false
+)
 returning id, pokemon_id;
 rollback;
 
@@ -112,6 +145,6 @@ create policy "Users can delete their own collection rows"
 --   drop constraint if exists <constraint_name_from_audit_2>;
 
 -- ============================================================
--- VERIFY — re-run the AUDIT 5 probe after applying the fix.
--- It must return the inserted row (id, 10001) without erroring.
+-- VERIFY — re-run probes 5a AND 5b after applying the fix.
+-- Both must return the inserted row (id, 10001) without erroring.
 -- ============================================================
