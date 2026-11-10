@@ -40,7 +40,7 @@ order by contype, conname;
 
 -- 4. RLS status and policies. INSERTs need a FOR INSERT policy.
 select
-  relrowsecurity as rls_enabled
+  rowsecurity as rls_enabled
 from pg_tables
 where schemaname = 'public' and tablename = 'collections';
 
