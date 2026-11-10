@@ -10,46 +10,63 @@ import {
   SHINY_STAR_LEVEL,
   starLevelFromDupes,
 } from '../game/cardLevels.js';
+import {
+  readCollectionCache,
+  upsertCachedEntry,
+  writeCollectionCache,
+} from './collectionCache.js';
 
 const MOCK_COLLECTION_KEY = 'pokedex_mock_normal_collection';
 
 /**
  * Fetch the user's full card collection from Supabase.
  * @param {string} userId - Auth user UUID
+ * @param {{ allowCache?: boolean }} options - fall back to the local cache on failure
  * @returns {Promise<Array>} Array of collection records
  */
-export async function getUserCollection(userId) {
+export async function getUserCollection(userId, { allowCache = false } = {}) {
   if (!userId) return [];
 
-  // Page through the table so large collections (or duplicate-row buildup) are
-  // never truncated by the API's default row cap.
-  const PAGE_SIZE = 1000;
-  const rows = [];
-  let from = 0;
+  try {
+    // Page through the table so large collections (or duplicate-row buildup) are
+    // never truncated by the API's default row cap.
+    const PAGE_SIZE = 1000;
+    const rows = [];
+    let from = 0;
 
-  while (true) {
-    const { data, error } = await supabase
-      .from('collections')
-      .select('*')
-      .eq('user_id', userId)
-      .order('pokemon_id', { ascending: true })
-      .order('id', { ascending: true })
-      .range(from, from + PAGE_SIZE - 1);
+    while (true) {
+      const { data, error } = await supabase
+        .from('collections')
+        .select('*')
+        .eq('user_id', userId)
+        .order('pokemon_id', { ascending: true })
+        .order('id', { ascending: true })
+        .range(from, from + PAGE_SIZE - 1);
 
-    if (error) {
-      console.error('Error fetching user collection:', error.message);
-      throw error;
+      if (error) {
+        console.error('Error fetching user collection:', error.message);
+        throw error;
+      }
+
+      const page = data || [];
+      rows.push(...page);
+      if (page.length < PAGE_SIZE) break;
+      from += PAGE_SIZE;
     }
 
-    const page = data || [];
-    rows.push(...page);
-    if (page.length < PAGE_SIZE) break;
-    from += PAGE_SIZE;
+    // Merge any duplicate rows produced by the old upsert bug so every page sees
+    // stable, recovered progression instead of stale first-row values.
+    const merged = mergeCollectionRecords(rows);
+    writeCollectionCache(userId, merged);
+    return merged;
+  } catch (error) {
+    if (allowCache) {
+      const cached = readCollectionCache(userId);
+      if (cached) return cached;
+      return [];
+    }
+    throw error;
   }
-
-  // Merge any duplicate rows produced by the old upsert bug so every page sees
-  // stable, recovered progression instead of stale first-row values.
-  return mergeCollectionRecords(rows);
 }
 
 function buildCollectionPayload(entry) {
@@ -133,6 +150,11 @@ async function deleteExtraCollectionRows(ids) {
   }
 }
 
+function cacheAwardEntry(userId, entry) {
+  if (!entry || !readCollectionCache(userId)) return;
+  upsertCachedEntry(userId, entry);
+}
+
 /**
  * Award a Pokémon card drop to the user upon battle victory.
  * 
@@ -187,6 +209,8 @@ export async function awardCard(userId, pokemonId) {
       is_shiny: false,
     });
 
+    cacheAwardEntry(userId, newEntry);
+
     return {
       isNew: true,
       entry: newEntry,
@@ -207,6 +231,7 @@ export async function awardCard(userId, pokemonId) {
       : existing;
 
     await deleteExtraCollectionRows(normalRowIds.filter((id) => id !== existing.id));
+    cacheAwardEntry(userId, maxedEntry);
 
     return {
       isNew: false,
@@ -240,12 +265,140 @@ export async function awardCard(userId, pokemonId) {
       });
 
   await deleteExtraCollectionRows(normalRowIds.filter((id) => id !== existing.id));
+  cacheAwardEntry(userId, updatedEntry);
 
   return {
     isNew: false,
     entry: updatedEntry,
     starUpgraded,
     becameShiny,
+  };
+}
+
+/**
+ * Persist an offline arcade award.
+ *
+ * When `baseKnown` is true the target is an absolute snapshot of the local
+ * collection, so syncing uses max(stored, target) and is idempotent. When the
+ * local cache had no record for this card, `pulls` is applied as a delta so an
+ * existing server record from another device is never overwritten.
+ *
+ * @param {string} userId - Auth user UUID
+ * @param {Object} target - Queued award target
+ * @returns {Promise<Object>} Award summary { isNew, entry, starUpgraded, becameShiny }
+ */
+export async function syncCardProgress(userId, target) {
+  if (!userId || !target || target.pokemonId == null) {
+    throw new Error('userId and a card target are required to sync progress');
+  }
+
+  const pokemonId = Number(target.pokemonId);
+  const { data: existingRows, error: fetchErr } = await supabase
+    .from('collections')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('pokemon_id', pokemonId);
+
+  if (fetchErr) {
+    console.error('Error checking existing card row:', fetchErr.message);
+    throw fetchErr;
+  }
+
+  const mergedRows = mergeCollectionRecords(existingRows || []);
+  const existing = findNormalRecord(mergedRows);
+  const normalRowIds = (existingRows || [])
+    .filter((row) => row && !row.is_power_card && !row.is_ancient_card && row.id != null)
+    .map((row) => row.id);
+
+  const targetStar = Math.max(
+    1,
+    Math.min(MAX_STAR_LEVEL, Math.floor(Number(target.starLevel) || 1))
+  );
+  const targetDupes = Math.max(
+    0,
+    Math.min(MAX_STAR_LEVEL - 1, Math.floor(Number(target.dupesCollected) || 0))
+  );
+  const targetShiny = Boolean(target.isShiny);
+
+  if (!existing) {
+    const newEntry = await insertCollectionEntry({
+      user_id: userId,
+      pokemon_id: pokemonId,
+      star_level: targetStar,
+      dupes_collected: targetDupes,
+      is_shiny: targetShiny || targetStar >= SHINY_STAR_LEVEL,
+    });
+
+    return {
+      isNew: true,
+      entry: newEntry,
+      starUpgraded: false,
+      becameShiny: Boolean(newEntry.is_shiny),
+    };
+  }
+
+  const storedStar = Number(existing.star_level) || 1;
+  const storedDupes = Number(existing.dupes_collected) || 0;
+
+  if (storedStar >= MAX_STAR_LEVEL) {
+    return {
+      isNew: false,
+      entry: existing,
+      starUpgraded: false,
+      becameShiny: false,
+      maxedOut: true,
+    };
+  }
+
+  let nextStar;
+  let nextDupes;
+  let nextShiny;
+
+  if (target.baseKnown) {
+    nextStar = Math.max(storedStar, targetStar);
+    nextDupes = Math.max(storedDupes, targetDupes);
+    nextShiny = Boolean(existing.is_shiny) || targetShiny || nextStar >= SHINY_STAR_LEVEL;
+  } else {
+    const pulls = Math.max(1, Math.floor(Number(target.pulls) || 1));
+    nextDupes = Math.min(MAX_STAR_LEVEL - 1, storedDupes + pulls);
+    nextStar = starLevelFromDupes(nextDupes, storedStar);
+    nextShiny = Boolean(existing.is_shiny) || nextStar >= SHINY_STAR_LEVEL;
+  }
+
+  if (
+    nextStar === storedStar
+    && nextDupes === storedDupes
+    && nextShiny === Boolean(existing.is_shiny)
+  ) {
+    return {
+      isNew: false,
+      entry: existing,
+      starUpgraded: false,
+      becameShiny: false,
+    };
+  }
+
+  const updatedEntry = existing.id != null
+    ? await updateCollectionEntry(existing.id, {
+        star_level: nextStar,
+        dupes_collected: nextDupes,
+        is_shiny: nextShiny,
+      })
+    : await insertCollectionEntry({
+        user_id: userId,
+        pokemon_id: pokemonId,
+        star_level: nextStar,
+        dupes_collected: nextDupes,
+        is_shiny: nextShiny,
+      });
+
+  await deleteExtraCollectionRows(normalRowIds.filter((id) => id !== existing.id));
+
+  return {
+    isNew: false,
+    entry: updatedEntry,
+    starUpgraded: nextStar > storedStar,
+    becameShiny: !existing.is_shiny && nextShiny,
   };
 }
 
@@ -380,6 +533,11 @@ export async function resetNormalCollection(userId) {
     const raw = localStorage.getItem(key);
     const deletedCount = raw ? JSON.parse(raw).length : 0;
     localStorage.removeItem(key);
+    const cached = readCollectionCache(userId) || [];
+    writeCollectionCache(
+      userId,
+      cached.filter((row) => row.is_power_card || row.is_ancient_card)
+    );
     return { success: true, deletedCount };
   }
 
@@ -395,6 +553,12 @@ export async function resetNormalCollection(userId) {
     console.error('Error resetting normal collection:', error.message);
     throw error;
   }
+
+  const cached = readCollectionCache(userId) || [];
+  writeCollectionCache(
+    userId,
+    cached.filter((row) => row.is_power_card || row.is_ancient_card)
+  );
 
   return { success: true, deletedCount: Array.isArray(data) ? data.length : 0 };
 }
