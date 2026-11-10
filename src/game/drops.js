@@ -68,13 +68,19 @@ export function rollArcadeCards(userCollection = [], customList = null, count = 
   };
 
   // 3-card arcade rewards always include one lowest-tier card: an undiscovered
-  // card when any remain, otherwise a card at the lowest owned star level.
+  // card when any remain, otherwise a non-maxed card at the lowest owned star
+  // level. Skipped entirely when no card can still gain progress.
   if (safeCount === 3) {
     const undiscovered = list.filter((pokemon) => !ownedStars.has(Number(pokemon.id)));
     let pool = undiscovered;
     if (pool.length === 0) {
-      const lowestStar = Math.min(...list.map((pokemon) => ownedStars.get(Number(pokemon.id)) ?? 1));
-      pool = list.filter((pokemon) => (ownedStars.get(Number(pokemon.id)) ?? 1) === lowestStar);
+      const eligible = list.filter((pokemon) => !maxedIds.has(Number(pokemon.id)));
+      let lowestStar = MAX_STAR_LEVEL;
+      for (const pokemon of eligible) {
+        const star = ownedStars.get(Number(pokemon.id)) ?? 1;
+        if (star < lowestStar) lowestStar = star;
+      }
+      pool = eligible.filter((pokemon) => (ownedStars.get(Number(pokemon.id)) ?? 1) === lowestStar);
     }
     if (pool.length > 0) {
       const pokemon = pool[Math.floor(Math.random() * pool.length)];
