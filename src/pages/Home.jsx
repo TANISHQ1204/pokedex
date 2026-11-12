@@ -79,8 +79,6 @@ export default function Home() {
         const data = await getUserCollection(user.id);
         const map = new Map();
         data.forEach((entry) => {
-          // Pokedex Completion reflects ONLY normal card ownership. Power Cards and
-          // Ancient Cards are independent trophy records and never count toward it.
           if (isNormalRecord(entry)) {
             map.set(Number(entry.pokemon_id), entry);
           }
@@ -211,7 +209,6 @@ export default function Home() {
       cards.push({
         pkmn,
         pull,
-        cardType: pull.card_type || 'normal',
         entry: collectionMap.get(id) || null,
       });
     });
@@ -379,19 +376,17 @@ export default function Home() {
             </div>
           ) : (
             <div className="showcase-grid home-showcase-grid">
-              {showcaseCards.map(({ pkmn, pull, cardType, entry }) => {
+              {showcaseCards.map(({ pkmn, pull, entry }) => {
                 const starLevel = entry?.star_level || Number(pull.star_level) || 0;
                 const isShiny = Boolean((entry?.is_shiny) || pull.is_shiny) || starLevel >= SHINY_STAR_LEVEL;
-                const isSpecial = cardType === 'power' || cardType === 'ancient';
-                const typeLabel = cardType === 'power' ? '⚡ Power' : cardType === 'ancient' ? '🏛️ Ancient' : 'Normal';
-                const tierClass = !isSpecial && starLevel > 0 ? starTierClass(starLevel) : '';
+                const tierClass = starLevel > 0 ? starTierClass(starLevel) : '';
 
                 return (
                   <button
                     key={pkmn.id}
                     type="button"
-                    className={`showcase-card ${cardType === 'power' ? 'showcase-power' : cardType === 'ancient' ? 'showcase-ancient' : ''} ${tierClass}`.trim()}
-                    onClick={() => setSelectedShowcase({ pkmn, cardType, entry })}
+                    className={`showcase-card ${tierClass}`.trim()}
+                    onClick={() => setSelectedShowcase({ pkmn, entry })}
                   >
                     <div className="card-top-id">#{String(pkmn.id).padStart(4, '0')}</div>
                     <div className="showcase-card-image">
@@ -404,10 +399,10 @@ export default function Home() {
                     </div>
                     <div className="showcase-card-info">
                       <div className="card-name">{formatTitle(pkmn.name)}</div>
-                      <div className="showcase-card-type" style={{ background: isSpecial ? 'rgba(236,72,153,0.15)' : 'rgba(56,189,248,0.12)', color: isSpecial ? '#ec4899' : '#38bdf8' }}>
-                        {typeLabel}
+                      <div className="showcase-card-type" style={{ background: 'rgba(56,189,248,0.12)', color: '#38bdf8' }}>
+                        Normal
                       </div>
-                      {starLevel > 0 && !isSpecial && (
+                      {starLevel > 0 && (
                         <StarMeter starLevel={starLevel} size="compact" showCount={false} />
                       )}
                       <div className="showcase-obtained">{formatTimeAgo(pull.created_at)}</div>
@@ -503,7 +498,6 @@ export default function Home() {
       <PokemonDetailModal
         pokemon={selectedShowcase.pkmn}
         entry={selectedShowcase.entry}
-        cardType={selectedShowcase.cardType}
         onClose={() => setSelectedShowcase(null)}
       />
     )}

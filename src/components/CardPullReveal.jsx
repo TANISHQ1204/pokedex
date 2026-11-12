@@ -1,6 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import PowerCard from './PowerCard';
-import AncientCard from './AncientCard';
 import PokemonDetailModal from './PokemonDetailModal';
 import StarMeter from './StarMeter';
 import { glowBaseFor } from '../utils/glow';
@@ -33,16 +31,11 @@ export default function CardPullReveal({
 
   useDialogFocus(revealRef);
 
-  const dropType = awardedDrop?.dropType || 'normal';
   const pokemon = awardedDrop?.pokemon;
   const entry = awardedDrop?.entry || {};
   const isNew = Boolean(awardedDrop?.isNew);
   const becameShiny = Boolean(awardedDrop?.becameShiny);
   const starUpgraded = Boolean(awardedDrop?.starUpgraded);
-
-  const isPowerCard = dropType === 'power';
-  const isAncientCard = dropType === 'ancient';
-  const isSpecial = isPowerCard || isAncientCard;
 
   const starLevel = Math.max(1, Math.min(MAX_STAR_LEVEL, entry.star_level || 1));
   const dupesCount = entry.dupes_collected || 0;
@@ -75,13 +68,13 @@ export default function CardPullReveal({
     }, 1900);
 
     let starTimer;
-    if (starUpgraded && !becameShiny && !isSpecial) {
+    if (starUpgraded && !becameShiny) {
       starTimer = setTimeout(() => setIsStarBursting(true), 2200);
     }
 
     let shinyTimer1;
     let shinyTimer2;
-    if (becameShiny && !isSpecial) {
+    if (becameShiny) {
       shinyTimer1 = setTimeout(() => setIsShinyTransforming(true), 2500);
       shinyTimer2 = setTimeout(() => {
         setDisplayedSprite(pokemon.sprites.shiny);
@@ -100,7 +93,7 @@ export default function CardPullReveal({
       if (shinyTimer1) clearTimeout(shinyTimer1);
       if (shinyTimer2) clearTimeout(shinyTimer2);
     };
-  }, [pokemon, becameShiny, starUpgraded, entry.is_shiny, isSpecial]);
+  }, [pokemon, becameShiny, starUpgraded, entry.is_shiny]);
 
   useEffect(() => {
     if (stage !== 'revealed' || showInfo) return undefined;
@@ -115,7 +108,7 @@ export default function CardPullReveal({
   if (!pokemon) return null;
 
   let flashClass = 'flash-dupe';
-  if (isSpecial || becameShiny || isShinyUnlocked) {
+  if (becameShiny || isShinyUnlocked) {
     flashClass = 'flash-shiny';
   } else if (isNew) {
     flashClass = 'flash-new';
@@ -138,13 +131,7 @@ export default function CardPullReveal({
 
   let badgeText = '';
   let badgeVariant = '';
-  if (isPowerCard) {
-    badgeText = 'Ultra rare Power card unlocked';
-    badgeVariant = 'is-power';
-  } else if (isAncientCard) {
-    badgeText = 'Ancient relic card unlocked';
-    badgeVariant = 'is-ancient';
-  } else if (becameShiny || isShinyUnlocked) {
+  if (becameShiny || isShinyUnlocked) {
     badgeText = 'Maxed - shiny unlocked';
     badgeVariant = 'is-shiny';
   } else if (isNew) {
@@ -157,11 +144,7 @@ export default function CardPullReveal({
 
   let titleText = '';
   if (stage === 'anticipating') {
-    titleText = isPowerCard ? 'Power card incoming' : isAncientCard ? 'Ancient card incoming' : 'Card pull unlocked';
-  } else if (isPowerCard) {
-    titleText = 'Power card unlocked';
-  } else if (isAncientCard) {
-    titleText = 'Ancient card unlocked';
+    titleText = 'Card pull unlocked';
   } else if (isShinyUnlocked || isShinyTransforming) {
     titleText = 'Shiny card unlocked';
   } else if (starUpgraded) {
@@ -170,13 +153,7 @@ export default function CardPullReveal({
     titleText = 'Card revealed';
   }
 
-  const titleVariant = isPowerCard
-    ? 'is-power'
-    : isAncientCard
-    ? 'is-ancient'
-    : isShinyUnlocked || isShinyTransforming
-    ? 'is-shiny'
-    : 'is-standard';
+  const titleVariant = isShinyUnlocked || isShinyTransforming ? 'is-shiny' : 'is-standard';
 
   const handleCardKeyDown = (event) => {
     if (stage !== 'revealed') return;
@@ -202,31 +179,14 @@ export default function CardPullReveal({
           {titleText}
         </h2>
 
-        {isSpecial ? (
-          <div className={`card-reveal-special ${stage === 'anticipating' ? 'is-anticipating' : ''}`}>
-            {isPowerCard ? (
-              <PowerCard
-                pokemon={pokemon}
-                enableTilt={stage === 'revealed'}
-                onClick={stage === 'revealed' ? () => setShowInfo(true) : null}
-              />
-            ) : (
-              <AncientCard
-                pokemon={pokemon}
-                enableTilt={stage === 'revealed'}
-                onClick={stage === 'revealed' ? () => setShowInfo(true) : null}
-              />
-            )}
-          </div>
-        ) : (
-          <div
-            className={`card-3d-wrapper ${stage === 'revealed' ? 'is-openable' : ''}`}
-            onClick={stage === 'revealed' ? () => setShowInfo(true) : undefined}
-            onKeyDown={handleCardKeyDown}
-            role={stage === 'revealed' ? 'button' : undefined}
-            tabIndex={stage === 'revealed' ? 0 : undefined}
-            aria-label={stage === 'revealed' ? `Open details for ${formatTitle(pokemon.name)}` : undefined}
-          >
+        <div
+          className={`card-3d-wrapper ${stage === 'revealed' ? 'is-openable' : ''}`}
+          onClick={stage === 'revealed' ? () => setShowInfo(true) : undefined}
+          onKeyDown={handleCardKeyDown}
+          role={stage === 'revealed' ? 'button' : undefined}
+          tabIndex={stage === 'revealed' ? 0 : undefined}
+          aria-label={stage === 'revealed' ? `Open details for ${formatTitle(pokemon.name)}` : undefined}
+        >
             <div className={`card-3d-body ${stage === 'anticipating' ? 'anticipating' : ''} ${
               stage === 'revealed' || stage === 'flipping' ? 'flipped' : ''
             }`}>
@@ -278,8 +238,7 @@ export default function CardPullReveal({
                 </div>
               </div>
             </div>
-          </div>
-        )}
+        </div>
 
         <div className="card-reveal-details">
           {stage === 'revealed' && (
@@ -290,7 +249,7 @@ export default function CardPullReveal({
                 </div>
               )}
 
-              {unlockedMove && !isSpecial && (
+              {unlockedMove && (
                 <div className={`move-unlock-chip card-reveal-move type-${unlockedMove.type || 'normal'}`}>
                   <span className="card-reveal-move-label">New move unlocked</span>
                   <strong>{unlockedMove.name}</strong>
@@ -309,11 +268,7 @@ export default function CardPullReveal({
 
               <div className="card-reveal-meta">
                 <strong>{formatTitle(pokemon.name)}</strong>
-                {!isSpecial && (
-                  <span>Total duplicates collected: <strong>{dupesCount}</strong></span>
-                )}
-                {isPowerCard && <span className="is-power">Power card - single copy collectible</span>}
-                {isAncientCard && <span className="is-ancient">Ancient card - single copy collectible</span>}
+                <span>Total duplicates collected: <strong>{dupesCount}</strong></span>
               </div>
 
               <div className="card-reveal-actions">
@@ -334,7 +289,6 @@ export default function CardPullReveal({
           <PokemonDetailModal
             pokemon={pokemon}
             entry={awardedDrop?.entry || null}
-            cardType={dropType}
             onClose={() => setShowInfo(false)}
           />
         )}

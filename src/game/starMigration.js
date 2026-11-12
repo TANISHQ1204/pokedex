@@ -15,14 +15,13 @@ const LEGACY_MAX_DUPES = 18;
  * - Duplicate count is raised to the minimum implied by the stored star level.
  * - Star level is recalculated as min(20, 1 + dupes), never below the stored level.
  * - Existing shiny status is preserved; shiny is also granted at 20 stars.
- * - Power/Ancient rows are returned as null because they are independent cards.
  *
  * @param {Object} row - Collection row from Supabase
  * @param {string} updatedAt - Timestamp for changed rows
  * @returns {Object|null} Partial row to write, or null when already correct
  */
 export function migrateNormalCardRow(row, updatedAt = new Date().toISOString()) {
-  if (!row || row.is_power_card || row.is_ancient_card) return null;
+  if (!row) return null;
 
   const storedStar = Math.max(1, Number(row.star_level) || 1);
   const storedDupes = Math.max(0, Number(row.dupes_collected) || 0);
@@ -65,7 +64,7 @@ export function summarizeStarMigration(rows = []) {
   let shinyUnlocked = 0;
 
   rows.forEach((row) => {
-    if (!row || row.is_power_card || row.is_ancient_card) return;
+    if (!row) return;
     normal += 1;
     const change = migrateNormalCardRow(row);
     if (!change) return;

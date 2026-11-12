@@ -16,23 +16,14 @@ export function badgeRequiresMastery(badge) {
   return !MASTERY_EXEMPT_FAMILIES.has(getBadgeFamily(badge));
 }
 
-/**
- * Normalizes the player collection into a Map of pokemon_id -> normal record.
- * Excludes Power/Ancient (independent trophy records).
- */
+/** Normalizes the player collection into a Map of pokemon_id -> record. */
 function normalizeMap(playerCollection) {
   if (!playerCollection) return new Map();
 
   const map = new Map();
   if (playerCollection instanceof Map) {
     playerCollection.forEach((entry, key) => {
-      if (
-        entry &&
-        !entry.is_power_card &&
-        !entry.isPowerCard &&
-        !entry.is_ancient_card &&
-        !entry.isAncientCard
-      ) {
+      if (entry) {
         const id = Number(entry.pokemon_id ?? key);
         if (Number.isFinite(id)) map.set(id, entry);
       }
@@ -42,15 +33,7 @@ function normalizeMap(playerCollection) {
 
   if (Array.isArray(playerCollection)) {
     playerCollection.forEach((entry) => {
-      if (
-        entry &&
-        entry.pokemon_id != null &&
-        !entry.is_power_card &&
-        !entry.isPowerCard &&
-        !entry.is_ancient_card &&
-        !entry.isAncientCard &&
-        !map.has(Number(entry.pokemon_id))
-      ) {
+      if (entry && entry.pokemon_id != null && !map.has(Number(entry.pokemon_id))) {
         map.set(Number(entry.pokemon_id), entry);
       }
     });
@@ -62,7 +45,7 @@ function normalizeMap(playerCollection) {
  * Calculates badge status (earned / locked) for a badge object.
  *
  * Milestone badges use { criteria: 'ownedCount' | 'shinyCount' | 'maxedCount',
- * threshold } and only count normal (non-Power, non-Ancient) records.
+ * threshold } and count owned card records.
  *
  * Regional Champion badges stay ownership-based: 100% of the set owned.
  *

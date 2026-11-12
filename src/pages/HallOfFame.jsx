@@ -532,7 +532,6 @@ export default function HallOfFame() {
         <PokemonDetailModal
           pokemon={selectedPokemon.pokemon}
           entry={selectedPokemon.entry}
-          cardType="normal"
           onClose={() => setSelectedPokemon(null)}
         />
       )}

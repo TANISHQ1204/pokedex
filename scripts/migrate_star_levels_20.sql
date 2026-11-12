@@ -1,6 +1,6 @@
 -- ONE-TIME MIGRATION: legacy star data -> 20-star card system.
 -- Run in Supabase Dashboard > SQL Editor (bypasses RLS).
--- Safe to re-run. Power Cards and Ancient Cards are untouched.
+-- Safe to re-run.
 --
 -- Rules:
 --   star_level = min(20, 1 + dupes_collected)
@@ -15,8 +15,6 @@ with source as (
     greatest(coalesce(dupes_collected, 0), 0) as old_dupes,
     coalesce(is_shiny, false) as old_shiny
   from collections
-  where coalesce(is_power_card, false) = false
-    and coalesce(is_ancient_card, false) = false
 ),
 calculated as (
   select
@@ -55,11 +53,9 @@ where c.id = f.id
     or coalesce(c.is_shiny, false) is distinct from (f.old_shiny or f.new_star >= 20)
   );
 
--- Verification: every normal row should now satisfy the formula or be maxed.
+-- Verification: every row should now satisfy the formula or be maxed.
 -- select id, pokemon_id, star_level, dupes_collected, is_shiny
 -- from collections
--- where coalesce(is_power_card, false) = false
---   and coalesce(is_ancient_card, false) = false
---   and star_level < least(20, 1 + dupes_collected)
+-- where star_level < least(20, 1 + dupes_collected)
 -- order by id
 -- limit 20;

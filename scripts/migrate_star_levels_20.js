@@ -8,7 +8,6 @@
  * No card ever loses progress:
  *   - Duplicate counts are raised to at least star_level - 1.
  *   - Stored star levels are preserved and only upgraded.
- *   - Power/Ancient cards are untouched.
  *
  * Usage:
  *   node scripts/migrate_star_levels_20.js               <- audit only (read-only)
@@ -67,7 +66,7 @@ async function fetchAllRows() {
   while (true) {
     const { data, error } = await supabase
       .from('collections')
-      .select('id, user_id, pokemon_id, dupes_collected, star_level, is_shiny, is_power_card, is_ancient_card')
+      .select('id, user_id, pokemon_id, dupes_collected, star_level, is_shiny')
       .range(from, from + PAGE - 1)
       .order('id', { ascending: true });
 

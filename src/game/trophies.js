@@ -2,9 +2,7 @@ import { MAX_STAR_LEVEL } from './cardLevels.js';
 
 /**
  * Helper to normalize playerCollection parameter into a Map of pokemon_id -> entry object.
- * ONLY standard (normal) card records are counted — Power Cards and Ancient Cards are
- * independent trophy records that must never contribute to normal-card collection progress.
- * Duplicate rows for the same pokemon_id collapse to the FIRST normal row.
+ * Duplicate rows for the same pokemon_id collapse to the FIRST row.
  */
 function normalizeCollectionMap(playerCollection) {
   if (!playerCollection) return new Map();
@@ -12,13 +10,7 @@ function normalizeCollectionMap(playerCollection) {
   const map = new Map();
   if (playerCollection instanceof Map) {
     playerCollection.forEach((entry, key) => {
-      if (
-        entry &&
-        !entry.is_power_card &&
-        !entry.isPowerCard &&
-        !entry.is_ancient_card &&
-        !entry.isAncientCard
-      ) {
+      if (entry) {
         const id = Number(entry.pokemon_id ?? key);
         if (Number.isFinite(id)) map.set(id, entry);
       }
@@ -28,15 +20,7 @@ function normalizeCollectionMap(playerCollection) {
 
   if (Array.isArray(playerCollection)) {
     playerCollection.forEach((entry) => {
-      if (
-        entry &&
-        entry.pokemon_id != null &&
-        !entry.is_power_card &&
-        !entry.isPowerCard &&
-        !entry.is_ancient_card &&
-        !entry.isAncientCard &&
-        !map.has(Number(entry.pokemon_id))
-      ) {
+      if (entry && entry.pokemon_id != null && !map.has(Number(entry.pokemon_id))) {
         map.set(Number(entry.pokemon_id), entry);
       }
     });

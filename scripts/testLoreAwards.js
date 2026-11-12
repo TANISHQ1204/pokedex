@@ -91,12 +91,6 @@ const maxedCards = Array.from({ length: maxedMilestone.threshold }, (_, index) =
 }));
 check(getBadgeStatus(maxedMilestone, maxedCards).isUnlocked, 'Max-star milestone unlocks at threshold');
 
-const powerCards = Array.from({ length: maxedMilestone.threshold }, (_, index) => ({
-  pokemon_id: index + 1,
-  star_level: MAX_STAR_LEVEL,
-  is_power_card: true,
-}));
-check(!getBadgeStatus(maxedMilestone, powerCards).isUnlocked, 'Power cards never advance milestones');
 
 const sampleCollection = collections[0];
 const ownedSample = sampleCollection.pokemonIds.map((id) => ({

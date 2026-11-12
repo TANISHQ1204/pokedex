@@ -17,11 +17,10 @@
  *   }
  *
  * Card pull row shape:
- *   { id, user_id, pokemon_id, card_type: 'normal'|'power'|'ancient',
+ *   { id, user_id, pokemon_id, card_type: 'normal',
  *     star_level, is_shiny, was_new, created_at }
  */
 
-import { cardTypeOf } from './cardTypes';
 import { MAX_STAR_LEVEL } from '../game/cardLevels.js';
 
 const DAY_MS = 86400000;
@@ -218,16 +217,15 @@ export function mergeCollectionPulls(collection = [], pulls = []) {
   const seen = new Set();
   (pulls || []).forEach((p) => {
     if (p && p.pokemon_id != null) {
-      seen.add(`${Number(p.pokemon_id)}-${p.card_type || 'normal'}`);
+      seen.add(Number(p.pokemon_id));
     }
   });
 
   const synthesized = [];
   (collection || []).forEach((entry) => {
     if (!entry || entry.pokemon_id == null) return;
-    const type = cardTypeOf(entry);
-    const key = `${Number(entry.pokemon_id)}-${type}`;
-    if (seen.has(key)) return;
+    const pokemonId = Number(entry.pokemon_id);
+    if (seen.has(pokemonId)) return;
 
     const baseMs = rowDate(entry.updated_at || entry.created_at)?.getTime() || Date.now();
     const star = Math.max(1, Number(entry.star_level) || 1);
@@ -237,10 +235,10 @@ export function mergeCollectionPulls(collection = [], pulls = []) {
     for (let i = 0; i < total; i++) {
       const pullIndex = total - 1 - i; // 0 = the oldest pull of this card
       synthesized.push({
-        id: `backfill-${type}-${Number(entry.pokemon_id)}-${i}`,
+        id: `backfill-${pokemonId}-${i}`,
         user_id: entry.user_id,
-        pokemon_id: Number(entry.pokemon_id),
-        card_type: type,
+        pokemon_id: pokemonId,
+        card_type: 'normal',
         star_level: Math.max(1, Math.min(MAX_STAR_LEVEL, 1 + pullIndex)),
         is_shiny: i === total - 1 ? Boolean(entry.is_shiny) : false,
         was_new: i === 0,
@@ -262,20 +260,15 @@ export function mergeCollectionPulls(collection = [], pulls = []) {
 export function summarizeCollection(collection = []) {
   const summary = {
     normal: 0,
-    power: 0,
-    ancient: 0,
     shiny: 0,
     dupes: 0,
   };
   (collection || []).forEach((entry) => {
     if (!entry || entry.pokemon_id == null) return;
-    const type = cardTypeOf(entry);
-    if (type === 'power') summary.power += 1;
-    else if (type === 'ancient') summary.ancient += 1;
-    else summary.normal += 1;
+    summary.normal += 1;
     if (entry.is_shiny) summary.shiny += 1;
     summary.dupes += Math.max(0, Number(entry.dupes_collected) || 0);
   });
-  summary.total = summary.normal + summary.power + summary.ancient;
+  summary.total = summary.normal;
   return summary;
 }

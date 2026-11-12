@@ -84,8 +84,6 @@ export function newlyUnlockedMove(learnset = [], prevStar = 1) {
  * collection. Each species' unlocked moves = the first `unlockedMoveCount(star)`
  * entries of its ordered learnset (star is the player's card star level).
  *
- * Power/Ancient records never contribute (fully independent card types).
- *
  * @param {Array} collection - user collection records from Supabase
  * @param {Object} learnsets - src/data/learnsets.json (keyed by pokemon id)
  * @returns {Map<number, Array>}
@@ -94,7 +92,7 @@ export function buildUnlockPool(collection = [], learnsets = {}) {
   const map = new Map();
   if (!Array.isArray(collection)) return map;
   collection.forEach((entry) => {
-    if (!entry || entry.pokemon_id == null || entry.is_power_card || entry.is_ancient_card) return;
+    if (!entry || entry.pokemon_id == null) return;
     const id = Number(entry.pokemon_id);
     const learnset = (learnsets || {})[id] || (learnsets || {})[String(id)];
     if (!Array.isArray(learnset) || learnset.length === 0) return;

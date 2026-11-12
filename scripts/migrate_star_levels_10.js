@@ -15,7 +15,6 @@
  *     map to an equal-or-lower level under the new formula). As a safety net the
  *     new star is never computed below the stored value — upgrades only happen
  *     when the new formula yields a higher star.
- *   • Power/Ancient records are untouched (fully independent card types).
  *
  * Usage:
  *   node scripts/migrate_star_levels_10.js          <- audit only (read-only)
@@ -83,8 +82,6 @@ function formulaStar(dupes, storedStar) {
 }
 
 function migratedRow(row) {
-  if (row.is_power_card || row.is_ancient_card) return null;
-
   // Old max tier → new max tier, always shiny at max.
   if (Number(row.star_level) === OLD_MAX_STAR) {
     return {
@@ -120,7 +117,7 @@ async function fetchAllRows() {
   while (true) {
     const { data, error } = await supabase
       .from('collections')
-      .select('id, user_id, pokemon_id, dupes_collected, star_level, is_shiny, is_power_card, is_ancient_card')
+      .select('id, user_id, pokemon_id, dupes_collected, star_level, is_shiny')
       .range(from, from + PAGE - 1)
       .order('id', { ascending: true });
     if (error) {
@@ -147,7 +144,7 @@ async function audit() {
   const maxed = changes.filter((r) => r.star_level === MAX_STAR_LEVEL && Number.isFinite(r.star_level));
   const others = changes.filter((r) => r.star_level !== MAX_STAR_LEVEL);
 
-  console.log(`Normal (non-special) rows: ${rows.length - rows.filter((r) => r.is_power_card || r.is_ancient_card).length}`);
+  console.log(`Rows: ${rows.length}`);
   console.log(`Rows to upgrade 5★ → 10★ (+shiny): ${maxed.length}`);
   console.log(`Rows to touch otherwise (formula upgrade/shiny): ${others.length}`);
 

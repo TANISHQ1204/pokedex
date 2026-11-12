@@ -1,4 +1,4 @@
-const CACHE_PREFIX = 'pokedex_collection_cache_v1';
+const CACHE_PREFIX = 'pokedex_collection_cache_v2';
 
 function cacheKey(userId) {
   return `${CACHE_PREFIX}_${userId || 'preview'}`;
@@ -32,11 +32,6 @@ export function writeCollectionCache(userId, rows) {
   }
 }
 
-function sameCardType(a, b) {
-  return Boolean(a?.is_power_card) === Boolean(b?.is_power_card)
-    && Boolean(a?.is_ancient_card) === Boolean(b?.is_ancient_card);
-}
-
 export function upsertRowsEntry(rows, entry) {
   if (!entry || entry.pokemon_id == null) return Array.isArray(rows) ? rows : [];
 
@@ -45,7 +40,7 @@ export function upsertRowsEntry(rows, entry) {
   let replaced = false;
 
   const next = source.map((row) => {
-    if (!row || Number(row.pokemon_id) !== id || !sameCardType(row, entry)) return row;
+    if (!row || Number(row.pokemon_id) !== id) return row;
     replaced = true;
     return { ...row, ...entry };
   });

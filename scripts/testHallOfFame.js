@@ -28,14 +28,10 @@ const collection = [
   { pokemon_id: 25, star_level: MAX_STAR_LEVEL, updated_at: '2026-01-01T00:00:00.000Z' },
   { pokemon_id: 10001, star_level: MAX_STAR_LEVEL, updated_at: '2027-01-01T00:00:00.000Z' },
   { pokemon_id: 6, star_level: MAX_STAR_LEVEL - 1, updated_at: '2027-02-01T00:00:00.000Z' },
-  { pokemon_id: 7, star_level: MAX_STAR_LEVEL, is_power_card: true, updated_at: '2027-03-01T00:00:00.000Z' },
-  { pokemon_id: 8, star_level: MAX_STAR_LEVEL, is_ancient_card: true, updated_at: '2027-04-01T00:00:00.000Z' },
 ];
 
-check(isHallInductee({ star_level: MAX_STAR_LEVEL }), '20-star normal card is eligible');
+check(isHallInductee({ star_level: MAX_STAR_LEVEL }), '20-star card is eligible');
 check(!isHallInductee({ star_level: MAX_STAR_LEVEL - 1 }), '19-star card is not eligible');
-check(!isHallInductee({ star_level: MAX_STAR_LEVEL, is_power_card: true }), 'Power card is excluded');
-check(!isHallInductee({ star_level: MAX_STAR_LEVEL, is_ancient_card: true }), 'Ancient card is excluded');
 
 const hall = buildHallOfFame({ collection });
 

@@ -489,7 +489,6 @@ export default function Badges() {
         <PokemonDetailModal
           pokemon={selectedPokemon}
           entry={collectionMap.get(selectedPokemon.id) || null}
-          cardType="normal"
           onClose={() => setSelectedPokemon(null)}
         />
       )}

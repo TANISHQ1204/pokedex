@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { getUserCollection } from '../store/collection';
 import { fullPokemonList, displayName, isAltForm } from '../utils/pokemonCatalog.js';
@@ -91,16 +91,13 @@ export default function Collection() {
       setIsLoading(true);
       setLoadError('');
       const data = await getUserCollection(user.id);
-      const normalMap = new Map();
+      const nextMap = new Map();
 
       data.forEach((entry) => {
-        const pId = Number(entry.pokemon_id);
-        if (!entry.is_power_card && !entry.is_ancient_card) {
-          normalMap.set(pId, entry);
-        }
+        nextMap.set(Number(entry.pokemon_id), entry);
       });
 
-      setCollectionMap(normalMap);
+      setCollectionMap(nextMap);
     } catch (err) {
       console.error('Failed to load collection:', err.message);
       setLoadError('We could not load your collection. Check your connection and try again.');
@@ -486,7 +483,6 @@ export default function Collection() {
         <PokemonDetailModal
           pokemon={selectedPokemon}
           entry={collectionMap.get(selectedPokemon.id) || null}
-          cardType="normal"
           onClose={() => setSelectedPokemon(null)}
         />
       )}

@@ -57,12 +57,6 @@ const RESULT_LABEL = {
   draw: 'Draw',
 };
 
-const PULL_TYPE_LABEL = {
-  normal: 'Normal',
-  power: 'Power',
-  ancient: 'Ancient',
-};
-
 export default function Stats() {
   const { user } = useAuth();
   const [history, setHistory] = useState([]);
@@ -231,7 +225,7 @@ export default function Stats() {
             <section className="ui-panel ui-info-panel">
               <strong>Showing card history from before tracking existed</strong>
               <p>
-                {collectionSummary.total} cards owned ({collectionSummary.normal} normal, {collectionSummary.power} power, {collectionSummary.ancient} ancient)
+                {collectionSummary.total} cards owned ({collectionSummary.normal} normal)
                 {collectionSummary.shiny > 0 ? `, ${collectionSummary.shiny} shiny` : ''}
                 {collectionSummary.dupes > 0 ? `, ${collectionSummary.dupes} duplicates` : ''}.
                 These were backfilled from your collection. Battle records only include fights after analytics were introduced.
@@ -395,9 +389,7 @@ export default function Stats() {
                         </span>
                         <div className="stats-pull-copy">
                           <strong>{pkmn ? formatTitle(pkmn.name) : 'Unknown'}</strong>
-                          <span className={`stats-pull-type is-${pull.card_type || 'normal'}`}>
-                            {PULL_TYPE_LABEL[pull.card_type] || 'Normal'}
-                          </span>
+                          <span className="stats-pull-type is-normal">Normal</span>
                           <small>
                             {pull.was_new ? 'New' : `${Math.max(1, Number(pull.star_level) || 1)} star`}
                             {pull.is_shiny ? ' - Shiny' : ''}

@@ -29,7 +29,7 @@ export function rollBattleDrop(userCollection = [], customList = null) {
 function rollNormalCard(userCollection, list) {
   const maxedIds = new Set(
     userCollection
-      .filter((r) => r && !r.is_power_card && !r.isPowerCard && !r.is_ancient_card && !r.isAncientCard && r.star_level >= MAX_STAR_LEVEL)
+      .filter((r) => r && r.star_level >= MAX_STAR_LEVEL)
       .map((r) => Number(r.pokemon_id))
   );
 
@@ -43,14 +43,12 @@ export function rollArcadeCards(userCollection = [], customList = null, count = 
   const list = customList && Array.isArray(customList) && customList.length > 0 ? customList : defaultPokemonList;
   const safeCount = Math.max(1, Math.min(3, Math.floor(Number(count) || 1)));
   const random = typeof rng === 'function' ? rng : Math.random;
-  const normalRecords = userCollection.filter(
-    (r) => r && !r.is_power_card && !r.isPowerCard && !r.is_ancient_card && !r.isAncientCard
-  );
+  const records = userCollection.filter(Boolean);
   const maxedIds = new Set(
-    normalRecords.filter((r) => r.star_level >= MAX_STAR_LEVEL).map((r) => Number(r.pokemon_id))
+    records.filter((r) => r.star_level >= MAX_STAR_LEVEL).map((r) => Number(r.pokemon_id))
   );
   const ownedStars = new Map(
-    normalRecords.map((r) => [
+    records.map((r) => [
       Number(r.pokemon_id),
       Math.max(1, Math.min(MAX_STAR_LEVEL, Number(r.star_level) || 1)),
     ])

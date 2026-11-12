@@ -126,7 +126,6 @@ function normalizeCollection(collection) {
   if (collection instanceof Map) {
     collection.forEach((entry, key) => {
       if (!entry) return;
-      if (entry.is_power_card || entry.isPowerCard || entry.is_ancient_card || entry.isAncientCard) return;
       const id = Number(entry.pokemon_id ?? key);
       if (Number.isFinite(id)) map.set(id, entry);
     });
@@ -136,7 +135,6 @@ function normalizeCollection(collection) {
   if (Array.isArray(collection)) {
     collection.forEach((entry) => {
       if (!entry || entry.pokemon_id == null) return;
-      if (entry.is_power_card || entry.isPowerCard || entry.is_ancient_card || entry.isAncientCard) return;
       const id = Number(entry.pokemon_id);
       if (Number.isFinite(id) && !map.has(id)) map.set(id, entry);
     });
@@ -171,7 +169,6 @@ function categoryRank(category) {
 
 export function isHallInductee(entry) {
   if (!entry) return false;
-  if (entry.is_power_card || entry.isPowerCard || entry.is_ancient_card || entry.isAncientCard) return false;
   return Number(entry.star_level) >= MAX_STAR_LEVEL;
 }
 

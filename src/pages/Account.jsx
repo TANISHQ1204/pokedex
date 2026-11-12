@@ -45,7 +45,7 @@ export default function Account() {
       const result = await resetNormalCollection(user.id);
       setFeedback({
         type: 'success',
-        text: `Collection reset complete. ${result.deletedCount} card(s) cleared. Your Power/Ancient cards, friends, battles, and stats were not touched.`,
+        text: `Collection reset complete. ${result.deletedCount} card(s) cleared. Friends, battles, and stats were not touched.`,
       });
       setConfirmOpen(false);
       setConfirmInput('');
@@ -170,14 +170,13 @@ export default function Account() {
         <div style={{ marginBottom: '1rem' }}>
           <h2 style={{ margin: '0 0 0.25rem 0', color: '#fca5a5', fontSize: '1.05rem' }}>Danger Zone</h2>
           <p style={{ margin: 0, color: '#94a3b8', fontSize: '0.85rem' }}>
-            Reset your normal card collection back to zero. Power Cards, Ancient Cards, friends, battle stats, and your
-            username are NOT affected.
+            Reset your card collection back to zero. Friends, battle stats, and your username are NOT affected.
           </p>
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
           <span style={{ fontSize: '0.8rem', color: '#fca5a5' }}>
-            ⚠️ Irreversible — all star levels &amp; dupes for normal cards will be lost.
+            ⚠️ Irreversible — all star levels &amp; dupes will be lost.
           </span>
           <button
             onClick={openConfirm}
@@ -234,11 +233,11 @@ export default function Account() {
             <div style={{ color: '#f8fafc', fontSize: '0.95rem', lineHeight: 1.6, marginTop: '0.75rem' }}>
               <p style={{ margin: '0 0 0.75rem 0' }}>
                 This will <strong style={{ color: '#f87171' }}>permanently reset your entire card collection</strong>. All star
-                levels and duplicate counts for your normal cards will return to zero, and owned shiny unlocks will be lost.
+                levels and duplicate counts will return to zero, and owned shiny unlocks will be lost.
               </p>
               <p style={{ margin: '0 0 0.75rem 0' }}>This cannot be undone.</p>
               <p style={{ margin: '0 0 0.75rem 0', color: '#94a3b8', fontSize: '0.85rem' }}>
-                Not affected: Power Cards, Ancient Cards, friends, friendships, battle history/stats, and your username.
+                Not affected: friends, friendships, battle history/stats, and your username.
               </p>
               <p style={{ margin: '0 0 0.5rem 0', color: '#f8fafc', fontSize: '0.9rem' }}>
                 Type <strong style={{ color: '#fca5a5' }}>{CONFIRM_TEXT}</strong> to confirm:

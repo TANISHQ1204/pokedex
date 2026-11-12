@@ -167,19 +167,6 @@ const oneEligibleCollection = oneEligible.map((pokemon) => ({
 const onlyEligible = rollArcadeCards(oneEligibleCollection, list, 1, seededRng(3));
 assert(onlyEligible[0]?.id === 25, 'Maxed cards are excluded while an eligible card remains');
 
-console.log('\n--- Special rows stay independent ---\n');
-
-const specialOnly = [
-  { pokemon_id: 1, star_level: MAX_STAR_LEVEL, is_power_card: true },
-  { pokemon_id: 2, star_level: MAX_STAR_LEVEL, is_ancient_card: true },
-];
-let specialOk = true;
-for (let i = 0; i < 100; i++) {
-  const cards = rollArcadeCards(specialOnly, list, 3, seededRng(i + 1));
-  if (cards.length !== 3 || new Set(cards.map((card) => Number(card.id))).size !== 3) specialOk = false;
-}
-assert(specialOk, 'Power/Ancient-only rows never break or shrink the arcade pull');
-
 if (failures > 0) {
   console.error(`\n${failures} arcade weighted test(s) failed.`);
   process.exit(1);

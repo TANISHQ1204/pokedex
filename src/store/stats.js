@@ -113,7 +113,6 @@ export async function recordBattleResult({
 export async function recordCardPull({
   userId,
   pokemonId,
-  cardType,
   starLevel = 1,
   isShiny = false,
   wasNew = false,
@@ -123,7 +122,7 @@ export async function recordCardPull({
   const payload = {
     user_id: userId,
     pokemon_id: Number(pokemonId),
-    card_type: cardType,
+    card_type: 'normal',
     star_level: Math.max(1, Number(starLevel) || 1),
     is_shiny: Boolean(isShiny),
     was_new: Boolean(wasNew),
@@ -141,7 +140,7 @@ export async function recordCardPull({
     await supabase.from('card_pulls').insert({
       user_id: userId,
       pokemon_id: payload.pokemon_id,
-      card_type: cardType,
+      card_type: 'normal',
       star_level: payload.star_level,
       is_shiny: payload.is_shiny,
       was_new: payload.was_new,

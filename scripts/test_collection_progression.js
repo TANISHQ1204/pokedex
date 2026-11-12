@@ -24,21 +24,15 @@ const duplicateRows = [
   { id: 1, pokemon_id: 25, star_level: 2, dupes_collected: 1, is_shiny: false },
   { id: 2, pokemon_id: 25, star_level: 2, dupes_collected: 1, is_shiny: true },
   { id: 3, pokemon_id: 25, star_level: 2, dupes_collected: 1, is_shiny: false },
-  { id: 4, pokemon_id: 25, star_level: 1, dupes_collected: 0, is_shiny: false, is_power_card: true },
-  { id: 5, pokemon_id: 25, star_level: 1, dupes_collected: 0, is_shiny: false, is_ancient_card: true },
 ];
 
 const merged = mergeCollectionRecords(duplicateRows);
 const normal = merged.find(isNormalRecord);
-const power = merged.find((row) => row.is_power_card);
-const ancient = merged.find((row) => row.is_ancient_card);
 
-assert(merged.length === 3, 'One normal, one power, and one ancient row remain');
-assert(normal?.star_level === 3, 'Three duplicate rows recover a 3★ normal card');
+assert(merged.length === 1, 'Duplicate rows collapse into one normal card');
+assert(normal?.star_level === 3, 'Three duplicate rows recover a 3-star card');
 assert(normal?.dupes_collected === 2, 'Recovered duplicate count matches star level');
 assert(normal?.is_shiny === true, 'Shiny is preserved from any duplicate row');
-assert(power?.id === 4, 'Power row is not merged into the normal card');
-assert(ancient?.id === 5, 'Ancient row is not merged into the normal card');
 
 console.log('\n--- Test B: a higher stored star is never downgraded ---\n');
 

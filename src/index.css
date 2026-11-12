@@ -2318,8 +2318,6 @@ body {
 .dash-pill.silver { color: #f1f5f9; border: 1px solid #94a3b8; }
 .dash-pill.bronze { color: #fed7aa; border: 1px solid #b45309; }
 .dash-pill.pull-type-normal { color: #94a3b8; border: 1px solid #64748b; }
-.dash-pill.pull-type-power { color: #f0abfc; border: 1px solid #c026d3; }
-.dash-pill.pull-type-ancient { color: #fcd34d; border: 1px solid #b45309; }
 
 .hp-orange { background: linear-gradient(90deg, #f97316, #fbbf24); }
 
@@ -2525,15 +2523,6 @@ body {
     padding: 0 1rem;
   }
 
-  /* Special cards (Power/Ancient) scale down to fit small screens */
-  .card-reveal-overlay .power-card-stage,
-  .card-reveal-overlay .ancient-card-stage,
-  .power-reveal-stage .power-card-stage,
-  .power-reveal-stage .ancient-card-stage {
-    transform: scale(0.86);
-    transform-origin: center;
-  }
-
   /* Hero Banner Mobile */
   .home-hero-card {
     padding: 1.25rem;
@@ -2664,35 +2653,6 @@ body {
     height: 95px !important;
   }
 
-  .card-reveal-overlay .power-card-stage,
-  .card-reveal-overlay .ancient-card-stage,
-  .power-reveal-stage .power-card-stage,
-  .power-reveal-stage .ancient-card-stage {
-    transform: scale(0.8);
-    transform-origin: center;
-  }
-}
-
-/* Short screens (small laptops / landscape phones) — keep the special card
-   reveal visible without clipping */
-@media (max-height: 720px) {
-  .card-reveal-overlay .power-card-stage,
-  .card-reveal-overlay .ancient-card-stage,
-  .power-reveal-stage .power-card-stage,
-  .power-reveal-stage .ancient-card-stage {
-    transform: scale(0.82);
-    transform-origin: center;
-  }
-}
-
-/* Special Collection gallery: keep 320x480 cards from overflowing narrow
-   phones by scaling the card down inside the cell */
-@media (max-width: 480px) {
-  .special-collection-cell .power-card-stage,
-  .special-collection-cell .ancient-card-stage {
-    transform: scale(0.82);
-    transform-origin: top center;
-  }
 }
 
 /* ==========================================================================
@@ -2909,24 +2869,6 @@ body {
   transform: translateY(-3px);
   border-color: #38bdf8;
   box-shadow: 0 10px 20px -8px rgba(56, 189, 248, 0.45);
-}
-
-.showcase-card.showcase-power {
-  border-color: rgba(236, 72, 153, 0.5);
-}
-
-.showcase-card.showcase-power:hover {
-  border-color: #ec4899;
-  box-shadow: 0 10px 20px -8px rgba(236, 72, 153, 0.5);
-}
-
-.showcase-card.showcase-ancient {
-  border-color: rgba(184, 154, 108, 0.5);
-}
-
-.showcase-card.showcase-ancient:hover {
-  border-color: #b89a6c;
-  box-shadow: 0 10px 20px -8px rgba(184, 154, 108, 0.5);
 }
 
 .showcase-card-image {
@@ -7942,23 +7884,6 @@ body {
   font-weight: 800;
 }
 
-.detail-special-label {
-  color: #f8fafc;
-  font-family: 'Rajdhani', sans-serif;
-  font-size: 0.9rem;
-  font-weight: 900;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.detail-special-label.is-power {
-  color: #f9a8d4;
-}
-
-.detail-special-label.is-ancient {
-  color: #d6bc8a;
-}
-
 .detail-unowned {
   color: #94a3b8;
   font-size: 0.76rem;
@@ -8388,14 +8313,6 @@ body {
   text-transform: uppercase;
 }
 
-.stats-pull-type.is-power {
-  color: #f9a8d4;
-}
-
-.stats-pull-type.is-ancient {
-  color: #d6bc8a;
-}
-
 .stats-pull-copy small,
 .stats-pull-copy time {
   overflow: hidden;
@@ -8712,29 +8629,9 @@ body {
   transition: color 0.25s ease, text-shadow 0.25s ease;
 }
 
-.card-reveal-title.is-power {
-  color: #ffd700;
-  text-shadow: 0 0 30px rgba(255, 215, 0, 0.72);
-}
-
-.card-reveal-title.is-ancient {
-  color: #d6bc8a;
-  text-shadow: 0 0 30px rgba(184, 154, 108, 0.68);
-}
-
 .card-reveal-title.is-shiny {
   color: #fef08a;
   text-shadow: 0 0 26px rgba(250, 204, 21, 0.68);
-}
-
-.card-reveal-special {
-  margin: 0.5rem 0 1.1rem;
-  transform: scale(1);
-  transition: transform 0.4s ease;
-}
-
-.card-reveal-special.is-anticipating {
-  transform: scale(0.88);
 }
 
 .card-3d-wrapper.is-openable {
@@ -8825,16 +8722,6 @@ body {
   margin-top: 0.35rem;
 }
 
-.card-reveal-badge.is-power {
-  background: linear-gradient(90deg, #db2777, #7c3aed, #ca8a04);
-  color: #ffffff;
-}
-
-.card-reveal-badge.is-ancient {
-  background: linear-gradient(90deg, #8a6a3c, #b89a6c, #ca8a04);
-  color: #1a1612;
-}
-
 .card-reveal-badge.is-shiny {
   background: linear-gradient(90deg, #b45309, #d97706, #7e22ce);
   color: #fef9c3;
@@ -8900,16 +8787,6 @@ body {
   color: #f8fafc;
   font-size: 0.94rem;
   text-transform: capitalize;
-}
-
-.card-reveal-meta .is-power {
-  color: #f9a8d4;
-  font-size: 0.7rem;
-}
-
-.card-reveal-meta .is-ancient {
-  color: #d6bc8a;
-  font-size: 0.7rem;
 }
 
 .card-reveal-actions {

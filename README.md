@@ -22,7 +22,6 @@ Repository: https://github.com/TANISHQ1204/pokedex
 - Badge, trophy, and Hall of Fame search, category filters, pagination, themed emblem designs, and completion tracking.
 - Battle history, recent pulls, win rates, and activity statistics.
 - Responsive layouts, keyboard controls, focus management, reduced-motion support, and a skip link.
-- Special Power and Ancient card data remains available behind the hidden `/special-collection` route.
 
 ## Tech Stack
 
@@ -78,15 +77,23 @@ After that, apply these migrations in the Supabase Dashboard SQL Editor:
 
 1. `scripts/migrate_star_levels_20.sql`
 
-   One-time migration from the legacy star system to the 20-star system. It is safe to re-run, preserves progress, and leaves Power/Ancient cards untouched.
+   One-time migration from the legacy star system to the 20-star system. It is safe to re-run and preserves progress.
 
 2. `scripts/create_analytics_tables.sql`
 
    Creates `battle_history` and `card_pulls`, their indexes, and owner-scoped row-level security policies. These tables begin recording activity after creation; historical battles cannot be rebuilt.
 
-3. `scripts/dedupe_collections.sql`
+3. `scripts/remove_power_ancient_cards.sql`
 
-   One-time repair for collections that accumulated duplicate rows when an upsert could not match the partial unique indexes. Run the audit query first, then the apply block. It merges duplicate normal-card rows, recovers star progress from the row count, preserves Power/Ancient rows, and recreates the partial unique indexes.
+   Archives and deletes all Power/Ancient collection rows, merges duplicate normal rows, and restores the plain unique index on `(user_id, pokemon_id)`. Run this before deploying code that stops writing the special-card columns.
+
+4. `scripts/drop_power_ancient_columns.sql`
+
+   Run after the updated app code is deployed. Archives and removes special-card pull history, drops the `is_power_card` and `is_ancient_card` columns, and enforces a normal-only `card_pulls.card_type`.
+
+5. `scripts/dedupe_collections.sql`
+
+   One-time repair for collections that accumulated duplicate rows when an upsert could not match the unique indexes. Run the audit query first, then the apply block. It merges duplicate rows, recovers star progress from the row count, and recreates the plain unique index.
 
 For authentication, enable the Google provider and/or email magic links in Supabase, and allow your local and production URLs as redirect targets.
 

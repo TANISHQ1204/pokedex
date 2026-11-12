@@ -159,9 +159,7 @@ export default function Battle() {
     try {
       const coll = await getUserCollection(user.id);
       const ownedShinyIds = new Set(
-        coll
-          .filter((r) => r && !r.is_power_card && !r.is_ancient_card && r.is_shiny)
-          .map((r) => Number(r.pokemon_id))
+        coll.filter((r) => r && r.is_shiny).map((r) => Number(r.pokemon_id))
       );
       collectionDataRef.current = {
         ownedShinyIds,
@@ -936,7 +934,6 @@ export default function Battle() {
           recordCardPull({
             userId: user.id,
             pokemonId: dropState.pokemon.id,
-            cardType: dropState.dropType,
             starLevel: dropState.entry?.star_level || 1,
             isShiny: Boolean(dropState.entry?.is_shiny),
             wasNew: Boolean(dropState.isNew),

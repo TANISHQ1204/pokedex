@@ -14,7 +14,6 @@ import Badges from './pages/Badges';
 import HallOfFame from './pages/HallOfFame';
 import Account from './pages/Account';
 import Friends from './pages/Friends';
-import SpecialCollection from './pages/SpecialCollection';
 import MatchLobby from './pages/MatchLobby';
 import JoinMatch from './pages/JoinMatch';
 import GameModes from './pages/GameModes';
@@ -191,17 +190,6 @@ export default function App() {
           element={
             <ProtectedRoute>
               <Collection />
-            </ProtectedRoute>
-          }
-        />
-        {/* HIDDEN (not removed): Special Collection UI is currently hidden from nav/home.
-            The route and all Power/Ancient card code + data remain intact and functional
-            under the hood. Re-enable by restoring the Navbar link and Home hero button. */}
-        <Route
-          path="/special-collection"
-          element={
-            <ProtectedRoute>
-              <SpecialCollection />
             </ProtectedRoute>
           }
         />

@@ -108,14 +108,6 @@ const alreadyCurrent = migrateNormalCardRow({
 });
 assert(alreadyCurrent === null, 'Already-valid rows are not rewritten on a second pass');
 
-const special = migrateNormalCardRow({
-  id: 4,
-  star_level: 10,
-  dupes_collected: 18,
-  is_power_card: true,
-});
-assert(special === null, 'Power Cards are untouched');
-
 console.log('\n--- Test E: migration is idempotent ---\n');
 const currentTen = migrateNormalCardRow({
   id: 5,

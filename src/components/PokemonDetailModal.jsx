@@ -16,12 +16,6 @@ function formatTitle(str) {
     .join(' ');
 }
 
-const CARD_TYPE_CHIP = {
-  normal: { label: 'NORMAL', color: '#7dd3fc', bg: 'rgba(56, 189, 248, 0.14)' },
-  power: { label: 'POWER', color: '#f9a8d4', bg: 'rgba(236, 72, 153, 0.18)' },
-  ancient: { label: 'ANCIENT', color: '#d6bc8a', bg: 'rgba(184, 154, 108, 0.18)' },
-};
-
 const STAT_ROWS = [
   { label: 'HP', key: 'hp', max: 250, color: '#22c55e' },
   { label: 'ATK', key: 'attack', max: 190, color: '#ef4444' },
@@ -34,12 +28,11 @@ const STAT_ROWS = [
 export default function PokemonDetailModal({
   pokemon,
   entry = null,
-  cardType = 'normal',
   onClose,
 }) {
   const isOwned = Boolean(entry);
   const starLevel = entry?.star_level || 0;
-  const isHallOfFamer = cardType === 'normal' && isHallInductee(entry);
+  const isHallOfFamer = isHallInductee(entry);
   const [previewShiny, setPreviewShiny] = useState(isOwned && (entry?.is_shiny || starLevel >= SHINY_STAR_LEVEL));
   const dialogRef = useRef(null);
 
@@ -47,13 +40,11 @@ export default function PokemonDetailModal({
 
   if (!pokemon) return null;
 
-  const chip = CARD_TYPE_CHIP[cardType] || CARD_TYPE_CHIP.normal;
   const isForm = pokemon.kind === 'form' || Number(pokemon.id) >= 10001;
   const loreStats =
     computePokemonStats(pokemon, { isShiny: Boolean(previewShiny && isOwned) }) || pokemon.stats;
   const learnset = (learnsets || {})[pokemon.id] || (learnsets || {})[String(pokemon.id)] || null;
-  const isNormalOwned = isOwned && cardType === 'normal';
-  const unlockedCount = isNormalOwned && learnset ? unlockedMoveCount(starLevel) : (learnset?.length ?? pokemon.moves?.length ?? 4);
+  const unlockedCount = isOwned && learnset ? unlockedMoveCount(starLevel) : (learnset?.length ?? pokemon.moves?.length ?? 4);
   const displayMoves = learnset || pokemon.moves || [];
   const displayName = isOwned ? formatTitle(pokemon.name) : 'Unknown Pokemon';
   const isShinyActive = Boolean(previewShiny && isOwned);
@@ -76,11 +67,6 @@ export default function PokemonDetailModal({
                 #{String(pokemon.dexNo || pokemon.id).padStart(4, '0')}
                 {isForm && pokemon.label && <span className="form-badge-mark"> + {pokemon.label}</span>}
               </span>
-              {cardType !== 'normal' && (
-                <span className="detail-card-type" style={{ color: chip.color, background: chip.bg }}>
-                  {chip.label}
-                </span>
-              )}
             </div>
             <h2 className="modal-title" id="pokemon-detail-title">{displayName}</h2>
             <div className="detail-type-row">
@@ -99,7 +85,7 @@ export default function PokemonDetailModal({
 
         <div className="modal-body detail-modal-body">
           <div className="modal-left detail-art-column">
-            <div className={`modal-image-card detail-image-card ${isOwned && cardType === 'normal' ? starTierClass(starLevel) : ''}`}>
+            <div className={`modal-image-card detail-image-card ${isOwned ? starTierClass(starLevel) : ''}`}>
               <PokemonImage
                 pokemon={pokemon}
                 isShiny={isShinyActive}
@@ -131,33 +117,21 @@ export default function PokemonDetailModal({
 
             <div className="modal-status-box detail-status-box">
               {isOwned ? (
-                cardType === 'power' ? (
-                  <>
-                    <div className="detail-special-label is-power">Power card</div>
-                    <small>Single copy collectible</small>
-                  </>
-                ) : cardType === 'ancient' ? (
-                  <>
-                    <div className="detail-special-label is-ancient">Ancient card</div>
-                    <small>Single copy collectible</small>
-                  </>
-                ) : (
-                  <>
-                    <StarMeter starLevel={entry.star_level} size="lg" />
-                    <div className="detail-ownership-copy">
-                      {entry.dupes_collected || 0} duplicate{entry.dupes_collected === 1 ? '' : 's'} collected
+                <>
+                  <StarMeter starLevel={entry.star_level} size="lg" />
+                  <div className="detail-ownership-copy">
+                    {entry.dupes_collected || 0} duplicate{entry.dupes_collected === 1 ? '' : 's'} collected
+                  </div>
+                  {!entry.is_shiny && starLevel >= SHINY_STAR_LEVEL && (
+                    <div className="detail-shiny-unlocked">Shiny unlocked</div>
+                  )}
+                  {isHallOfFamer && (
+                    <div className="detail-hall-of-fame">
+                      <AwardEmblemIcon size={16} design="crown" color="#fbbf24" isUnlocked />
+                      Hall of Fame inductee
                     </div>
-                    {!entry.is_shiny && starLevel >= SHINY_STAR_LEVEL && (
-                      <div className="detail-shiny-unlocked">Shiny unlocked</div>
-                    )}
-                    {isHallOfFamer && (
-                      <div className="detail-hall-of-fame">
-                        <AwardEmblemIcon size={16} design="crown" color="#fbbf24" isUnlocked />
-                        Hall of Fame inductee
-                      </div>
-                    )}
-                  </>
-                )
+                  )}
+                </>
               ) : (
                 <div className="detail-unowned">
                   Not in your collection yet. Win battles or clear arcade runs to unlock it.
@@ -202,7 +176,7 @@ export default function PokemonDetailModal({
                 <div>
                   <span className="ui-field-label">Battle moveset</span>
                   <h3 id="detail-moves-title">
-                    {isNormalOwned && learnset ? `${unlockedCount} of ${learnset.length} unlocked` : 'Available moves'}
+                    {isOwned && learnset ? `${unlockedCount} of ${learnset.length} unlocked` : 'Available moves'}
                   </h3>
                 </div>
               </div>

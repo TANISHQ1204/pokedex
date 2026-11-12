@@ -52,7 +52,6 @@ export async function awardArcadeRunCards({ userId, cardCount = 1 } = {}) {
     void recordCardPull({
       userId,
       pokemonId: card.id,
-      cardType: 'normal',
       starLevel: entry.star_level || 1,
       isShiny: Boolean(entry.is_shiny),
       wasNew: Boolean(reward.isNew),
