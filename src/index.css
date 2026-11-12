@@ -6233,31 +6233,6 @@ body {
   font-weight: 800;
 }
 
-.arcade-sync-note {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem 0.9rem;
-  width: min(100%, 34rem);
-  margin-top: 1rem;
-  padding: 0.7rem 0.9rem;
-  border: 1px solid rgba(250, 204, 21, 0.28);
-  border-radius: var(--ui-radius-sm);
-  color: #fde68a;
-  background: rgba(113, 63, 18, 0.18);
-  font-size: 0.72rem;
-}
-
-.arcade-sync-note .home-text-link {
-  font-size: 0.72rem;
-}
-
-.arcade-sync-note .home-text-link:disabled {
-  opacity: 0.6;
-  cursor: wait;
-}
-
 .arcade-claim-error {
   width: min(100%, 34rem);
   margin-top: 1rem;

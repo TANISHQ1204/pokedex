@@ -39,9 +39,10 @@ function rollNormalCard(userCollection, list) {
   return eligible[Math.floor(Math.random() * eligible.length)];
 }
 
-export function rollArcadeCards(userCollection = [], customList = null, count = 1) {
+export function rollArcadeCards(userCollection = [], customList = null, count = 1, rng = Math.random) {
   const list = customList && Array.isArray(customList) && customList.length > 0 ? customList : defaultPokemonList;
   const safeCount = Math.max(1, Math.min(3, Math.floor(Number(count) || 1)));
+  const random = typeof rng === 'function' ? rng : Math.random;
   const normalRecords = userCollection.filter(
     (r) => r && !r.is_power_card && !r.isPowerCard && !r.is_ancient_card && !r.isAncientCard
   );
@@ -57,40 +58,36 @@ export function rollArcadeCards(userCollection = [], customList = null, count = 
 
   const picked = [];
   const pickedIds = new Set();
-  const draw = (pool) => {
+
+  // Lower-progress cards weigh more, so undiscovered and low-star cards appear
+  // more often without being forced. Maxed cards are filtered out before drawing.
+  const weightFor = (pokemon) => {
+    const star = ownedStars.get(Number(pokemon.id));
+    if (star == null) return MAX_STAR_LEVEL + 4;
+    return Math.max(1, MAX_STAR_LEVEL - star + 1);
+  };
+
+  const drawWeighted = (pool) => {
     const available = pool.filter((pokemon) => !pickedIds.has(Number(pokemon.id)));
     while (picked.length < safeCount && available.length > 0) {
-      const index = Math.floor(Math.random() * available.length);
+      const totalWeight = available.reduce((sum, pokemon) => sum + weightFor(pokemon), 0);
+      let roll = random() * totalWeight;
+      let index = available.length - 1;
+      for (let i = 0; i < available.length; i += 1) {
+        roll -= weightFor(available[i]);
+        if (roll < 0) {
+          index = i;
+          break;
+        }
+      }
       const [pokemon] = available.splice(index, 1);
       picked.push(pokemon);
       pickedIds.add(Number(pokemon.id));
     }
   };
 
-  // 3-card arcade rewards always include one lowest-tier card: an undiscovered
-  // card when any remain, otherwise a non-maxed card at the lowest owned star
-  // level. Skipped entirely when no card can still gain progress.
-  if (safeCount === 3) {
-    const undiscovered = list.filter((pokemon) => !ownedStars.has(Number(pokemon.id)));
-    let pool = undiscovered;
-    if (pool.length === 0) {
-      const eligible = list.filter((pokemon) => !maxedIds.has(Number(pokemon.id)));
-      let lowestStar = MAX_STAR_LEVEL;
-      for (const pokemon of eligible) {
-        const star = ownedStars.get(Number(pokemon.id)) ?? 1;
-        if (star < lowestStar) lowestStar = star;
-      }
-      pool = eligible.filter((pokemon) => (ownedStars.get(Number(pokemon.id)) ?? 1) === lowestStar);
-    }
-    if (pool.length > 0) {
-      const pokemon = pool[Math.floor(Math.random() * pool.length)];
-      picked.push(pokemon);
-      pickedIds.add(Number(pokemon.id));
-    }
-  }
-
-  draw(list.filter((pokemon) => !maxedIds.has(Number(pokemon.id))));
-  if (picked.length < safeCount) draw(list);
+  drawWeighted(list.filter((pokemon) => !maxedIds.has(Number(pokemon.id))));
+  if (picked.length < safeCount) drawWeighted(list);
   return picked;
 }
 

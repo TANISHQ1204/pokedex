@@ -25,11 +25,8 @@ import Stats from './pages/Stats';
 
 import MatchInviteBanner from './components/MatchInviteBanner';
 import usePointerGlow from './hooks/usePointerGlow';
-import useArcadeRewardSync from './hooks/useArcadeRewardSync';
 
 function AppLayout({ children }) {
-  useArcadeRewardSync();
-
   return (
     <>
       <a href="#main-content" className="skip-link">Skip to main content</a>

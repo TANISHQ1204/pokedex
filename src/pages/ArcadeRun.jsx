@@ -2,10 +2,6 @@
 import { Link, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { awardArcadeRunCards } from '../store/arcadeRewards';
-import {
-  flushArcadeRewards,
-  getPendingArcadeRewardCount,
-} from '../store/arcadeRewardQueue';
 import { loadArcadeProgress, recordArcadeRun } from '../store/arcadeProgress';
 import { getArcadeGame, getDailyArcadeGame } from '../game/arcadeGames';
 import { ArcadeGameIcon, CardsIcon, GamepadIcon, SwordsIcon } from '../components/icons/GameIcons';
@@ -44,44 +40,12 @@ export default function ArcadeRun() {
   const [claimed, setClaimed] = useState(false);
   const [claiming, setClaiming] = useState(false);
   const [claimError, setClaimError] = useState('');
-  const [pendingSync, setPendingSync] = useState(
-    () => getPendingArcadeRewardCount(user?.id) > 0
-  );
-  const [pendingCount, setPendingCount] = useState(() => getPendingArcadeRewardCount(user?.id));
-  const [syncing, setSyncing] = useState(false);
   const [newBest, setNewBest] = useState(false);
   const [progress, setProgress] = useState(() => loadArcadeProgress(user?.id));
 
   useEffect(() => {
-    const pending = getPendingArcadeRewardCount(user?.id);
     setProgress(loadArcadeProgress(user?.id));
-    setPendingCount(pending);
-    setPendingSync(pending > 0);
   }, [user?.id]);
-
-  const syncPendingRewards = useCallback(async () => {
-    if (!user?.id) {
-      setPendingCount(0);
-      return 0;
-    }
-
-    setSyncing(true);
-    try {
-      const remaining = await flushArcadeRewards(user.id);
-      setPendingCount(remaining);
-      if (remaining === 0) setPendingSync(false);
-      return remaining;
-    } finally {
-      setSyncing(false);
-    }
-  }, [user?.id]);
-
-  useEffect(() => {
-    syncPendingRewards();
-    const handleOnline = () => syncPendingRewards();
-    window.addEventListener('online', handleOnline);
-    return () => window.removeEventListener('online', handleOnline);
-  }, [syncPendingRewards]);
 
   const isDaily = Boolean(game && dailyGame.id === game.id);
   const bestScore = game ? progress.games?.[game.id]?.bestScore || 0 : 0;
@@ -127,13 +91,10 @@ export default function ArcadeRun() {
         userId: user?.id,
         cardCount: result.rewardCards,
       });
-      setDrops(awarded.drops);
-      setPendingSync(Boolean(awarded.pendingSync));
-      setPendingCount(getPendingArcadeRewardCount(user?.id));
-      if (!awarded.pendingSync) void syncPendingRewards();
+      setDrops(awarded);
     } catch (error) {
       console.error('Error claiming arcade rewards:', error);
-      setClaimError('Rewards could not be opened. Please try again.');
+      setClaimError('Rewards could not be saved. Check your connection and try again.');
     } finally {
       setClaiming(false);
     }
@@ -295,8 +256,7 @@ export default function ArcadeRun() {
               )}
               {claimed && (
                 <span className="arcade-claimed">
-                  <CardsIcon size={20} />
-                  {pendingSync ? 'Rewards saved on this device' : 'Rewards added to your collection'}
+                  <CardsIcon size={20} /> Rewards added to your collection
                 </span>
               )}
               <button type="button" className="home-cta secondary" onClick={startRun}>
@@ -306,24 +266,6 @@ export default function ArcadeRun() {
                 Back to arcade <span aria-hidden="true">â†’</span>
               </Link>
             </div>
-
-            {pendingSync && (
-              <div className="arcade-sync-note" role="status">
-                <span>
-                  Rewards are saved on this device and will sync automatically when you reconnect.
-                </span>
-                {pendingCount > 0 && (
-                  <button
-                    type="button"
-                    className="home-text-link"
-                    onClick={syncPendingRewards}
-                    disabled={syncing}
-                  >
-                    {syncing ? 'Syncing...' : `Retry sync (${pendingCount})`}
-                  </button>
-                )}
-              </div>
-            )}
 
             {claimError && <div className="arcade-claim-error" role="alert">{claimError}</div>}
           </div>

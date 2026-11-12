@@ -4,13 +4,6 @@ import { rollArcadeCards } from '../game/drops.js';
 import { fullPokemonList } from '../utils/pokemonCatalog.js';
 import { awardCard, getUserCollection } from './collection.js';
 import { recordCardPull } from './stats.js';
-import {
-  applyAwardToRows,
-  readCollectionCache,
-  upsertRowsEntry,
-  writeCollectionCache,
-} from './collectionCache.js';
-import { queueArcadeAward } from './arcadeRewardQueue.js';
 
 function learnsetFor(pokemonId) {
   return learnsets?.[String(pokemonId)] || learnsets?.[pokemonId] || [];
@@ -44,64 +37,27 @@ function buildDrop(card, reward, entry) {
 
 export async function awardArcadeRunCards({ userId, cardCount = 1 } = {}) {
   const safeCount = Math.max(1, Math.min(3, Math.floor(Number(cardCount) || 1)));
-  let online = typeof navigator === 'undefined' || navigator.onLine !== false;
-  let collection = [];
-
-  if (userId) {
-    if (online) {
-      try {
-        collection = await getUserCollection(userId, { allowCache: true });
-      } catch (error) {
-        console.error('Could not load collection for arcade rewards:', error);
-        collection = readCollectionCache(userId) || [];
-        online = false;
-      }
-    } else {
-      collection = readCollectionCache(userId) || [];
-    }
-  }
-
+  const collection = userId ? await getUserCollection(userId) : [];
   const pokemon = rollArcadeCards(collection, fullPokemonList, safeCount);
 
-  if (!userId) return { drops: pokemon.map(previewDrop), pendingSync: false };
+  if (!userId) return pokemon.map(previewDrop);
 
   const drops = [];
-  let workingCollection = collection;
-  let pendingSync = false;
 
   for (const card of pokemon) {
-    if (online) {
-      try {
-        const reward = await awardCard(userId, card.id);
-        const entry = reward.entry || { star_level: 1, dupes_collected: 0, is_shiny: false };
-        drops.push(buildDrop(card, reward, entry));
+    const reward = await awardCard(userId, card.id);
+    const entry = reward.entry || { star_level: 1, dupes_collected: 0, is_shiny: false };
+    drops.push(buildDrop(card, reward, entry));
 
-        workingCollection = upsertRowsEntry(workingCollection, entry);
-        writeCollectionCache(userId, workingCollection);
-
-        void recordCardPull({
-          userId,
-          pokemonId: card.id,
-          cardType: 'normal',
-          starLevel: entry.star_level || 1,
-          isShiny: Boolean(entry.is_shiny),
-          wasNew: Boolean(reward.isNew),
-        });
-        continue;
-      } catch (error) {
-        console.error('Arcade reward could not be saved online; saving locally:', error);
-        online = false;
-        pendingSync = true;
-      }
-    }
-
-    const local = applyAwardToRows(workingCollection, card.id);
-    workingCollection = local.rows;
-    writeCollectionCache(userId, workingCollection);
-    queueArcadeAward(userId, local.target);
-    pendingSync = true;
-    drops.push(buildDrop(card, local.drop, local.drop.entry));
+    void recordCardPull({
+      userId,
+      pokemonId: card.id,
+      cardType: 'normal',
+      starLevel: entry.star_level || 1,
+      isShiny: Boolean(entry.is_shiny),
+      wasNew: Boolean(reward.isNew),
+    });
   }
 
-  return { drops, pendingSync };
+  return drops;
 }
