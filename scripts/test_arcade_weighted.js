@@ -70,13 +70,20 @@ for (let i = 0; i < 5000; i++) {
   const [card] = rollArcadeCards(tierCollection, tierList, 1, tierRng);
   tierCounts[Number(card.id)] += 1;
 }
+const lowShare = tierCounts[1] / 5000;
+const midShare = tierCounts[2] / 5000;
+const highShare = tierCounts[3] / 5000;
 assert(
-  tierCounts[1] > tierCounts[2] && tierCounts[2] > tierCounts[3],
-  'Lower-star cards are pulled more often than higher-star cards'
+  lowShare > 0.47 && lowShare < 0.53,
+  'The lowest tier receives about half of all pulls'
 );
 assert(
-  tierCounts[1] > tierCounts[3] * 3,
-  'The lowest tier is significantly more likely than a near-maxed card'
+  Math.abs(midShare - highShare) < 0.03,
+  'The remaining tiers share their probability equally'
+);
+assert(
+  lowShare > midShare && lowShare > highShare,
+  'The lowest tier outweighs every higher tier'
 );
 
 const newList = [
@@ -94,9 +101,20 @@ for (let i = 0; i < 5000; i++) {
   const [card] = rollArcadeCards(newCollection, newList, 1, newRng);
   newCounts[Number(card.id)] += 1;
 }
+const newShare = newCounts[1] / 5000;
+const oneStarShare = newCounts[2] / 5000;
+const nineteenStarShare = newCounts[3] / 5000;
 assert(
-  newCounts[1] > newCounts[2] && newCounts[2] > newCounts[3],
-  'Undiscovered cards outweigh owned low-star and high-star cards'
+  newShare > 0.47 && newShare < 0.53,
+  'The undiscovered tier receives about half of all pulls'
+);
+assert(
+  Math.abs(oneStarShare - nineteenStarShare) < 0.03,
+  'Owned tiers share the remaining probability equally'
+);
+assert(
+  newShare > oneStarShare && newShare > nineteenStarShare,
+  'The undiscovered tier outweighs every owned tier'
 );
 
 const partial = new Map();

@@ -59,17 +59,37 @@ export function rollArcadeCards(userCollection = [], customList = null, count = 
   const picked = [];
   const pickedIds = new Set();
 
-  // Lower-progress cards weigh more, so undiscovered and low-star cards appear
-  // more often without being forced. Maxed cards are filtered out before drawing.
-  const weightFor = (pokemon) => {
+  const tierOf = (pokemon) => {
     const star = ownedStars.get(Number(pokemon.id));
-    if (star == null) return MAX_STAR_LEVEL + 4;
-    return Math.max(1, MAX_STAR_LEVEL - star + 1);
+    return star == null ? 0 : star;
   };
 
+  // The current lowest tier gets half of every pick. The remaining tiers split
+  // the other half equally. Maxed cards are filtered out before drawing.
   const drawWeighted = (pool) => {
     const available = pool.filter((pokemon) => !pickedIds.has(Number(pokemon.id)));
     while (picked.length < safeCount && available.length > 0) {
+      const tierCounts = new Map();
+      for (const pokemon of available) {
+        const tier = tierOf(pokemon);
+        tierCounts.set(tier, (tierCounts.get(tier) || 0) + 1);
+      }
+
+      const tiers = [...tierCounts.keys()].sort((a, b) => a - b);
+      const tierMass = new Map();
+      if (tiers.length === 1) {
+        tierMass.set(tiers[0], 1);
+      } else {
+        tierMass.set(tiers[0], 0.5);
+        const higherTierMass = 0.5 / (tiers.length - 1);
+        for (let i = 1; i < tiers.length; i += 1) tierMass.set(tiers[i], higherTierMass);
+      }
+
+      const weightFor = (pokemon) => {
+        const tier = tierOf(pokemon);
+        return tierMass.get(tier) / tierCounts.get(tier);
+      };
+
       const totalWeight = available.reduce((sum, pokemon) => sum + weightFor(pokemon), 0);
       let roll = random() * totalWeight;
       let index = available.length - 1;
